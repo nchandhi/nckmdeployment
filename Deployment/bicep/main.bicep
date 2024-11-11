@@ -22,7 +22,7 @@ var baseUrl = 'https://raw.githubusercontent.com/nchandhi/nckmdeployment/main/'
 
 
 module azureFunctions 'deploy_azure_function_script_new.bicep' = {
-  name : 'deploy_azure_function_script'
+  name : 'deploy_azure_function_script_new'
   params:{
     solutionName: solutionPrefix
     solutionLocation: solutionLocation

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "3224945391675855018"
+      "templateHash": "14891451223057319604"
     }
   },
   "parameters": {
@@ -61,7 +61,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "75410827106003442"
+              "templateHash": "1856510077044106553"
             }
           },
           "parameters": {
@@ -84,7 +84,8 @@
           "variables": {
             "registryName": "kmpubliccr",
             "functionAppName": "[format('{0}-charts-fn', parameters('solutionName'))]",
-            "imageName": "charts-function:latest"
+            "imageName": "charts-function:latest",
+            "rgname": "rg-km-official"
           },
           "resources": [
             {
@@ -106,7 +107,7 @@
               "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', 'function-app-plan')]",
                 "siteConfig": {
-                  "linuxFxVersion": "[format('DOCKER|{0}/{1}', reference(resourceId('Microsoft.ContainerRegistry/registries', variables('registryName')), '2023-01-01-preview').loginServer, variables('imageName'))]",
+                  "linuxFxVersion": "[format('DOCKER|{0}/{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('rgname')), 'Microsoft.ContainerRegistry/registries', variables('registryName')), '2023-01-01-preview').loginServer, variables('imageName'))]",
                   "appSettings": [
                     {
                       "name": "WEBSITES_PORT",
@@ -114,7 +115,7 @@
                     },
                     {
                       "name": "DOCKER_REGISTRY_SERVER_URL",
-                      "value": "[format('https://{0}', reference(resourceId('Microsoft.ContainerRegistry/registries', variables('registryName')), '2023-01-01-preview').loginServer)]"
+                      "value": "[format('https://{0}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('rgname')), 'Microsoft.ContainerRegistry/registries', variables('registryName')), '2023-01-01-preview').loginServer)]"
                     }
                   ]
                 }

@@ -25,9 +25,11 @@ param baseUrl string
 var registryName = 'kmpubliccr'
 var functionAppName = '${ solutionName }-charts-fn'
 var imageName = 'charts-function:latest'
+var rgname = 'rg-km-official'
 
 resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: registryName
+  scope: resourceGroup(rgname)
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
