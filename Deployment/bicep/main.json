@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.28.1.47646",
+      "templateHash": "3224945391675855018"
+    }
+  },
+  "parameters": {
+    "solutionPrefix": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 6,
+      "metadata": {
+        "description": "Prefix Name"
+      }
+    },
+    "cosmosLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "CosmosDB Location"
+      }
+    }
+  },
+  "variables": {
+    "resourceGroupLocation": "[resourceGroup().location]",
+    "resourceGroupName": "[resourceGroup().name]",
+    "solutionLocation": "[variables('resourceGroupLocation')]",
+    "baseUrl": "https://raw.githubusercontent.com/nchandhi/nckmdeployment/main/"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "deploy_azure_function_script",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "solutionName": {
+            "value": "[parameters('solutionPrefix')]"
+          },
+          "solutionLocation": {
+            "value": "[variables('solutionLocation')]"
+          },
+          "resourceGroupName": {
+            "value": "[variables('resourceGroupName')]"
+          },
+          "baseUrl": {
+            "value": "[variables('baseUrl')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "75410827106003442"
+            }
+          },
+          "parameters": {
+            "solutionName": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the location for resources."
+              }
+            },
+            "solutionLocation": {
+              "type": "string"
+            },
+            "resourceGroupName": {
+              "type": "string"
+            },
+            "baseUrl": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "registryName": "kmpubliccr",
+            "functionAppName": "[format('{0}-charts-fn', parameters('solutionName'))]",
+            "imageName": "charts-function:latest"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2022-03-01",
+              "name": "function-app-plan",
+              "location": "[parameters('solutionLocation')]",
+              "sku": {
+                "name": "Y1",
+                "tier": "Dynamic"
+              }
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2022-03-01",
+              "name": "[variables('functionAppName')]",
+              "location": "[parameters('solutionLocation')]",
+              "kind": "functionapp",
+              "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', 'function-app-plan')]",
+                "siteConfig": {
+                  "linuxFxVersion": "[format('DOCKER|{0}/{1}', reference(resourceId('Microsoft.ContainerRegistry/registries', variables('registryName')), '2023-01-01-preview').loginServer, variables('imageName'))]",
+                  "appSettings": [
+                    {
+                      "name": "WEBSITES_PORT",
+                      "value": "80"
+                    },
+                    {
+                      "name": "DOCKER_REGISTRY_SERVER_URL",
+                      "value": "[format('https://{0}', reference(resourceId('Microsoft.ContainerRegistry/registries', variables('registryName')), '2023-01-01-preview').loginServer)]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', 'function-app-plan')]"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
