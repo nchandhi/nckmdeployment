@@ -34,6 +34,8 @@ az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount"
 
 echo "Script Started"
 
+sed -i "s/<STORAGE_ACCOUNT_URL_TO_BE_REPLACED>/${storageAccount}/g" "ragtest/settings.yaml"
+
 # pip install graphrag==0.3.6
 
 # python -m graphrag.index --root /mnt/azscripts/azscriptinput/ragtest
