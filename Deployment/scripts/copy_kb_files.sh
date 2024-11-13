@@ -15,13 +15,13 @@ extractedFolder2="transcriptstxtdata"
 zipUrl2=${baseUrl}"Deployment/data/transcriptstxtdata.zip"
 
 zipFileName3="ragtest.zip"
-extractedFolder2="ragtest"
-zipUrl2=${baseUrl}"Deployment/data/ragtest.zip"
+extractedFolder3="ragtest"
+zipUrl3=${baseUrl}"Deployment/data/ragtest.zip"
 
 # Download the zip file
 curl --output "$zipFileName1" "$zipUrl1"
 curl --output "$zipFileName2" "$zipUrl2"
-curl --output "$zipFileName2" "$zipUrl3"
+curl --output "$zipFileName3" "$zipUrl3"
 
 # Extract the zip file
 unzip /mnt/azscripts/azscriptinput/"$zipFileName1" -d /mnt/azscripts/azscriptinput/"$extractedFolder1"
