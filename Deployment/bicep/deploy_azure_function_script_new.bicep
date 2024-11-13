@@ -1,55 +1,59 @@
-param functionAppName string = 'ncfunctionapp2'
-param location string = resourceGroup().location
-param storageAccountName string = 'ncfunctionapp2adls'
-param containerImageName string = 'ncfunctionappimage:v1.0.0'
-param registryUrl string = 'https://kmpubliccr.azurecr.io'
+@description('Specifies the location for resources.')
+param solutionName string 
+param solutionLocation string
+param resourceGroupName string
+param baseUrl string
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: storageAccountName
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
+
+var registryName = 'kmpubliccr'
+var functionAppName = '${solutionName}-charts-fn'
+var imageName = 'charts-function:latest'
+var rgname = 'rg-km-official'
+
+resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
+  name: registryName
+  scope: resourceGroup(rgname)
 }
 
-resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
+  name: 'myAppServicePlan'
+  location: solutionLocation
+  sku: {
+    name: 'Y1'
+    tier: 'Dynamic'
+  }
+  properties: {
+    reserved: true  // Linux function app, so reserved should be true
+  }
+}
+
+resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   name: functionAppName
-  location: location
+  location: solutionLocation
   kind: 'functionapp,linux'
   properties: {
+    serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'PYTHON|3.9'
-      alwaysOn: false
+      appSettings: [
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'python'
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
+        }
+        {
+          name: 'WEBSITES_PORT'
+          value: '80'
+        }
+        { name: 'DOCKER_CUSTOM_IMAGE_NAME', value: 'kmpubliccr.azurecr.io/charts-function:latest' }
+      ]
     }
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'myAppServicePlan') // Replace 'myAppServicePlan' with your App Service Plan name
-    storageAccount: {
-      name: storageAccount.name
-      type: 'AzureFiles'
-      accountKey: storageAccount.listKeys().keys[0].value
-    }
-  }
-  identity: {
-    type: 'SystemAssigned'
   }
 }
-
-resource appSettings 'Microsoft.Web/sites/config@2022-09-01' = {
-  name: 'appsettings'
-  parent: functionApp
-  properties: {
-    'DOCKER_REGISTRY_SERVER_URL': registryUrl
-    'DOCKER_REGISTRY_SERVER_USERNAME': '' // Leave empty for public registries
-    'DOCKER_REGISTRY_SERVER_PASSWORD': '' // Leave empty for public registries
-    'WEBSITES_ENABLE_APP_SERVICE_STORAGE': 'false'
-    'FUNCTIONS_WORKER_RUNTIME': 'python'
-  }
-}
-
-resource container 'Microsoft.Web/sites/containers@2022-09-01' = {
-  name: 'default'
-  parent: functionApp
-  properties: {
-    image: '${registryUrl}/${containerImageName}'
-  }
-}
+ 
