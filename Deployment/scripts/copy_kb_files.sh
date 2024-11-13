@@ -15,12 +15,14 @@ extractedFolder1="transcriptsdata"
 zipUrl1=${baseUrl}"Deployment/data/transcriptsdata.zip"
 
 zipFileName2="transcriptstxtdata.zip"
-extractedFolder2="transcriptstxtdata"
+extractedFolder2="input"
 zipUrl2=${baseUrl}"Deployment/data/transcriptstxtdata.zip"
 
 zipFileName3="ragtest.zip"
 extractedFolder3="ragtest"
 zipUrl3=${baseUrl}"Deployment/data/ragtest.zip"
+
+graphragfileSystem="graphrag"
 
 # Download the zip file
 curl --output "$zipFileName1" "$zipUrl1"
@@ -40,8 +42,8 @@ sed -i "s/<AI_SEARCH_ENDPOINT_TO_BE_REPLACED>/${storazureSearchServiceEndpointag
 sed -i "s/<AI_SEARCH_KEY_TO_BE_REPLACED>/${azureSearchAdminKey}/g" "/mnt/azscripts/azscriptinput/ragtest/settings.yaml"
 
 az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder1" --account-key "$accountKey" --recursive
-az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
-az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder3" --account-key "$accountKey" --recursive
+az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
+az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder3" --account-key "$accountKey" --recursive
 
 # pip install graphrag==0.3.6
 

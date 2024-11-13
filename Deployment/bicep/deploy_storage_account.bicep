@@ -65,9 +65,22 @@ resource storageAccounts_default 'Microsoft.Storage/storageAccounts/blobServices
 }
 
 
-resource storageAccounts_default_power_platform_dataflows 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource storageAccounts_default_data 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   parent: storageAccounts_default
   name: 'data'
+  properties: {
+    defaultEncryptionScope: '$account-encryption-key'
+    denyEncryptionScopeOverride: false
+    publicAccess: 'None'
+  }
+  dependsOn: [
+    storageAccounts_resource
+  ]
+}
+
+resource storageAccounts_default_input 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  parent: storageAccounts_default
+  name: 'graphrag'
   properties: {
     defaultEncryptionScope: '$account-encryption-key'
     denyEncryptionScopeOverride: false
@@ -105,6 +118,6 @@ output storageAccountOutput object = {
   storageAccountName:saName
   key:storageAccountKeys.keys[0].value
   connectionString:storageAccountString
-  dataContainer:storageAccounts_default_power_platform_dataflows.name
+  dataContainer:storageAccounts_default_data.name
 }
 
