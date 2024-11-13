@@ -6,13 +6,13 @@ fileSystem="$2"
 accountKey="$3"
 baseUrl="$4"
 
-zipFileName1="clientdata.zip"
-extractedFolder1="clientdata"
-zipUrl1=${baseUrl}"Deployment/data/clientdata.zip"
+zipFileName1="transcriptsdata.zip"
+extractedFolder1="transcriptsdata"
+zipUrl1=${baseUrl}"Deployment/data/transcriptsdata.zip"
 
-zipFileName2="clienttranscripts.zip"
-extractedFolder2="clienttranscripts"
-zipUrl2=${baseUrl}"Deployment/data/clienttranscripts.zip"
+zipFileName2="transcriptstxtdata.zip"
+extractedFolder2="transcriptstxtdata"
+zipUrl2=${baseUrl}"Deployment/data/transcriptstxtdata.zip"
 
 # Download the zip file
 curl --output "$zipFileName1" "$zipUrl1"

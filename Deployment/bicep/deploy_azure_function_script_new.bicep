@@ -1,86 +1,55 @@
-@description('Specifies the location for resources.')
-param solutionName string 
-param solutionLocation string
-param resourceGroupName string
-param baseUrl string
-// @secure()
-// param azureOpenAIApiKey string
-// param azureOpenAIApiVersion string
-// param azureOpenAIEndpoint string
-// @secure()
-// param azureSearchAdminKey string
-// param azureSearchServiceEndpoint string
-// param azureSearchIndex string
-// param sqlServerName string
-// param sqlDbName string
-// param sqlDbUser string
-// @secure()
-// param sqlDbPwd string
+param functionAppName string = 'ncfunctionapp2'
+param location string = resourceGroup().location
+param storageAccountName string = 'ncfunctionapp2adls'
+param containerImageName string = 'ncfunctionappimage:v1.0.0'
+param registryUrl string = 'https://kmpubliccr.azurecr.io'
 
-// param location string = 'EastUS'
-// param functionAppName string = 'my-function-app'
-// param registryName string = '<your-acr-name>'
-// param imageName string = 'my-function-app:latest'
-
-var registryName = 'kmpubliccr'
-var functionAppName = '${ solutionName }-charts-fn'
-var imageName = 'charts-function:latest'
-var rgname = 'rg-km-official'
-
-resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
-  name: registryName
-  scope: resourceGroup(rgname)
-}
-
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: 'function-app-plan'
-  location: solutionLocation
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: location
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'Standard_LRS'
   }
+  kind: 'StorageV2'
 }
 
-resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   name: functionAppName
-  location: solutionLocation
-  kind: 'functionapp'
+  location: location
+  kind: 'functionapp,linux'
   properties: {
-    serverFarmId: appServicePlan.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|${acr.properties.loginServer}/${imageName}'
-      appSettings: [
-        {
-          name: 'WEBSITES_PORT'
-          value: '80'
-        }
-        {
-          name: 'DOCKER_REGISTRY_SERVER_URL'
-          value: 'https://${acr.properties.loginServer}'
-        }
-      ]
+      linuxFxVersion: 'PYTHON|3.9'
+      alwaysOn: false
+    }
+    serverFarmId: resourceId('Microsoft.Web/serverfarms', 'myAppServicePlan') // Replace 'myAppServicePlan' with your App Service Plan name
+    storageAccount: {
+      name: storageAccount.name
+      type: 'AzureFiles'
+      accountKey: storageAccount.listKeys().keys[0].value
     }
   }
+  identity: {
+    type: 'SystemAssigned'
+  }
 }
 
-// resource deploy_azure_function 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//   kind:'AzureCLI'
-//   name: 'deploy_azure_function'
-//   location: solutionLocation // Replace with your desired location
-//   identity:{
-//     type:'UserAssigned'
-//     userAssignedIdentities: {
-//       '${identity}' : {}
-//     }
-//   }
-//   properties: {
-//     azCliVersion: '2.50.0'
-//     primaryScriptUri: '${baseUrl}Deployment/scripts/create_azure_functions.sh' // deploy-azure-synapse-pipelines.sh
-//     arguments: '${solutionName} ${solutionLocation} ${resourceGroupName} ${baseUrl} ${azureOpenAIApiKey} ${azureOpenAIApiVersion} ${azureOpenAIEndpoint} ${azureSearchAdminKey} ${azureSearchServiceEndpoint} ${azureSearchIndex} ${sqlServerName} ${sqlDbName} ${sqlDbUser} ${sqlDbPwd}' // Specify any arguments for the script
-//     timeout: 'PT1H' // Specify the desired timeout duration
-//     retentionInterval: 'PT1H' // Specify the desired retention interval
-//     cleanupPreference:'OnSuccess'
-//   }
-// }
+resource appSettings 'Microsoft.Web/sites/config@2022-09-01' = {
+  name: 'appsettings'
+  parent: functionApp
+  properties: {
+    'DOCKER_REGISTRY_SERVER_URL': registryUrl
+    'DOCKER_REGISTRY_SERVER_USERNAME': '' // Leave empty for public registries
+    'DOCKER_REGISTRY_SERVER_PASSWORD': '' // Leave empty for public registries
+    'WEBSITES_ENABLE_APP_SERVICE_STORAGE': 'false'
+    'FUNCTIONS_WORKER_RUNTIME': 'python'
+  }
+}
 
-
+resource container 'Microsoft.Web/sites/containers@2022-09-01' = {
+  name: 'default'
+  parent: functionApp
+  properties: {
+    image: '${registryUrl}/${containerImageName}'
+  }
+}

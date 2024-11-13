@@ -1,5 +1,13 @@
+# Use the official Azure Functions runtime image for Python
 FROM mcr.microsoft.com/azure-functions/python:4-python3.9
 
+# Set working directory and copy function app code
+WORKDIR /home/site/wwwroot
 COPY . /home/site/wwwroot
 
-RUN pip install -r /home/site/wwwroot/requirements.txt
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Set runtime environment variables
+ENV FUNCTIONS_EXTENSION_VERSION=~4
+ENV FUNCTIONS_WORKER_RUNTIME=python

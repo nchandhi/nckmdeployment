@@ -6,8 +6,8 @@ targetScope = 'resourceGroup'
 @description('Prefix Name')
 param solutionPrefix string
 
-@description('CosmosDB Location')
-param cosmosLocation string
+@description('other Location')
+param otherLocation string
 
 // @description('Fabric Workspace Id if you have one, else leave it empty. ')
 // param fabricWorkspaceId string
@@ -21,25 +21,25 @@ var solutionLocation = resourceGroupLocation
 var baseUrl = 'https://raw.githubusercontent.com/nchandhi/nckmdeployment/main/'
 
 
-module azureFunctions 'deploy_azure_function_script_new.bicep' = {
-  name : 'deploy_azure_function_script_new'
-  params:{
-    solutionName: solutionPrefix
-    solutionLocation: solutionLocation
-    resourceGroupName:resourceGroupName
-    baseUrl:baseUrl
-  }
-}
-
-// // ========== Managed Identity ========== //
-// module managedIdentityModule 'deploy_managed_identity.bicep' = {
-//   name: 'deploy_managed_identity'
-//   params: {
+// module azureFunctions 'deploy_azure_function_script_new.bicep' = {
+//   name : 'deploy_azure_function_script_new'
+//   params:{
 //     solutionName: solutionPrefix
 //     solutionLocation: solutionLocation
+//     resourceGroupName:resourceGroupName
+//     baseUrl:baseUrl
 //   }
-//   scope: resourceGroup(resourceGroup().name)
 // }
+
+// ========== Managed Identity ========== //
+module managedIdentityModule 'deploy_managed_identity.bicep' = {
+  name: 'deploy_managed_identity'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+  }
+  scope: resourceGroup(resourceGroup().name)
+}
 
 // module cosmosDBModule 'deploy_cosmos_db.bicep' = {
 //   name: 'deploy_cosmos_db'
@@ -52,16 +52,16 @@ module azureFunctions 'deploy_azure_function_script_new.bicep' = {
 // }
 
 
-// // ========== Storage Account Module ========== //
-// module storageAccountModule 'deploy_storage_account.bicep' = {
-//   name: 'deploy_storage_account'
-//   params: {
-//     solutionName: solutionPrefix
-//     solutionLocation: solutionLocation
-//     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
-//   }
-//   scope: resourceGroup(resourceGroup().name)
-// }
+// ========== Storage Account Module ========== //
+module storageAccountModule 'deploy_storage_account.bicep' = {
+  name: 'deploy_storage_account'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
+  }
+  scope: resourceGroup(resourceGroup().name)
+}
 
 // //========== SQL DB Module ========== //
 // module sqlDBModule 'deploy_sql_db.bicep' = {
@@ -101,18 +101,18 @@ module azureFunctions 'deploy_azure_function_script_new.bicep' = {
 //   }
 // }
 
-// module uploadFiles 'deploy_upload_files_script.bicep' = {
-//   name : 'deploy_upload_files_script'
-//   params:{
-//     storageAccountName:storageAccountModule.outputs.storageAccountOutput.name
-//     solutionLocation: solutionLocation
-//     containerName:storageAccountModule.outputs.storageAccountOutput.dataContainer
-//     identity:managedIdentityModule.outputs.managedIdentityOutput.id
-//     storageAccountKey:storageAccountModule.outputs.storageAccountOutput.key
-//     baseUrl:baseUrl
-//   }
-//   dependsOn:[storageAccountModule]
-// }
+module uploadFiles 'deploy_upload_files_script.bicep' = {
+  name : 'deploy_upload_files_script'
+  params:{
+    storageAccountName:storageAccountModule.outputs.storageAccountOutput.name
+    solutionLocation: solutionLocation
+    containerName:storageAccountModule.outputs.storageAccountOutput.dataContainer
+    identity:managedIdentityModule.outputs.managedIdentityOutput.id
+    storageAccountKey:storageAccountModule.outputs.storageAccountOutput.key
+    baseUrl:baseUrl
+  }
+  dependsOn:[storageAccountModule]
+}
 
 // module azureFunctions 'deploy_azure_function_script.bicep' = {
 //   name : 'deploy_azure_function_script'
