@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "5402581080317956596"
+      "templateHash": "9965200624336959239"
     }
   },
   "parameters": {
@@ -280,6 +280,216 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
+      "name": "deploy_ai_search_service",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "solutionName": {
+            "value": "[parameters('solutionPrefix')]"
+          },
+          "solutionLocation": {
+            "value": "[variables('solutionLocation')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "1115057879253008311"
+            }
+          },
+          "parameters": {
+            "solutionName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 15,
+              "metadata": {
+                "description": "Solution Name"
+              }
+            },
+            "solutionLocation": {
+              "type": "string"
+            },
+            "searchServices_byc_cs_name": {
+              "type": "string",
+              "defaultValue": "[format('{0}-cs', parameters('solutionName'))]"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Search/searchServices",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('searchServices_byc_cs_name')]",
+              "location": "[parameters('solutionLocation')]",
+              "tags": {
+                "ProjectType": "aoai-your-data-service"
+              },
+              "sku": {
+                "name": "basic"
+              },
+              "properties": {
+                "replicaCount": 1,
+                "partitionCount": 1,
+                "hostingMode": "default",
+                "publicNetworkAccess": "enabled",
+                "networkRuleSet": {
+                  "ipRules": []
+                },
+                "encryptionWithCmk": {
+                  "enforcement": "Unspecified"
+                },
+                "disableLocalAuth": false,
+                "authOptions": {
+                  "apiKeyOnly": {}
+                },
+                "semanticSearch": "free"
+              }
+            }
+          ],
+          "outputs": {
+            "searchServiceOutput": {
+              "type": "object",
+              "value": {
+                "searchServiceName": "[parameters('searchServices_byc_cs_name')]",
+                "searchServiceAdminKey": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('searchServices_byc_cs_name')), '2023-11-01').primaryKey]",
+                "searchServiceEndpoint": "[format('https://{0}.search.windows.net', parameters('searchServices_byc_cs_name'))]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "deploy_azure_open_ai",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "solutionName": {
+            "value": "[parameters('solutionPrefix')]"
+          },
+          "solutionLocation": {
+            "value": "[variables('resourceGroupLocation')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "17437738871555025876"
+            }
+          },
+          "parameters": {
+            "solutionName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 15,
+              "metadata": {
+                "description": "Solution Name"
+              }
+            },
+            "solutionLocation": {
+              "type": "string"
+            },
+            "accounts_byc_openai_name": {
+              "type": "string",
+              "defaultValue": "[format('{0}-openai', parameters('solutionName'))]"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2023-05-01",
+              "name": "[parameters('accounts_byc_openai_name')]",
+              "location": "[parameters('solutionLocation')]",
+              "sku": {
+                "name": "S0"
+              },
+              "kind": "OpenAI",
+              "properties": {
+                "customSubDomainName": "[parameters('accounts_byc_openai_name')]",
+                "networkAcls": {
+                  "defaultAction": "Allow",
+                  "virtualNetworkRules": [],
+                  "ipRules": []
+                },
+                "publicNetworkAccess": "Enabled"
+              }
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', parameters('accounts_byc_openai_name'), 'gpt-4o-mini')]",
+              "sku": {
+                "name": "Standard",
+                "capacity": 80
+              },
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "gpt-4o-mini",
+                  "version": "2024-07-18"
+                },
+                "versionUpgradeOption": "OnceCurrentVersionExpired",
+                "raiPolicyName": "Microsoft.Default"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accounts_byc_openai_name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', parameters('accounts_byc_openai_name'), 'text-embedding-ada-002')]",
+              "sku": {
+                "name": "Standard",
+                "capacity": 45
+              },
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "text-embedding-ada-002",
+                  "version": "2"
+                },
+                "versionUpgradeOption": "OnceNewDefaultVersionAvailable",
+                "raiPolicyName": "Microsoft.Default"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('accounts_byc_openai_name'), 'gpt-4o-mini')]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accounts_byc_openai_name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "openAIOutput": {
+              "type": "object",
+              "value": {
+                "openAPIKey": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('accounts_byc_openai_name')), '2023-05-01').key1]",
+                "openAPIVersion": "2023-05-01",
+                "openAPIEndpoint": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('accounts_byc_openai_name')), '2023-05-01').endpoint]",
+                "openAIAccountName": "[parameters('accounts_byc_openai_name')]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
       "name": "deploy_upload_files_script",
       "properties": {
         "expressionEvaluationOptions": {
@@ -302,6 +512,18 @@
           "storageAccountKey": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_storage_account'), '2022-09-01').outputs.storageAccountOutput.value.key]"
           },
+          "azureOpenAIApiKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai'), '2022-09-01').outputs.openAIOutput.value.openAPIKey]"
+          },
+          "azureOpenAIEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai'), '2022-09-01').outputs.openAIOutput.value.openAPIEndpoint]"
+          },
+          "azureSearchAdminKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service'), '2022-09-01').outputs.searchServiceOutput.value.searchServiceAdminKey]"
+          },
+          "azureSearchServiceEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service'), '2022-09-01').outputs.searchServiceOutput.value.searchServiceEndpoint]"
+          },
           "baseUrl": {
             "value": "[variables('baseUrl')]"
           }
@@ -313,7 +535,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "11457072075934122081"
+              "templateHash": "4049204326565701464"
             }
           },
           "parameters": {
@@ -337,6 +559,18 @@
             },
             "baseUrl": {
               "type": "string"
+            },
+            "azureOpenAIApiKey": {
+              "type": "string"
+            },
+            "azureOpenAIEndpoint": {
+              "type": "string"
+            },
+            "azureSearchAdminKey": {
+              "type": "string"
+            },
+            "azureSearchServiceEndpoint": {
+              "type": "string"
             }
           },
           "resources": [
@@ -355,7 +589,7 @@
               "properties": {
                 "azCliVersion": "2.50.0",
                 "primaryScriptUri": "[format('{0}Deployment/scripts/copy_kb_files.sh', parameters('baseUrl'))]",
-                "arguments": "[format('{0} {1} {2} {3}', parameters('storageAccountName'), parameters('containerName'), parameters('storageAccountKey'), parameters('baseUrl'))]",
+                "arguments": "[format('{0} {1} {2} {3} {4} {5} {6} {7}', parameters('storageAccountName'), parameters('containerName'), parameters('storageAccountKey'), parameters('baseUrl'), parameters('azureOpenAIApiKey'), parameters('azureOpenAIEndpoint'), parameters('azureSearchAdminKey'), parameters('azureSearchServiceEndpoint'))]",
                 "timeout": "PT1H",
                 "retentionInterval": "PT1H",
                 "cleanupPreference": "OnSuccess"
@@ -365,6 +599,8 @@
         }
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_storage_account')]"
       ]

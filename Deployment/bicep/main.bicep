@@ -83,23 +83,23 @@ module storageAccountModule 'deploy_storage_account.bicep' = {
 //   }
 // } 
 
-// // ========== Search service ========== //
-// module azSearchService 'deploy_ai_search_service.bicep' = {
-//   name: 'deploy_ai_search_service'
-//   params: {
-//     solutionName: solutionPrefix
-//     solutionLocation: solutionLocation
-//   }
-// } 
+// ========== Search service ========== //
+module azSearchService 'deploy_ai_search_service.bicep' = {
+  name: 'deploy_ai_search_service'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+  }
+} 
 
-// // ========== Azure OpenAI ========== //
-// module azOpenAI 'deploy_azure_open_ai.bicep' = {
-//   name: 'deploy_azure_open_ai'
-//   params: {
-//     solutionName: solutionPrefix
-//     solutionLocation: resourceGroupLocation
-//   }
-// }
+// ========== Azure OpenAI ========== //
+module azOpenAI 'deploy_azure_open_ai.bicep' = {
+  name: 'deploy_azure_open_ai'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: resourceGroupLocation
+  }
+}
 
 module uploadFiles 'deploy_upload_files_script.bicep' = {
   name : 'deploy_upload_files_script'
@@ -109,9 +109,13 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
     containerName:storageAccountModule.outputs.storageAccountOutput.dataContainer
     identity:managedIdentityModule.outputs.managedIdentityOutput.id
     storageAccountKey:storageAccountModule.outputs.storageAccountOutput.key
+    azureOpenAIApiKey:azOpenAI.outputs.openAIOutput.openAPIKey
+    azureOpenAIEndpoint:azOpenAI.outputs.openAIOutput.openAPIEndpoint
+    azureSearchAdminKey:azSearchService.outputs.searchServiceOutput.searchServiceAdminKey
+    azureSearchServiceEndpoint:azSearchService.outputs.searchServiceOutput.searchServiceEndpoint
     baseUrl:baseUrl
   }
-  dependsOn:[storageAccountModule]
+  dependsOn:[storageAccountModule,azSearchService,azOpenAI]
 }
 
 // module azureFunctions 'deploy_azure_function_script.bicep' = {
