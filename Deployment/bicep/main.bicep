@@ -68,7 +68,7 @@ module sqlDBModule 'deploy_sql_db.bicep' = {
   name: 'deploy_sql_db'
   params: {
     solutionName: solutionPrefix
-    solutionLocation: solutionLocation
+    solutionLocation: otherLocation
     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
   }
   scope: resourceGroup(resourceGroup().name)

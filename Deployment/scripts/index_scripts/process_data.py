@@ -42,9 +42,9 @@ search_endpoint =  get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-ENDPOINT")
 search_key = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
 
 # # openai_api_type = get_secrets_from_kv(key_vault_name,"OPENAI-API-TYPE")
-# aistudio_api_key  =  get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-API-KEY")
-# aistudio_api_base = get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-MODEL-ENDPOINT")
-# client = ChatCompletionsClient(endpoint=aistudio_api_base, credential=AzureKeyCredential(aistudio_api_key))
+aistudio_api_key  =  get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-API-KEY")
+aistudio_api_base = get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-MODEL-ENDPOINT")
+client = ChatCompletionsClient(endpoint=aistudio_api_base, credential=AzureKeyCredential(aistudio_api_key))
 
 openai_api_key  = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-KEY")
 openai_api_base = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-ENDPOINT")
