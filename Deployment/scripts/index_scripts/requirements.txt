@@ -3,7 +3,7 @@ azure-storage-file-datalake
 openai
 pypdf
 # pyodbc
-# tiktoken
+tiktoken
 msal[broker]==1.24.0b1
 azure-identity
 azure-ai-textanalytics

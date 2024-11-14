@@ -16,11 +16,10 @@ from datetime import datetime
 import re
 import tiktoken
 
-
 # load_dotenv()
 key_vault_name = 'kv_to-be-replaced'
 
-index_name = "call_trx_idx"
+index_name = "call_transcripts_index"
 
 file_system_client_name = "data"
 directory = 'transcriptsdata/' 
@@ -41,15 +40,22 @@ def get_secrets_from_kv(kv_name, secret_name):
 search_endpoint =  get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-ENDPOINT")
 search_key = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
 
-# # openai_api_type = get_secrets_from_kv(key_vault_name,"OPENAI-API-TYPE")
-aistudio_api_key  =  get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-API-KEY")
-aistudio_api_base = get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-MODEL-ENDPOINT")
-client = ChatCompletionsClient(endpoint=aistudio_api_base, credential=AzureKeyCredential(aistudio_api_key))
+# Use for Phi-3 model endpoint
+# aistudio_api_key  =  get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-API-KEY")
+# aistudio_api_base = get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-MODEL-ENDPOINT")
+# client = ChatCompletionsClient(endpoint=aistudio_api_base, credential=AzureKeyCredential(aistudio_api_key))
 
+# Use for GPT-4 model endpoint and embeddings model endpoint
 openai_api_key  = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-KEY")
 openai_api_base = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-ENDPOINT")
 openai_api_version = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-API-VERSION") 
+deployment = "gpt-4o"
 
+client = AzureOpenAI(  
+        azure_endpoint=openai_api_base,  
+        api_key=openai_api_key,  
+        api_version=openai_api_version,  
+    )  
 
 # Create the search index
 from azure.core.credentials import AzureKeyCredential 
@@ -190,15 +196,26 @@ def get_details(input_text):
 
             # Identify the single primary complaint of the conversation in 3 words or less, key: complaint. 
 
-    response = client.complete(
-        messages=[
-            # SystemMessage(content=prompt),
-            UserMessage(content=prompt),
-        ],
-        max_tokens = 500,
-        temperature = 0,
-        top_p = 1
-    )
+    # Phi-3 model client
+    # response = client.complete(
+    #     messages=[
+    #         # SystemMessage(content=prompt),
+    #         UserMessage(content=prompt),
+    #     ],
+    #     max_tokens = 500,
+    #     temperature = 0,
+    #     top_p = 1
+    # )
+
+    # GPT-4o model client
+    response = client.chat.completions.create(
+                model=deployment,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0,
+            )
 
     res = response.choices[0].message.content
     return(json.loads(res.replace("```json",'').replace("```",'')))
@@ -212,11 +229,11 @@ import time
 from azure.search.documents import SearchClient
 import os
 
-# foldername = 'transcriptsdata'
-# path_name = f'Data/{foldername}/'
-# # # paths = mssparkutils.fs.ls(path_name)
+foldername = 'call_transcripts'
+path_name = f'Data/{foldername}/'
+# # paths = mssparkutils.fs.ls(path_name)
 
-# paths = os.listdir(path_name)
+paths = os.listdir(path_name)
 
 from azure.storage.filedatalake import (
     DataLakeServiceClient,
@@ -397,16 +414,27 @@ def call_gpt4(topics_str1, client):
         Do not return anything else.
 
         """
-    response = client.complete(
-        messages=[
-            # SystemMessage(content=prompt),
-            UserMessage(content=topic_prompt),
-        ],
-        max_tokens = 1000,
-        temperature = 0,
-        top_p = 1
-    )
-    # return(response.choices[0].message.content)
+    # Phi-3 model client
+    # response = client.complete(
+    #     messages=[
+    #         # SystemMessage(content=prompt),
+    #         UserMessage(content=topic_prompt),
+    #     ],
+    #     max_tokens = 1000,
+    #     temperature = 0,
+    #     top_p = 1
+    # )
+
+    # GPT-4o model client
+    response = client.chat.completions.create(
+                model=deployment,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": topic_prompt},
+                ],
+                temperature=0,
+            )
+
     res = response.choices[0].message.content
     return(json.loads(res.replace("```json",'').replace("```",'')))
 
@@ -506,15 +534,26 @@ def get_mined_topic_mapping(input_text, list_of_topics):
              and a list of predefined topics {list_of_topics}.  
             Only return topic and nothing else.'''
 
-    response = client.complete(
-        messages=[
-            # SystemMessage(content=prompt),
-            UserMessage(content=prompt),
-        ],
-        max_tokens = 500,
-        temperature = 0,
-        top_p = 1
-    )
+    # Phi-3 model client
+    # response = client.complete(
+    #     messages=[
+    #         # SystemMessage(content=prompt),
+    #         UserMessage(content=prompt),
+    #     ],
+    #     max_tokens = 500,
+    #     temperature = 0,
+    #     top_p = 1
+    # )
+
+    # GPT-4o model client
+    response = client.chat.completions.create(
+                model=deployment,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0,
+            )
 
     return(response.choices[0].message.content)
 
@@ -537,6 +576,3 @@ conn.commit()
 
 cursor.close()
 conn.close()
-
-
-
