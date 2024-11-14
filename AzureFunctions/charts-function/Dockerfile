@@ -7,7 +7,3 @@ COPY . /home/site/wwwroot
 
 # Install dependencies
 RUN pip install -r requirements.txt
-
-# Set runtime environment variables
-ENV FUNCTIONS_EXTENSION_VERSION=~4
-ENV FUNCTIONS_WORKER_RUNTIME=python

@@ -5,82 +5,74 @@ param resourceGroupName string
 param baseUrl string
 
 
-var containerRegistryName = 'kmpubliccr'
+var registryName = 'kmpubliccr'
+var appserviceplanname = '${solutionName}-app-serviceplan'
 var functionAppName = '${solutionName}-charts-fn'
+var storageaccountname = '${solutionName}fnsacc'
 var imageName = 'charts-function:latest'
 var rgname = 'rg-km-official'
-var servicePlanSku = 'Y1'
-var storageAccountName = '${solutionName}-charts-fn-sa'
 
-
-// Storage Account resource
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: storageAccountName
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: appserviceplanname
   location: solutionLocation
+  sku: {
+    name: 'EP2'
+    tier: 'ElasticPremium'
+    family: 'EP'
+  }
+  kind: 'elastic'
+  properties: {
+    maximumElasticWorkerCount: 20
+    reserved: true
+  }
+}
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: storageaccountname
+  location: solutionLocation
+  kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
   }
-  kind: 'StorageV2'
-}
-
-// App Service Plan for the Function App
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: '${functionAppName}-plan'
-  location: solutionLocation
-  kind: 'functionapp'
-  sku: {
-    name: servicePlanSku
-    tier: 'Dynamic' // Consumption plan
+  properties: {
+    supportsHttpsTrafficOnly: true
+    defaultToOAuthAuthentication: true
+    allowBlobPublicAccess: false
   }
 }
 
-// Container Registry, assumed to already exist
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
-  name: containerRegistryName
-  scope: resourceGroup(rgname)
-}
 
-// Function App Resource with Docker custom image and storage account link
-resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   name: functionAppName
   location: solutionLocation
   kind: 'functionapp,linux'
   properties: {
     serverFarmId: appServicePlan.id
-    storageAccount: {
-      id: storageAccount.id // Link to the storage account
-    }
+    reserved: true
     siteConfig: {
       appSettings: [
-        {
-          name: 'DOCKER_CUSTOM_IMAGE_NAME'
-          value: 'kmpubliccr.azurecr.io/charts-function:latest' // Specify custom image
-        }
         {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
           value: 'false'
         }
         {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'python'
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageaccountname};EndpointSuffix=core.windows.net;AccountKey=${storageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: toLower(functionAppName)
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4' // Sets the Azure Functions runtime version
+          value: '~4'
         }
         {
-          name: 'DOCKER_REGISTRY_SERVER_URL'
-          value: 'https://kmpubliccr.azurecr.io'
+          name: 'WEBSITES_PORT'
+          value: '80'
         }
       ]
+      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/charts-function:latest'
     }
-    httpsOnly: true
   }
-  identity: {
-    type: 'SystemAssigned'
-  }
-  dependsOn: [
-    appServicePlan
-    storageAccount
-  ]
 }
