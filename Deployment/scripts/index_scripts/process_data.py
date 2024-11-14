@@ -22,8 +22,8 @@ key_vault_name = 'kv_to-be-replaced'
 index_name = "call_transcripts_index"
 
 file_system_client_name = "data"
-directory = 'transcriptsdata/' 
-# csv_file_name = '/call_transcripts_metadata/transcripts_metadata.csv'
+directory = 'transcriptsdata/call_transcripts/' 
+csv_file_name = 'transcriptsdata/call_transcripts_metadata/transcripts_metadata.csv'
 
 def get_secrets_from_kv(kv_name, secret_name):
     
@@ -48,8 +48,8 @@ search_key = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
 # Use for GPT-4 model endpoint and embeddings model endpoint
 openai_api_key  = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-KEY")
 openai_api_base = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-ENDPOINT")
-openai_api_version = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-API-VERSION") 
-deployment = "gpt-4o"
+openai_api_version = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-PREVIEW-API-VERSION") 
+deployment = "gpt-4o-mini"
 
 client = AzureOpenAI(  
         azure_endpoint=openai_api_base,  
@@ -229,11 +229,11 @@ import time
 from azure.search.documents import SearchClient
 import os
 
-foldername = 'call_transcripts'
-path_name = f'Data/{foldername}/'
-# # paths = mssparkutils.fs.ls(path_name)
+# foldername = 'call_transcripts'
+# path_name = f'Data/{foldername}/'
+# # # paths = mssparkutils.fs.ls(path_name)
 
-paths = os.listdir(path_name)
+# paths = os.listdir(path_name)
 
 from azure.storage.filedatalake import (
     DataLakeServiceClient,
@@ -307,8 +307,6 @@ df_metadata = pd.read_csv(csv_file, encoding='utf-8')
 
 docs = []
 counter = 0
-
-
 
 for path in paths:
     # file_path = f'Data/{foldername}/meeting_transcripts/' + path
