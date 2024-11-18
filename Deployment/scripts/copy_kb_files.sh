@@ -48,6 +48,6 @@ az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount"
 az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
 az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder3" --account-key "$accountKey" --recursive
 
-pip install graphrag==0.3.6
+# pip install graphrag==0.3.6
 
-python -m graphrag.index --root /mnt/azscripts/azscriptinput/ragtest
+# python -m graphrag.index --root /mnt/azscripts/azscriptinput/ragtest
