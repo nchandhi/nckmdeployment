@@ -2,6 +2,10 @@
 param solutionName string 
 param solutionLocation string
 param resourceGroupName string
+param SQLDB_SERVER string
+param SQLDB_DATABASE string
+param SQLDB_USERNAME string
+param SQLDB_PASSWORD string
 param baseUrl string
 
 
@@ -9,7 +13,7 @@ var registryName = 'kmpubliccr'
 var appserviceplanname = '${solutionName}-app-serviceplan'
 var functionAppName = '${solutionName}-charts-fn'
 var storageaccountname = '${solutionName}fnsacc'
-var imageName = 'charts-function:latest'
+var imageName = 'km-charts-function:latest'
 var rgname = 'rg-km-official'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
@@ -34,11 +38,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   sku: {
     name: 'Standard_LRS'
   }
-  properties: {
-    supportsHttpsTrafficOnly: true
-    defaultToOAuthAuthentication: true
-    allowBlobPublicAccess: false
-  }
+  // properties: {
+  //   supportsHttpsTrafficOnly: true
+  //   defaultToOAuthAuthentication: true
+  //   allowBlobPublicAccess: false
+  // }
 }
 
 
@@ -71,8 +75,26 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           name: 'WEBSITES_PORT'
           value: '80'
         }
+        {
+          name: 'SQLDB_DATABASE'
+          value: SQLDB_DATABASE
+        }
+        {
+          name: 'SQLDB_PASSWORD'
+          value: SQLDB_PASSWORD
+        }
+        {
+          name: 'SQLDB_SERVER'
+          value: SQLDB_SERVER
+        }
+        {
+          name: 'SQLDB_USERNAME'
+          value: SQLDB_USERNAME
+        }
       ]
-      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/charts-function:latest'
+      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-charts-function-new:latest'
     }
   }
 }
+
+// linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-charts-function:latest'

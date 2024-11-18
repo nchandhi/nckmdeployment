@@ -286,14 +286,25 @@ create_processed_data_sql = """CREATE TABLE processed_data (
                 ConversationId varchar(255) NOT NULL PRIMARY KEY,
                 EndTime varchar(255),
                 StartTime varchar(255),
-                Content varchar(5000),
+                Content varchar(max),
                 summary varchar(500),
                 satisfied varchar(255),
                 sentiment varchar(255),
                 topic varchar(255),
-                key_phrases varchar(255), 
+                key_phrases nvarchar(max),
                 complaint varchar(255), 
                 mined_topic varchar(255)
+            );"""
+cursor.execute(create_processed_data_sql)
+conn.commit()
+
+cursor.execute('DROP TABLE IF EXISTS processed_data_key_phrases')
+conn.commit()
+
+create_processed_data_sql = """CREATE TABLE processed_data_key_phrases (
+                ConversationId varchar(255),
+                key_phrase varchar(500), 
+                sentiment varchar(255)
             );"""
 cursor.execute(create_processed_data_sql)
 conn.commit()
@@ -324,6 +335,11 @@ for path in paths:
     
     cursor.execute(f"INSERT INTO processed_data (ConversationId, EndTime, StartTime, Content, summary, satisfied, sentiment, topic, key_phrases, complaint) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (data['ConversationId'], data['EndTime'], data['StartTime'], data['Content'], result['summary'], result['satisfied'], result['sentiment'], result['topic'], result['keyPhrases'], result['complaint']))    
     conn.commit()
+
+    key_phrases = result['keyPhrases'].split(',')
+    for key_phrase in key_phrases:
+        key_phrase = key_phrase.strip()
+        cursor.execute(f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment) VALUES (%s,%s,%s)", (data['ConversationId'], key_phrase, result['sentiment']))
     
     filename = path.name.split('/')[-1]
     document_id = filename.replace('.json','').replace('convo_','')

@@ -21,15 +21,7 @@ var solutionLocation = resourceGroupLocation
 var baseUrl = 'https://raw.githubusercontent.com/nchandhi/nckmdeployment/main/'
 
 
-// module azureFunctions 'deploy_azure_function_script_new.bicep' = {
-//   name : 'deploy_azure_function_script_new'
-//   params:{
-//     solutionName: solutionPrefix
-//     solutionLocation: solutionLocation
-//     resourceGroupName:resourceGroupName
-//     baseUrl:baseUrl
-//   }
-// }
+
 
 // ========== Managed Identity ========== //
 module managedIdentityModule 'deploy_managed_identity.bicep' = {
@@ -140,14 +132,6 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
 //   dependsOn:[storageAccountModule]
 // }
 
-// module azureFunctionURL 'deploy_azure_function_script_url.bicep' = {
-//   name : 'deploy_azure_function_script_url'
-//   params:{
-//     solutionName: solutionPrefix
-//     identity:managedIdentityModule.outputs.managedIdentityOutput.id
-//   }
-//   dependsOn:[azureFunctions]
-// }
 
 
 // ========== Key Vault ========== //
@@ -191,6 +175,30 @@ module createIndex 'deploy_index_scripts.bicep' = {
   }
   dependsOn:[keyvaultModule]
 }
+
+module azureFunctions 'deploy_azure_function_script_new.bicep' = {
+  name : 'deploy_azure_function_script_new'
+  params:{
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    resourceGroupName:resourceGroupName
+    SQLDB_SERVER:sqlDBModule.outputs.sqlDbOutput.sqlServerName
+    SQLDB_DATABASE:sqlDBModule.outputs.sqlDbOutput.sqlDbName
+    SQLDB_USERNAME:sqlDBModule.outputs.sqlDbOutput.sqlDbUser
+    SQLDB_PASSWORD:sqlDBModule.outputs.sqlDbOutput.sqlDbPwd
+    baseUrl:baseUrl
+  }
+}
+
+module azureFunctionURL 'deploy_azure_function_script_url.bicep' = {
+  name : 'deploy_azure_function_script_url'
+  params:{
+    solutionName: solutionPrefix
+    identity:managedIdentityModule.outputs.managedIdentityOutput.id
+  }
+  dependsOn:[azureFunctions]
+}
+
 
 // // module createaihub 'deploy_aihub_scripts.bicep' = {
 // //   name : 'deploy_aihub_scripts'
