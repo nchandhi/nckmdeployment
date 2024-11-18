@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "9070993439534153415"
+      "templateHash": "9682118554366778615"
     }
   },
   "parameters": {
@@ -1975,6 +1975,262 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_script_new')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "deploy_app_service",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "identity": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity'), '2022-09-01').outputs.managedIdentityOutput.value.id]"
+          },
+          "solutionName": {
+            "value": "[parameters('solutionPrefix')]"
+          },
+          "solutionLocation": {
+            "value": "[variables('solutionLocation')]"
+          },
+          "AzureOpenAIEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai'), '2022-09-01').outputs.openAIOutput.value.openAPIEndpoint]"
+          },
+          "AzureOpenAIModel": {
+            "value": "gpt-4o-mini"
+          },
+          "AzureOpenAIKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai'), '2022-09-01').outputs.openAIOutput.value.openAPIKey]"
+          },
+          "azureOpenAIApiVersion": {
+            "value": "2024-02-15-preview"
+          },
+          "USE_GRAPHRAG": {
+            "value": "False"
+          },
+          "GRAPHRAG_URL": {
+            "value": "TBD"
+          },
+          "RAG_URL": {
+            "value": "TBD"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "1036815828553489361"
+            }
+          },
+          "parameters": {
+            "solutionName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 15,
+              "metadata": {
+                "description": "Solution Name"
+              }
+            },
+            "solutionLocation": {
+              "type": "string",
+              "metadata": {
+                "description": "Solution Location"
+              }
+            },
+            "identity": {
+              "type": "string"
+            },
+            "HostingPlanName": {
+              "type": "string",
+              "defaultValue": "[format('{0}-app-service-plan', parameters('solutionName'))]",
+              "metadata": {
+                "description": "Name of App Service plan"
+              }
+            },
+            "HostingPlanSku": {
+              "type": "string",
+              "defaultValue": "P0v3",
+              "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1",
+                "P2",
+                "P3",
+                "P4",
+                "P0v3"
+              ],
+              "metadata": {
+                "description": "The pricing tier for the App Service plan"
+              }
+            },
+            "WebsiteName": {
+              "type": "string",
+              "defaultValue": "[format('{0}-app-service', parameters('solutionName'))]",
+              "metadata": {
+                "description": "Name of Web App"
+              }
+            },
+            "ApplicationInsightsName": {
+              "type": "string",
+              "defaultValue": "[format('{0}-app-insights', parameters('solutionName'))]",
+              "metadata": {
+                "description": "Name of Application Insights"
+              }
+            },
+            "AzureOpenAIModel": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure OpenAI Model Deployment Name"
+              }
+            },
+            "AzureOpenAIEndpoint": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Azure Open AI Endpoint"
+              }
+            },
+            "AzureOpenAIKey": {
+              "type": "securestring",
+              "metadata": {
+                "description": "Azure OpenAI Key"
+              }
+            },
+            "azureOpenAIApiVersion": {
+              "type": "string"
+            },
+            "USE_GRAPHRAG": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "GRAPHRAG_URL": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "RAG_URL": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "WebAppImageName": "DOCKER|kmpubliccr.azurecr.io/km-app1:latest"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('HostingPlanName')]",
+              "location": "[resourceGroup().location]",
+              "sku": {
+                "name": "[parameters('HostingPlanSku')]"
+              },
+              "properties": {
+                "name": "[parameters('HostingPlanName')]",
+                "reserved": true
+              },
+              "kind": "linux"
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('WebsiteName')]",
+              "location": "[resourceGroup().location]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "serverFarmId": "[parameters('HostingPlanName')]",
+                "siteConfig": {
+                  "appSettings": [
+                    {
+                      "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                      "value": "[reference(resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                    },
+                    {
+                      "name": "AZURE_OPENAI_API_VERSION",
+                      "value": "[parameters('azureOpenAIApiVersion')]"
+                    },
+                    {
+                      "name": "AZURE_OPENAI_MODEL",
+                      "value": "[parameters('AzureOpenAIModel')]"
+                    },
+                    {
+                      "name": "AZURE_OPENAI_ENDPOINT",
+                      "value": "[parameters('AzureOpenAIEndpoint')]"
+                    },
+                    {
+                      "name": "AZURE_OPENAI_KEY",
+                      "value": "[parameters('AzureOpenAIKey')]"
+                    },
+                    {
+                      "name": "USE_GRAPHRAG",
+                      "value": "[parameters('USE_GRAPHRAG')]"
+                    },
+                    {
+                      "name": "GRAPHRAG_URL",
+                      "value": "[parameters('GRAPHRAG_URL')]"
+                    },
+                    {
+                      "name": "RAG_URL",
+                      "value": "[parameters('RAG_URL')]"
+                    },
+                    {
+                      "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                      "value": "true"
+                    },
+                    {
+                      "name": "UWSGI_PROCESSES",
+                      "value": "2"
+                    },
+                    {
+                      "name": "UWSGI_THREADS",
+                      "value": "2"
+                    }
+                  ],
+                  "linuxFxVersion": "[variables('WebAppImageName')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]",
+                "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Insights/components",
+              "apiVersion": "2020-02-02",
+              "name": "[parameters('ApplicationInsightsName')]",
+              "location": "[resourceGroup().location]",
+              "tags": {
+                "[format('hidden-link:{0}', resourceId('Microsoft.Web/sites', parameters('ApplicationInsightsName')))]": "Resource"
+              },
+              "properties": {
+                "Application_Type": "web"
+              },
+              "kind": "web"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_ai_service')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_script_url')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db')]"
       ]
     }
   ]

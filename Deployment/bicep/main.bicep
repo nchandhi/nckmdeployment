@@ -234,6 +234,23 @@ module azureFunctionURL 'deploy_azure_function_script_url.bicep' = {
 // //   dependsOn:[keyvaultModule]
 // // }
 
+module appserviceModule 'deploy_app_service.bicep' = {
+  name: 'deploy_app_service'
+  params: {
+    identity:managedIdentityModule.outputs.managedIdentityOutput.id
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    AzureOpenAIEndpoint:azOpenAI.outputs.openAIOutput.openAPIEndpoint
+    AzureOpenAIModel:'gpt-4o-mini'
+    AzureOpenAIKey:azOpenAI.outputs.openAIOutput.openAPIKey
+    azureOpenAIApiVersion:'2024-02-15-preview'
+    USE_GRAPHRAG:'False'
+    GRAPHRAG_URL:'TBD'
+    RAG_URL:'TBD'
+  }
+  scope: resourceGroup(resourceGroup().name)
+  dependsOn:[azOpenAI,azAIMultiServiceAccount,azSearchService,sqlDBModule,azureFunctionURL]
+}
 
 // module appserviceModule 'deploy_app_service.bicep' = {
 //   name: 'deploy_app_service'
