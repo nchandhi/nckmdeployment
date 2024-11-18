@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "10178138893234270957"
+      "templateHash": "9070993439534153415"
     }
   },
   "parameters": {
@@ -1735,7 +1735,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "6803027928531627231"
+              "templateHash": "11283826709474734627"
             }
           },
           "parameters": {
@@ -1889,7 +1889,7 @@
                     },
                     {
                       "name": "AZURE_OPEN_AI_DEPLOYMENT_MODEL",
-                      "value": "gpt-4"
+                      "value": "gpt-4o-mini"
                     },
                     {
                       "name": "AZURE_AI_SEARCH_ENDPOINT",

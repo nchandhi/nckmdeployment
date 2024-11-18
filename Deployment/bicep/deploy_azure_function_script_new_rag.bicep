@@ -121,7 +121,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
         }
         {
           name: 'AZURE_OPEN_AI_DEPLOYMENT_MODEL'
-          value: 'gpt-4'
+          value: 'gpt-4o-mini'
         }
         {
           name: 'AZURE_AI_SEARCH_ENDPOINT'

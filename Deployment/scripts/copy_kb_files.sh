@@ -48,6 +48,10 @@ az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount"
 az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
 az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder3" --account-key "$accountKey" --recursive
 
+requirementFile="graphrag-requirements.txt"
+requirementFileUrl=${baseUrl}"Deployment/scripts/graphrag-requirements.txt"
+curl --output "$requirementFile" "$requirementFileUrl"
+pip install -r graphrag-requirements.txt
 # pip install graphrag==0.3.6
 
 # python -m graphrag.index --root /mnt/azscripts/azscriptinput/ragtest
