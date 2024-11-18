@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "196216060267803384"
+      "templateHash": "10178138893234270957"
     }
   },
   "parameters": {
@@ -1522,16 +1522,16 @@
           "resourceGroupName": {
             "value": "[variables('resourceGroupName')]"
           },
-          "SQLDB_SERVER": {
+          "sqlServerName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlServerName]"
           },
-          "SQLDB_DATABASE": {
+          "sqlDbName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlDbName]"
           },
-          "SQLDB_USERNAME": {
+          "sqlDbUser": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlDbUser]"
           },
-          "SQLDB_PASSWORD": {
+          "sqlDbPwd": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlDbPwd]"
           },
           "baseUrl": {
@@ -1545,7 +1545,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1538014898931160420"
+              "templateHash": "9528184335551157374"
             }
           },
           "parameters": {
@@ -1561,17 +1561,17 @@
             "resourceGroupName": {
               "type": "string"
             },
-            "SQLDB_SERVER": {
+            "sqlServerName": {
               "type": "string"
             },
-            "SQLDB_DATABASE": {
+            "sqlDbName": {
               "type": "string"
             },
-            "SQLDB_USERNAME": {
+            "sqlDbUser": {
               "type": "string"
             },
-            "SQLDB_PASSWORD": {
-              "type": "string"
+            "sqlDbPwd": {
+              "type": "securestring"
             },
             "baseUrl": {
               "type": "string"
@@ -1645,19 +1645,19 @@
                     },
                     {
                       "name": "SQLDB_DATABASE",
-                      "value": "[parameters('SQLDB_DATABASE')]"
+                      "value": "[parameters('sqlDbName')]"
                     },
                     {
                       "name": "SQLDB_PASSWORD",
-                      "value": "[parameters('SQLDB_PASSWORD')]"
+                      "value": "[parameters('sqlDbPwd')]"
                     },
                     {
                       "name": "SQLDB_SERVER",
-                      "value": "[parameters('SQLDB_SERVER')]"
+                      "value": "[parameters('sqlServerName')]"
                     },
                     {
                       "name": "SQLDB_USERNAME",
-                      "value": "[parameters('SQLDB_USERNAME')]"
+                      "value": "[parameters('sqlDbUser')]"
                     }
                   ],
                   "linuxFxVersion": "DOCKER|kmpubliccr.azurecr.io/km-charts-function-new:latest"
@@ -1672,6 +1672,252 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "deploy_azure_function_script_new_rag",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "solutionName": {
+            "value": "[parameters('solutionPrefix')]"
+          },
+          "solutionLocation": {
+            "value": "[variables('solutionLocation')]"
+          },
+          "resourceGroupName": {
+            "value": "[variables('resourceGroupName')]"
+          },
+          "azureOpenAIApiKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai'), '2022-09-01').outputs.openAIOutput.value.openAPIKey]"
+          },
+          "azureOpenAIApiVersion": {
+            "value": "2024-02-15-preview"
+          },
+          "azureOpenAIEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai'), '2022-09-01').outputs.openAIOutput.value.openAPIEndpoint]"
+          },
+          "azureSearchAdminKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service'), '2022-09-01').outputs.searchServiceOutput.value.searchServiceAdminKey]"
+          },
+          "azureSearchServiceEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service'), '2022-09-01').outputs.searchServiceOutput.value.searchServiceEndpoint]"
+          },
+          "azureSearchIndex": {
+            "value": "call_transcripts_index"
+          },
+          "sqlServerName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlServerName]"
+          },
+          "sqlDbName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlDbName]"
+          },
+          "sqlDbUser": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlDbUser]"
+          },
+          "sqlDbPwd": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db'), '2022-09-01').outputs.sqlDbOutput.value.sqlDbPwd]"
+          },
+          "baseUrl": {
+            "value": "[variables('baseUrl')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "6803027928531627231"
+            }
+          },
+          "parameters": {
+            "solutionName": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the location for resources."
+              }
+            },
+            "solutionLocation": {
+              "type": "string"
+            },
+            "resourceGroupName": {
+              "type": "string"
+            },
+            "azureOpenAIApiKey": {
+              "type": "securestring"
+            },
+            "azureOpenAIApiVersion": {
+              "type": "string"
+            },
+            "azureOpenAIEndpoint": {
+              "type": "string"
+            },
+            "azureSearchAdminKey": {
+              "type": "securestring"
+            },
+            "azureSearchServiceEndpoint": {
+              "type": "string"
+            },
+            "azureSearchIndex": {
+              "type": "string"
+            },
+            "sqlServerName": {
+              "type": "string"
+            },
+            "sqlDbName": {
+              "type": "string"
+            },
+            "sqlDbUser": {
+              "type": "string"
+            },
+            "sqlDbPwd": {
+              "type": "securestring"
+            },
+            "baseUrl": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "registryName": "kmpubliccr",
+            "appserviceplanname": "[format('{0}-ragapp-serviceplan', parameters('solutionName'))]",
+            "functionAppName": "[format('{0}-rag-fn', parameters('solutionName'))]",
+            "storageaccountname": "[format('{0}ragfnsacc', parameters('solutionName'))]",
+            "imageName": "km-rag-function:latest",
+            "rgname": "rg-km-official"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2022-03-01",
+              "name": "[variables('appserviceplanname')]",
+              "location": "[parameters('solutionLocation')]",
+              "sku": {
+                "name": "EP2",
+                "tier": "ElasticPremium",
+                "family": "EP"
+              },
+              "kind": "elastic",
+              "properties": {
+                "maximumElasticWorkerCount": 20,
+                "reserved": true
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-05-01",
+              "name": "[variables('storageaccountname')]",
+              "location": "[parameters('solutionLocation')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS"
+              }
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2024-04-01",
+              "name": "[variables('functionAppName')]",
+              "location": "[parameters('solutionLocation')]",
+              "kind": "functionapp,linux",
+              "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appserviceplanname'))]",
+                "reserved": true,
+                "siteConfig": {
+                  "appSettings": [
+                    {
+                      "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                      "value": "false"
+                    },
+                    {
+                      "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix=core.windows.net;AccountKey={1}', variables('storageaccountname'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountname')), '2023-05-01').keys[0].value)]"
+                    },
+                    {
+                      "name": "WEBSITE_CONTENTSHARE",
+                      "value": "[toLower(variables('functionAppName'))]"
+                    },
+                    {
+                      "name": "FUNCTIONS_EXTENSION_VERSION",
+                      "value": "~4"
+                    },
+                    {
+                      "name": "WEBSITES_PORT",
+                      "value": "80"
+                    },
+                    {
+                      "name": "PYTHON_ENABLE_INIT_INDEXING",
+                      "value": "1"
+                    },
+                    {
+                      "name": "PYTHON_ISOLATE_WORKER_DEPENDENCIES",
+                      "value": "1"
+                    },
+                    {
+                      "name": "SQLDB_DATABASE",
+                      "value": "[parameters('sqlDbName')]"
+                    },
+                    {
+                      "name": "SQLDB_PASSWORD",
+                      "value": "[parameters('sqlDbPwd')]"
+                    },
+                    {
+                      "name": "SQLDB_SERVER",
+                      "value": "[parameters('sqlServerName')]"
+                    },
+                    {
+                      "name": "SQLDB_USERNAME",
+                      "value": "[parameters('sqlDbUser')]"
+                    },
+                    {
+                      "name": "AZURE_OPEN_AI_ENDPOINT",
+                      "value": "[parameters('azureOpenAIEndpoint')]"
+                    },
+                    {
+                      "name": "AZURE_OPEN_AI_API_KEY",
+                      "value": "[parameters('azureOpenAIApiKey')]"
+                    },
+                    {
+                      "name": "OPENAI_API_VERSION",
+                      "value": "[parameters('azureOpenAIApiVersion')]"
+                    },
+                    {
+                      "name": "AZURE_OPEN_AI_DEPLOYMENT_MODEL",
+                      "value": "gpt-4"
+                    },
+                    {
+                      "name": "AZURE_AI_SEARCH_ENDPOINT",
+                      "value": "[parameters('azureSearchServiceEndpoint')]"
+                    },
+                    {
+                      "name": "AZURE_AI_SEARCH_API_KEY",
+                      "value": "[parameters('azureSearchAdminKey')]"
+                    },
+                    {
+                      "name": "AZURE_AI_SEARCH_INDEX",
+                      "value": "[parameters('azureSearchIndex')]"
+                    }
+                  ],
+                  "linuxFxVersion": "DOCKER|kmpubliccr.azurecr.io/km-rag-function-new:latest"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appserviceplanname'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountname'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_open_ai')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_ai_search_service')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db')]"
       ]
     },
@@ -1699,7 +1945,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "9511772940816294948"
+              "templateHash": "4060548473289776064"
             }
           },
           "parameters": {
@@ -1714,7 +1960,7 @@
             }
           },
           "variables": {
-            "functionAppName": "[format('{0}fn', parameters('solutionName'))]",
+            "functionAppName": "[format('{0}-charts-fn', parameters('solutionName'))]",
             "functionName": "stream_openai_text"
           },
           "resources": [],

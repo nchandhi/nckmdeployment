@@ -182,10 +182,30 @@ module azureFunctions 'deploy_azure_function_script_new.bicep' = {
     solutionName: solutionPrefix
     solutionLocation: solutionLocation
     resourceGroupName:resourceGroupName
-    SQLDB_SERVER:sqlDBModule.outputs.sqlDbOutput.sqlServerName
-    SQLDB_DATABASE:sqlDBModule.outputs.sqlDbOutput.sqlDbName
-    SQLDB_USERNAME:sqlDBModule.outputs.sqlDbOutput.sqlDbUser
-    SQLDB_PASSWORD:sqlDBModule.outputs.sqlDbOutput.sqlDbPwd
+    sqlServerName:sqlDBModule.outputs.sqlDbOutput.sqlServerName
+    sqlDbName:sqlDBModule.outputs.sqlDbOutput.sqlDbName
+    sqlDbUser:sqlDBModule.outputs.sqlDbOutput.sqlDbUser
+    sqlDbPwd:sqlDBModule.outputs.sqlDbOutput.sqlDbPwd
+    baseUrl:baseUrl
+  }
+}
+
+module azureragFunctions 'deploy_azure_function_script_new_rag.bicep' = {
+  name : 'deploy_azure_function_script_new_rag'
+  params:{
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    resourceGroupName:resourceGroupName
+    azureOpenAIApiKey:azOpenAI.outputs.openAIOutput.openAPIKey
+    azureOpenAIApiVersion:'2024-02-15-preview'
+    azureOpenAIEndpoint:azOpenAI.outputs.openAIOutput.openAPIEndpoint
+    azureSearchAdminKey:azSearchService.outputs.searchServiceOutput.searchServiceAdminKey
+    azureSearchServiceEndpoint:azSearchService.outputs.searchServiceOutput.searchServiceEndpoint
+    azureSearchIndex:'call_transcripts_index'
+    sqlServerName:sqlDBModule.outputs.sqlDbOutput.sqlServerName
+    sqlDbName:sqlDBModule.outputs.sqlDbOutput.sqlDbName
+    sqlDbUser:sqlDBModule.outputs.sqlDbOutput.sqlDbUser
+    sqlDbPwd:sqlDBModule.outputs.sqlDbOutput.sqlDbPwd
     baseUrl:baseUrl
   }
 }

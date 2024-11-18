@@ -12,3 +12,4 @@ azure-keyvault-secrets
 pandas
 pymssql
 datetime
+# graphrag==0.3.6

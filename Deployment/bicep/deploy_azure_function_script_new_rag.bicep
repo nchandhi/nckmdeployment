@@ -2,6 +2,14 @@
 param solutionName string 
 param solutionLocation string
 param resourceGroupName string
+@secure()
+param azureOpenAIApiKey string
+param azureOpenAIApiVersion string
+param azureOpenAIEndpoint string
+@secure()
+param azureSearchAdminKey string
+param azureSearchServiceEndpoint string
+param azureSearchIndex string
 param sqlServerName string
 param sqlDbName string
 param sqlDbUser string
@@ -9,12 +17,11 @@ param sqlDbUser string
 param sqlDbPwd string
 param baseUrl string
 
-
 var registryName = 'kmpubliccr'
-var appserviceplanname = '${solutionName}-app-serviceplan'
-var functionAppName = '${solutionName}-charts-fn'
-var storageaccountname = '${solutionName}fnsacc'
-var imageName = 'km-charts-function:latest'
+var appserviceplanname = '${solutionName}-ragapp-serviceplan'
+var functionAppName = '${solutionName}-rag-fn'
+var storageaccountname = '${solutionName}ragfnsacc'
+var imageName = 'km-rag-function:latest'
 var rgname = 'rg-km-official'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
@@ -77,6 +84,14 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: '80'
         }
         {
+          name: 'PYTHON_ENABLE_INIT_INDEXING'
+          value: '1'
+        }
+        {
+          name: 'PYTHON_ISOLATE_WORKER_DEPENDENCIES'
+          value: '1'
+        }
+        {
           name: 'SQLDB_DATABASE'
           value: sqlDbName
         }
@@ -92,8 +107,36 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           name: 'SQLDB_USERNAME'
           value: sqlDbUser
         }
+        {
+          name: 'AZURE_OPEN_AI_ENDPOINT'
+          value: azureOpenAIEndpoint
+        }
+        {
+          name: 'AZURE_OPEN_AI_API_KEY'
+          value: azureOpenAIApiKey
+        }
+        {
+          name: 'OPENAI_API_VERSION'
+          value: azureOpenAIApiVersion
+        }
+        {
+          name: 'AZURE_OPEN_AI_DEPLOYMENT_MODEL'
+          value: 'gpt-4'
+        }
+        {
+          name: 'AZURE_AI_SEARCH_ENDPOINT'
+          value: azureSearchServiceEndpoint
+        }
+        {
+          name: 'AZURE_AI_SEARCH_API_KEY'
+          value: azureSearchAdminKey
+        }
+        {
+          name: 'AZURE_AI_SEARCH_INDEX'
+          value: azureSearchIndex
+        }
       ]
-      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-charts-function-new:latest'
+      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-rag-function-new:latest'
     }
   }
 }

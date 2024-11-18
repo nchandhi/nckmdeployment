@@ -18,33 +18,42 @@ from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.functions.kernel_function_decorator import kernel_function
 from semantic_kernel.kernel import Kernel
 import pymssql
-from dotenv import load_dotenv
-load_dotenv()
+
+# from semantic_kernel import Kernel
+# from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+# from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.open_ai_prompt_execution_settings import OpenAIChatPromptExecutionSettings
+# from semantic_kernel.prompt_template import InputVariable, PromptTemplateConfig
+# from semantic_kernel.connectors.ai.function_call_behavior import FunctionCallBehavior
+# from semantic_kernel.functions.kernel_function_decorator import kernel_function
 
 # Azure Function App
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
+# endpoint = os.environ.get("AZURE_OPEN_AI_ENDPOINT")
+# api_key = os.environ.get("AZURE_OPEN_AI_API_KEY")
+# api_version = os.environ.get("OPENAI_API_VERSION")
+# deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
+# temperature = 0
 
-endpoint = os.environ.get("AZURE_OPEN_AI_ENDPOINT")
-api_key = os.environ.get("AZURE_OPEN_AI_API_KEY")
-api_version = os.environ.get("OPENAI_API_VERSION")
-deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
-temperature = 0
-
-search_endpoint = os.environ.get("AZURE_AI_SEARCH_ENDPOINT") 
-search_key = os.environ.get("AZURE_AI_SEARCH_API_KEY")
+# search_endpoint = os.environ.get("AZURE_AI_SEARCH_ENDPOINT") 
+# search_key = os.environ.get("AZURE_AI_SEARCH_API_KEY")
 
 class ChatWithDataPlugin:
     @kernel_function(name="Greeting", description="Respond to any greeting or general questions")
     def greeting(self, input: Annotated[str, "the question"]) -> Annotated[str, "The output is a string"]:
-        query = input #.split(':::')[0]
+        # query = input.split(':::')[0]
+        query = input
         endpoint = os.environ.get("AZURE_OPEN_AI_ENDPOINT")
         api_key = os.environ.get("AZURE_OPEN_AI_API_KEY")
+        api_version = os.environ.get("OPENAI_API_VERSION")
+        deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
+        temperature = 0
+
         client = openai.AzureOpenAI(
             azure_endpoint=endpoint,
             api_key=api_key,
             api_version="2023-09-01-preview"
         )
-        deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
+
         try:
             completion = client.chat.completions.create(
                 model=deployment,
@@ -60,83 +69,68 @@ class ChatWithDataPlugin:
         return answer
 
     
-    #@kernel_function(name="ChatWithSQLDatabase", description="Given a query about client assets, investements and meeting dates or times, get details from the database")
-    # def get_SQL_Response(
-    #     self,
-    #     input: Annotated[str, "the question"],
-    #     ClientId: Annotated[str, "the ClientId"]
-    #     ):
+    @kernel_function(name="ChatWithSQLDatabase", description="Given a query about customer calls, get details from the database")
+    def get_SQL_Response(
+        self,
+        input: Annotated[str, "the question"]
+        ):
         
-    #     # clientid = input.split(':::')[-1]
-    #     # query = input.split(':::')[0] + ' . ClientId = ' + input.split(':::')[-1]
-    #     clientid = ClientId
-    #     query = input
-    #     endpoint = os.environ.get("AZURE_OPEN_AI_ENDPOINT")
-    #     api_key = os.environ.get("AZURE_OPEN_AI_API_KEY")
+        # clientid = input.split(':::')[-1]
+        # query = input.split(':::')[0] + ' . ClientId = ' + input.split(':::')[-1]
+        # clientid = ClientId
+        query = input
 
-    #     client = openai.AzureOpenAI(
-    #         azure_endpoint=endpoint,
-    #         api_key=api_key,
-    #         api_version="2023-09-01-preview"
-    #     )
-    #     deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
+        endpoint = os.environ.get("AZURE_OPEN_AI_ENDPOINT")
+        api_key = os.environ.get("AZURE_OPEN_AI_API_KEY")
+        api_version = os.environ.get("OPENAI_API_VERSION")
+        deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
 
-    #     sql_prompt = f'''A valid T-SQL query to find {query} for tables and columns provided below:
-    #     1. Table: Clients
-    #     Columns: ClientId,Client,Email,Occupation,MaritalStatus,Dependents
-    #     2. Table: InvestmentGoals
-    #     Columns: ClientId,InvestmentGoal
-    #     3. Table: Assets
-    #     Columns: ClientId,AssetDate,Investment,ROI,Revenue,AssetType
-    #     4. Table: ClientSummaries
-    #     Columns: ClientId,ClientSummary
-    #     5. Table: InvestmentGoalsDetails
-    #     Columns: ClientId,InvestmentGoal,TargetAmount,Contribution
-    #     6. Table: Retirement
-    #     Columns: ClientId,StatusDate,RetirementGoalProgress,EducationGoalProgress
-    #     7.Table: ClientMeetings
-    #     Columns: ClientId,ConversationId,Title,StartTime,EndTime,Advisor,ClientEmail
-    #     Use Investement column from Assets table as value always.
-    #     Assets table has snapshots of values by date. Do not add numbers across different dates for total values.
-    #     Do not use client name in filter.
-    #     Do not include assets values unless asked for.
-    #     Always use ClientId = {clientid} in the query filter.
-    #     Always return client name in the query.
-    #     Only return the generated sql query. do not return anything else''' 
-    #     try:
+        client = openai.AzureOpenAI(
+            azure_endpoint=endpoint,
+            api_key=api_key,
+            api_version="2023-09-01-preview"
+        )
 
-    #         completion = client.chat.completions.create(
-    #             model=deployment,
-    #             messages=[
-    #                 {"role": "system", "content": "You are a helpful assistant."},
-    #                 {"role": "user", "content": sql_prompt},
-    #             ],
-    #             temperature=0,
-    #         )
-    #         sql_query = completion.choices[0].message.content
-    #         sql_query = sql_query.replace("```sql",'').replace("```",'')
-    #         #print(sql_query)
+        sql_prompt = f'''A valid T-SQL query to find {query} for tables and columns provided below:
+        1. Table: processed_data
+        Columns: ConversationId,EndTime,StartTime,Content,summary,satisfied,sentiment,topic,key_phrases,complaint,mined_topic
+        2. Table: processed_data_key_phrases
+        Columns: ConversationId,key_phrase,sentiment
+        Only return the generated sql query. do not return anything else.''' 
+        try:
+
+            completion = client.chat.completions.create(
+                model=deployment,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": sql_prompt},
+                ],
+                temperature=0,
+            )
+            sql_query = completion.choices[0].message.content
+            sql_query = sql_query.replace("```sql",'').replace("```",'')
+            #print(sql_query)
         
-        #     connectionString = os.environ.get("SQLDB_CONNECTION_STRING")
-        #     server = os.environ.get("SQLDB_SERVER")
-        #     database = os.environ.get("SQLDB_DATABASE")
-        #     username = os.environ.get("SQLDB_USERNAME")
-        #     password = os.environ.get("SQLDB_PASSWORD")
+            # connectionString = os.environ.get("SQLDB_CONNECTION_STRING")
+            server = os.environ.get("SQLDB_SERVER")
+            database = os.environ.get("SQLDB_DATABASE")
+            username = os.environ.get("SQLDB_USERNAME")
+            password = os.environ.get("SQLDB_PASSWORD")
 
-        #     conn = pymssql.connect(server, username, password, database)
-        #     # conn = pyodbc.connect(connectionString)
-        #     cursor = conn.cursor()
-        #     cursor.execute(sql_query)
-        #     answer = ''
-        #     for row in cursor.fetchall():
-        #         answer += str(row)
-        # except Exception as e:
-        #     answer = str(e) # 'Information from database could not be retrieved. Please try again later.'
-        # return answer
-        # #return sql_query
+            conn = pymssql.connect(server, username, password, database)
+            # conn = pyodbc.connect(connectionString)
+            cursor = conn.cursor()
+            cursor.execute(sql_query)
+            answer = ''
+            for row in cursor.fetchall():
+                answer += str(row)
+        except Exception as e:
+            answer = str(e) # 'Information from database could not be retrieved. Please try again later.'
+        return answer
+        #return sql_query
 
     
-    @kernel_function(name="ChatWithCallTranscripts", description="given a query about a customer, get answer from search index")
+    @kernel_function(name="ChatWithCallTranscripts", description="given a query about calls summary or actions or notes, get answer from search index")
     def get_answers_from_calltranscripts(
         self,
         question: Annotated[str, "the question"]
@@ -157,9 +151,9 @@ class ChatWithDataPlugin:
         )
 
         query = question
-        system_message = '''You are an assistant who provides a call center manager with helpful information about calls and customer issues. 
+        system_message = '''You are an assistant who provides an analyst with helpful information about data. 
         You have access to the call transcripts. 
-        You can use this information to answer questions about the call center operations.'''
+        You can use this information to answer questions'''
 
         completion = client.chat.completions.create(
             model = deployment,
@@ -184,7 +178,7 @@ class ChatWithDataPlugin:
                             "endpoint": search_endpoint,
                             "index_name": index_name,
                             "semantic_configuration": "default",
-                            "query_type": "simple", #"vector_semantic_hybrid"
+                            "query_type": "vector_simple_hybrid", #"vector_semantic_hybrid"
                             "fields_mapping": {
                                 "content_fields_separator": "\n",
                                 "content_fields": ["content"],
@@ -216,7 +210,6 @@ class ChatWithDataPlugin:
         )
 
         answer = completion.choices[0].message.content
-        # answer = 'Sarah called about billing issues'
         return answer
 
 # Get data from Azure Open AI
@@ -232,11 +225,17 @@ async def stream_openai_text(req: Request) -> StreamingResponse:
     query = req.query_params.get("query", None)
 
     if not query:
-        query = "please pass a query:::00000"
+        query = "please pass a query"
 
     kernel = Kernel()
 
     service_id = "function_calling"
+
+    endpoint = os.environ.get("AZURE_OPEN_AI_ENDPOINT")
+    api_key = os.environ.get("AZURE_OPEN_AI_API_KEY")
+    api_version = os.environ.get("OPENAI_API_VERSION")
+    deployment = os.environ.get("AZURE_OPEN_AI_DEPLOYMENT_MODEL")
+    temperature = 0
 
     # Please make sure your AzureOpenAI Deployment allows for function calling
     ai_service = AzureChatCompletion(
@@ -261,22 +260,15 @@ async def stream_openai_text(req: Request) -> StreamingResponse:
     settings.max_tokens = 800
     settings.temperature = 0
 
-    # system_message = '''you are a helpful assistant to a call center analyst. 
-    # Do not answer any questions not related to call center queries.
-    # If you cannot answer the question, always return - I cannot answer this question from the data available. Please rephrase or add more details.
-    # ** Remove any client identifiers or ids or numbers in the final response.
-    # '''
-
     system_message = '''you are a helpful assistant to a call center analyst. 
-    If you cannot answer the question, always return - I cannot answer this question from the data available. 
-    Please add more details.
-    ** Remove any client identifiers or ids or numbers in the final response.
+    If you cannot answer the question, always return - I cannot answer this question from the data available. Please rephrase or add more details.
     '''
 
-    user_query = query.replace('?',' ')
+    # user_query = query.replace('?',' ')
 
     # user_query_prompt = f'''{user_query}. Always send clientId as {user_query.split(':::')[-1]} '''
-    query_prompt = f'''<message role="system">{system_message}</message><message role="user">{user_query}</message>'''
+    user_query_prompt = query
+    query_prompt = f'''<message role="system">{system_message}</message><message role="user">{user_query_prompt}</message>'''
 
 
     sk_response = kernel.invoke_prompt_stream(
