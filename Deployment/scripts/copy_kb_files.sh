@@ -51,9 +51,9 @@ az storage fs directory upload -f "$graphragfileSystem" --account-name "$storage
 requirementFile="graphrag-requirements.txt"
 requirementFileUrl=${baseUrl}"Deployment/scripts/graphrag-requirements.txt"
 curl --output "$requirementFile" "$requirementFileUrl"
-pip install -r graphrag-requirements.txt
-# pip install graphrag==0.3.6
+# pip install -r graphrag-requirements.txt
+# python -m graphrag index --root /mnt/azscripts/azscriptinput/ragtest
+# # pip install graphrag==0.3.6
 
-# python -m graphrag.index --root /mnt/azscripts/azscriptinput/ragtest
-# python -m graphrag index --root ./ragtest
-python -m graphrag index --root /mnt/azscripts/azscriptinput/ragtest
+# # python -m graphrag.index --root /mnt/azscripts/azscriptinput/ragtest
+# # python -m graphrag index --root ./ragtest
