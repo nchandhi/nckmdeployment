@@ -10,10 +10,10 @@ param sqlDbPwd string
 param baseUrl string
 
 
-var registryName = 'kmpubliccr'
+var registryName = 'kmcontainerreg'
 var appserviceplanname = '${solutionName}-app-serviceplan'
 var functionAppName = '${solutionName}-charts-fn'
-var storageaccountname = '${solutionName}fnsacc'
+var storageaccountname = '${solutionName}chartsfnacc'
 var imageName = 'km-charts-function:latest'
 var rgname = 'rg-km-official'
 
@@ -93,9 +93,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: sqlDbUser
         }
       ]
-      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-charts-function-new:latest'
+      linuxFxVersion: 'DOCKER|kmcontainerreg.azurecr.io/km-charts-function:latest'
     }
   }
 }
-
-// linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-charts-function:latest'

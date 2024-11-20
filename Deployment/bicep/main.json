@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "9682118554366778615"
+      "templateHash": "11096606370593444328"
     }
   },
   "parameters": {
@@ -1506,7 +1506,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "deploy_azure_function_script_new",
+      "name": "deploy_azure_function_charts",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1545,7 +1545,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "9528184335551157374"
+              "templateHash": "6107839299297998648"
             }
           },
           "parameters": {
@@ -1578,10 +1578,10 @@
             }
           },
           "variables": {
-            "registryName": "kmpubliccr",
+            "registryName": "kmcontainerreg",
             "appserviceplanname": "[format('{0}-app-serviceplan', parameters('solutionName'))]",
             "functionAppName": "[format('{0}-charts-fn', parameters('solutionName'))]",
-            "storageaccountname": "[format('{0}fnsacc', parameters('solutionName'))]",
+            "storageaccountname": "[format('{0}chartsfnacc', parameters('solutionName'))]",
             "imageName": "km-charts-function:latest",
             "rgname": "rg-km-official"
           },
@@ -1660,7 +1660,7 @@
                       "value": "[parameters('sqlDbUser')]"
                     }
                   ],
-                  "linuxFxVersion": "DOCKER|kmpubliccr.azurecr.io/km-charts-function-new:latest"
+                  "linuxFxVersion": "DOCKER|kmcontainerreg.azurecr.io/km-charts-function:latest"
                 }
               },
               "dependsOn": [
@@ -1678,7 +1678,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "deploy_azure_function_script_new_rag",
+      "name": "deploy_azure_function_rag",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1735,7 +1735,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "11283826709474734627"
+              "templateHash": "10500101572709134550"
             }
           },
           "parameters": {
@@ -1786,10 +1786,10 @@
             }
           },
           "variables": {
-            "registryName": "kmpubliccr",
+            "registryName": "kmcontainerreg",
             "appserviceplanname": "[format('{0}-ragapp-serviceplan', parameters('solutionName'))]",
             "functionAppName": "[format('{0}-rag-fn', parameters('solutionName'))]",
-            "storageaccountname": "[format('{0}ragfnsacc', parameters('solutionName'))]",
+            "storageaccountname": "[format('{0}ragfnacc', parameters('solutionName'))]",
             "imageName": "km-rag-function:latest",
             "rgname": "rg-km-official"
           },
@@ -1904,7 +1904,7 @@
                       "value": "[parameters('azureSearchIndex')]"
                     }
                   ],
-                  "linuxFxVersion": "DOCKER|kmpubliccr.azurecr.io/km-rag-function-new:latest"
+                  "linuxFxVersion": "DOCKER|kmcontainerreg.azurecr.io/km-rag-function:latest"
                 }
               },
               "dependsOn": [
@@ -1973,7 +1973,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_script_new')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_charts')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity')]"
       ]
     },
@@ -2009,6 +2009,12 @@
           "azureOpenAIApiVersion": {
             "value": "2024-02-15-preview"
           },
+          "CHARTS_URL": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_script_url'), '2022-09-01').outputs.functionAppUrl.value]"
+          },
+          "FILTERS_URL": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_script_url'), '2022-09-01').outputs.functionAppUrl.value]"
+          },
           "USE_GRAPHRAG": {
             "value": "False"
           },
@@ -2026,7 +2032,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "1036815828553489361"
+              "templateHash": "18436197024567131319"
             }
           },
           "parameters": {
@@ -2112,6 +2118,14 @@
             "azureOpenAIApiVersion": {
               "type": "string"
             },
+            "CHARTS_URL": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "FILTERS_URL": {
+              "type": "string",
+              "defaultValue": ""
+            },
             "USE_GRAPHRAG": {
               "type": "string",
               "defaultValue": ""
@@ -2176,8 +2190,12 @@
                       "value": "[parameters('AzureOpenAIKey')]"
                     },
                     {
-                      "name": "USE_GRAPHRAG",
-                      "value": "[parameters('USE_GRAPHRAG')]"
+                      "name": "CHARTS_URL",
+                      "value": "[parameters('CHARTS_URL')]"
+                    },
+                    {
+                      "name": "FILTERS_URL",
+                      "value": "[parameters('FILTERS_URL')]"
                     },
                     {
                       "name": "GRAPHRAG_URL",

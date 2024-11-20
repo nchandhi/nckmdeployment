@@ -417,7 +417,7 @@ def call_gpt4(topics_str1, client):
         Your task is to analyze the given text corpus and identify distinct topics present within the data.
         {topics_str1}
         1. Identify the key topics in the text using topic modeling techniques. 
-        2. Choose the right number of topics based on data.
+        2. Choose the right number of topics based on data. Try to keep it as low number of topics as possible.
         3. Assign a clear and concise label to each topic based on its content.
         4. Provide a brief description of each topic along with its label.
 
@@ -426,7 +426,6 @@ def call_gpt4(topics_str1, client):
 
         Return the topics and their labels in JSON format.Always add 'topics' node and 'label', 'description' attriubtes in json.
         Do not return anything else.
-
         """
     # Phi-3 model client
     # response = client.complete(

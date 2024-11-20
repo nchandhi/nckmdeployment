@@ -39,7 +39,8 @@ param AzureOpenAIEndpoint string = ''
 param AzureOpenAIKey string
 
 param azureOpenAIApiVersion string
-
+param CHARTS_URL string = ''
+param FILTERS_URL string = ''
 param USE_GRAPHRAG string = ''
 param GRAPHRAG_URL string = ''
 param RAG_URL string = ''
@@ -93,7 +94,8 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
           name: 'AZURE_OPENAI_KEY'
           value: AzureOpenAIKey
         }
-        {name: 'USE_GRAPHRAG', value: USE_GRAPHRAG}
+        {name: 'CHARTS_URL', value: CHARTS_URL}
+        {name: 'FILTERS_URL', value: FILTERS_URL}
         {name: 'GRAPHRAG_URL', value: GRAPHRAG_URL}
         {name: 'RAG_URL', value: RAG_URL}
         {

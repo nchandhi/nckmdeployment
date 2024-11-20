@@ -21,8 +21,6 @@ var solutionLocation = resourceGroupLocation
 var baseUrl = 'https://raw.githubusercontent.com/nchandhi/nckmdeployment/main/'
 
 
-
-
 // ========== Managed Identity ========== //
 module managedIdentityModule 'deploy_managed_identity.bicep' = {
   name: 'deploy_managed_identity'
@@ -176,8 +174,8 @@ module createIndex 'deploy_index_scripts.bicep' = {
   dependsOn:[keyvaultModule]
 }
 
-module azureFunctions 'deploy_azure_function_script_new.bicep' = {
-  name : 'deploy_azure_function_script_new'
+module azureFunctions 'deploy_azure_function_charts.bicep' = {
+  name : 'deploy_azure_function_charts'
   params:{
     solutionName: solutionPrefix
     solutionLocation: solutionLocation
@@ -190,8 +188,8 @@ module azureFunctions 'deploy_azure_function_script_new.bicep' = {
   }
 }
 
-module azureragFunctions 'deploy_azure_function_script_new_rag.bicep' = {
-  name : 'deploy_azure_function_script_new_rag'
+module azureragFunctions 'deploy_azure_function_rag.bicep' = {
+  name : 'deploy_azure_function_rag'
   params:{
     solutionName: solutionPrefix
     solutionLocation: solutionLocation
@@ -244,6 +242,8 @@ module appserviceModule 'deploy_app_service.bicep' = {
     AzureOpenAIModel:'gpt-4o-mini'
     AzureOpenAIKey:azOpenAI.outputs.openAIOutput.openAPIKey
     azureOpenAIApiVersion:'2024-02-15-preview'
+    CHARTS_URL: azureFunctionURL.outputs.functionAppUrl
+    FILTERS_URL: azureFunctionURL.outputs.functionAppUrl
     USE_GRAPHRAG:'False'
     GRAPHRAG_URL:'TBD'
     RAG_URL:'TBD'

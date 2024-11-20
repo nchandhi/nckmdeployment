@@ -17,11 +17,11 @@ param sqlDbUser string
 param sqlDbPwd string
 param baseUrl string
 
-var registryName = 'kmpubliccr'
-var appserviceplanname = '${solutionName}-ragapp-serviceplan'
-var functionAppName = '${solutionName}-rag-fn'
-var storageaccountname = '${solutionName}ragfnsacc'
-var imageName = 'km-rag-function:latest'
+var registryName = 'kmcontainerreg'
+var appserviceplanname = '${solutionName}-graphragapp-serviceplan'
+var functionAppName = '${solutionName}-graphrag-fn'
+var storageaccountname = '${solutionName}graphragfnacc'
+var imageName = 'km-graphrag-function:latest'
 var rgname = 'rg-km-official'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
@@ -136,9 +136,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: azureSearchIndex
         }
       ]
-      linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-rag-function-new:latest'
+      linuxFxVersion: 'DOCKER|kmcontainerreg.azurecr.io/km-rag-function:latest'
     }
   }
 }
-
-// linuxFxVersion: 'DOCKER|kmpubliccr.azurecr.io/km-charts-function:latest'
