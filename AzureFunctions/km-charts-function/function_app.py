@@ -4,8 +4,8 @@ import json
 import os
 import pymssql
 import pandas as pd
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "5728107970966085332"
+      "templateHash": "8251730434572368897"
     }
   },
   "parameters": {
@@ -2114,7 +2114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "7587269892027320882"
+              "templateHash": "7729839089333281575"
             }
           },
           "parameters": {
@@ -2132,7 +2132,7 @@
             "chartsfunctionAppName": "[format('{0}-charts-fn', parameters('solutionName'))]",
             "chartsfunctionName": "get_metrics",
             "ragfunctionAppName": "[format('{0}-rag-fn', parameters('solutionName'))]",
-            "ragfunctionName": "get_metrics",
+            "ragfunctionName": "stream_openai_text",
             "graphrag_function_url": "TBD"
           },
           "resources": [],
@@ -2190,7 +2190,7 @@
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_urls'), '2022-09-01').outputs.functionURLsOutput.value.charts_function_url]"
           },
           "FILTERS_URL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_urls'), '2022-09-01').outputs.functionURLsOutput.value.rag_function_url]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_urls'), '2022-09-01').outputs.functionURLsOutput.value.charts_function_url]"
           },
           "USE_GRAPHRAG": {
             "value": "False"
