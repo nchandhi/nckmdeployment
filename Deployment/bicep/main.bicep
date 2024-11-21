@@ -2,7 +2,7 @@
 targetScope = 'resourceGroup'
 
 @minLength(3)
-@maxLength(6)
+@maxLength(8)
 @description('Prefix Name')
 param solutionPrefix string
 

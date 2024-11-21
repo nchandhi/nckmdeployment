@@ -5,14 +5,14 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "8251730434572368897"
+      "templateHash": "10770013003025821894"
     }
   },
   "parameters": {
     "solutionPrefix": {
       "type": "string",
       "minLength": 3,
-      "maxLength": 6,
+      "maxLength": 8,
       "metadata": {
         "description": "Prefix Name"
       }
