@@ -31,15 +31,15 @@ module managedIdentityModule 'deploy_managed_identity.bicep' = {
   scope: resourceGroup(resourceGroup().name)
 }
 
-// module cosmosDBModule 'deploy_cosmos_db.bicep' = {
-//   name: 'deploy_cosmos_db'
-//   params: {
-//     solutionName: solutionPrefix
-//     solutionLocation: cosmosLocation
-//     identity:managedIdentityModule.outputs.managedIdentityOutput.objectId
-//   }
-//   scope: resourceGroup(resourceGroup().name)
-// }
+module cosmosDBModule 'deploy_cosmos_db.bicep' = {
+  name: 'deploy_cosmos_db'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: otherLocation
+    identity:managedIdentityModule.outputs.managedIdentityOutput.objectId
+  }
+  scope: resourceGroup(resourceGroup().name)
+}
 
 
 // ========== Storage Account Module ========== //
@@ -174,7 +174,7 @@ module createIndex 'deploy_index_scripts.bicep' = {
   dependsOn:[keyvaultModule]
 }
 
-module azureFunctions 'deploy_azure_function_charts.bicep' = {
+module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
   name : 'deploy_azure_function_charts'
   params:{
     solutionName: solutionPrefix
@@ -188,7 +188,7 @@ module azureFunctions 'deploy_azure_function_charts.bicep' = {
   }
 }
 
-module azureragFunctions 'deploy_azure_function_rag.bicep' = {
+module azureragFunctionsRag 'deploy_azure_function_rag.bicep' = {
   name : 'deploy_azure_function_rag'
   params:{
     solutionName: solutionPrefix
@@ -208,15 +208,14 @@ module azureragFunctions 'deploy_azure_function_rag.bicep' = {
   }
 }
 
-module azureFunctionURL 'deploy_azure_function_script_url.bicep' = {
-  name : 'deploy_azure_function_script_url'
+module azureFunctionURL 'deploy_azure_function_urls.bicep' = {
+  name : 'deploy_azure_function_urls'
   params:{
     solutionName: solutionPrefix
     identity:managedIdentityModule.outputs.managedIdentityOutput.id
   }
-  dependsOn:[azureFunctions]
+  dependsOn:[azureFunctionsCharts,azureragFunctionsRag]
 }
-
 
 // // module createaihub 'deploy_aihub_scripts.bicep' = {
 // //   name : 'deploy_aihub_scripts'
@@ -242,11 +241,16 @@ module appserviceModule 'deploy_app_service.bicep' = {
     AzureOpenAIModel:'gpt-4o-mini'
     AzureOpenAIKey:azOpenAI.outputs.openAIOutput.openAPIKey
     azureOpenAIApiVersion:'2024-02-15-preview'
-    CHARTS_URL: azureFunctionURL.outputs.functionAppUrl
-    FILTERS_URL: azureFunctionURL.outputs.functionAppUrl
+    CHARTS_URL:azureFunctionURL.outputs.functionURLsOutput.charts_function_url
+    FILTERS_URL:azureFunctionURL.outputs.functionURLsOutput.rag_function_url
     USE_GRAPHRAG:'False'
-    GRAPHRAG_URL:'TBD'
-    RAG_URL:'TBD'
+    GRAPHRAG_URL:azureFunctionURL.outputs.functionURLsOutput.graphrag_function_url
+    RAG_URL:azureFunctionURL.outputs.functionURLsOutput.rag_function_url
+    AZURE_COSMOSDB_ACCOUNT: cosmosDBModule.outputs.cosmosOutput.cosmosAccountName
+    AZURE_COSMOSDB_ACCOUNT_KEY: cosmosDBModule.outputs.cosmosOutput.cosmosAccountKey
+    AZURE_COSMOSDB_CONVERSATIONS_CONTAINER: cosmosDBModule.outputs.cosmosOutput.cosmosContainerName
+    AZURE_COSMOSDB_DATABASE: cosmosDBModule.outputs.cosmosOutput.cosmosDatabaseName
+    AZURE_COSMOSDB_ENABLE_FEEDBACK: 'True'
   }
   scope: resourceGroup(resourceGroup().name)
   dependsOn:[azOpenAI,azAIMultiServiceAccount,azSearchService,sqlDBModule,azureFunctionURL]

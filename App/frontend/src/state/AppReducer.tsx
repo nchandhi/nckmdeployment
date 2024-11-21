@@ -1,3 +1,4 @@
+import { generateUUIDv4 } from "../configs/Utils";
 import { actionConstants } from "./ActionConstants";
 import { Action, type AppState } from "./AppProvider";
 
@@ -65,6 +66,31 @@ const appReducer = (state: AppState, action: Action): AppState => {
           ...state.chatHistory,
           list: [...state.chatHistory.list, ...action.payload],
         },
+      };
+    case actionConstants.SAVE_CONFIG:
+      return {
+        ...state,
+        config: {
+          ...state.config,
+          ...action.payload,
+        },
+      };
+    case actionConstants.UPDATE_SELECTED_CONV_ID:
+      return {
+        ...state,
+        selectedConversationId: action.payload,
+      };
+    case actionConstants.UPDATE_GENERATED_CONV_ID:
+      return {
+        ...state,
+        generatedConversationId: action.payload,
+      };
+    case actionConstants.NEW_CONVERSATION_START:
+      return {
+        ...state,
+        chat: { ...state.chat, messages: [] },
+        selectedConversationId: "",
+        generatedConversationId: generateUUIDv4(),
       };
     default:
       return state;

@@ -4,7 +4,6 @@ import {
   fetchChartDataWithFilters,
   fetchFilterData,
 } from "../../api/api";
-import chartConfig from "../../configs/chartConfig.json";
 
 import DonutChart from "../../chartComponents/DonutChart";
 import BarChart from "../../chartComponents/HorizontalBarChart";
@@ -14,36 +13,14 @@ import Card from "../../chartComponents/Card";
 import ChartFilter from "../ChartFilter/ChartFilter";
 
 import "./Chart.css";
-import { SelectedFilters, type FilterMetaData } from "../../types/AppTypes";
+import {
+  type ChartConfigItem,
+  SelectedFilters,
+  type FilterMetaData,
+} from "../../types/AppTypes";
 import { useAppContext } from "../../state/useAppContext";
 import { actionConstants } from "../../state/ActionConstants";
 import { ACCEPT_FILTERS, getGridStyles } from "../../configs/Utils";
-
-interface ChartLayout {
-  row: number;
-  col: number;
-  width?: string;
-}
-interface ChartDataItem {
-  [x: string]: any;
-  name: string;
-  count: number;
-  value: string;
-  text: string;
-  size: number;
-  color?: string;
-  percentage?: number;
-  description?: string;
-  unit_of_measurement?: string;
-  average_sentiment: "positive" | "negative" | "neutral";
-}
-export interface ChartConfigItem {
-  type: string;
-  title: string;
-  data: ChartDataItem[];
-  layout: ChartLayout;
-  id: string;
-}
 
 type ChartProps = {
   layoutWidthUpdated: boolean;
@@ -51,12 +28,13 @@ type ChartProps = {
 
 const Chart = (props: ChartProps) => {
   const { state, dispatch } = useAppContext();
-  const { dashboards } = state;
-  const { charts } = dashboards;
+  const { charts } = state.dashboards;
+  const { config: chartConfig } = state;
   const { layoutWidthUpdated } = props;
+
   const [fetchingFilters, setFetchingFilters] = useState<boolean>(false);
   const [fetchingCharts, setFetchingCharts] = useState<boolean>(false);
-  console.log(">>> state", state, charts);
+  console.log(">>> state", state);
   const [widths, setWidths] = useState<Record<string, number>>({});
   const [widgetsGapInPercentage, setWidgetsGapInPercentage] =
     useState<number>(1);
@@ -147,7 +125,7 @@ const Chart = (props: ChartProps) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        if (!dashboards.filtersMetaFetched) {
+        if (!state.dashboards.filtersMetaFetched) {
           setFetchingFilters(true);
           const filterResponse = await fetchFilterData();
           const acceptedFilters: FilterMetaData = {};
@@ -167,7 +145,7 @@ const Chart = (props: ChartProps) => {
           });
           setFetchingFilters(false);
         }
-        if (!dashboards.initialChartsDataFetched) {
+        if (!state.dashboards.initialChartsDataFetched) {
           await getChartData(undefined);
           dispatch({
             type: actionConstants.UPDATE_INITIAL_CHARTS_FETCHED_FLAG,
@@ -180,9 +158,10 @@ const Chart = (props: ChartProps) => {
         setFetchingFilters(false);
       }
     };
-
-    loadData();
-  }, []);
+    if(state.config.charts.length > 0){
+      loadData();
+    }
+  }, [state.config.charts]);
 
   const applyFilters = async (updatedFilters: SelectedFilters) => {
     await getChartData(updatedFilters);

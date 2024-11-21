@@ -1,5 +1,7 @@
 import { useReducer, createContext, type ReactNode } from "react";
 import {
+  AppConfig,
+  ChartConfigItem,
   Conversation,
   FilterMetaData,
   message,
@@ -7,10 +9,9 @@ import {
 } from "../types/AppTypes";
 import { appReducer } from "./AppReducer";
 import { actionConstants } from "./ActionConstants";
-import { type ChartConfigItem } from "../components/Chart/Chart";
-import { defaultSelectedFilters } from "../configs/Utils";
+import { defaultSelectedFilters, generateUUIDv4 } from "../configs/Utils";
 
-export interface AppState {
+export type AppState = {
   dashboards: {
     filtersMetaFetched: boolean;
     initialChartsDataFetched: boolean;
@@ -26,7 +27,13 @@ export interface AppState {
   chatHistory: {
     list: Conversation[];
   };
-}
+  selectedConversationId: string;
+  generatedConversationId: string;
+  config: {
+    appConfig: AppConfig;
+    charts: ChartConfigItem[];
+  };
+};
 
 const initialState: AppState = {
   dashboards: {
@@ -47,6 +54,12 @@ const initialState: AppState = {
   },
   chatHistory: {
     list: [],
+  },
+  selectedConversationId: "",
+  generatedConversationId: generateUUIDv4(),
+  config: {
+    appConfig: null,
+    charts: [],
   },
 };
 
@@ -86,8 +99,22 @@ export type Action =
   | {
       type: typeof actionConstants.ADD_CONVERSATIONS_TO_LIST;
       payload: Conversation[];
+    }
+  | {
+      type: typeof actionConstants.SAVE_CONFIG;
+      payload: AppState["config"];
+    }
+  | {
+      type: typeof actionConstants.UPDATE_SELECTED_CONV_ID;
+      payload: string;
+    }
+  | {
+      type: typeof actionConstants.UPDATE_GENERATED_CONV_ID;
+      payload: string;
+    }
+  | {
+      type: typeof actionConstants.NEW_CONVERSATION_START;
     };
-
 export const AppContext = createContext<{
   state: AppState;
   dispatch: React.Dispatch<Action>;

@@ -157,7 +157,7 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
             />
           </Stack>
 
-          <Stack horizontal>
+          {/* <Stack horizontal>
             <CommandBarButton
               iconProps={{ iconName: "Cancel" }}
               title={"Hide"}
@@ -165,7 +165,7 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
               role="button"
               // onClick={() => setShowHistoryPanel(false)}
             />
-          </Stack>
+          </Stack> */}
         </Stack>
       </Stack>
       <Stack

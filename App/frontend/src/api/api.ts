@@ -1,11 +1,48 @@
 import { historyListResponse } from "../configs/StaticData";
-import { Conversation, message } from "../types/AppTypes";
+import {
+  AppConfig,
+  ChartConfigItem,
+  Conversation,
+  ConversationRequest,
+  message,
+} from "../types/AppTypes";
+
+interface EnvVariables {
+  REACT_APP_CHART_URL: string;
+  REACT_APP_FILTERS_URL: string;
+}
+
+let envVariables: EnvVariables | null = null;
+
+export const fetchEnvVariables = async (): Promise<EnvVariables> => {
+  if (!envVariables) {
+    try {
+      const response = await fetch('/api/env');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch environment variables: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Validate the structure of the response
+      if (!data.REACT_APP_CHART_URL || !data.REACT_APP_FILTERS_URL) {
+        throw new Error("Environment variables are incomplete.");
+      }
+
+      envVariables = data as EnvVariables;
+    } catch (error) {
+      console.error("Error fetching environment variables:", error);
+      throw error;
+    }
+  }
+  return envVariables;
+};
+
 
 export const fetchChartData = async () => {
   try {
-    const response = await fetch(
-      "https://chartsfunckm.azurewebsites.net/api/GetMetrics?data_type=charts"
-    );
+    const env = await fetchEnvVariables();
+    const response = await fetch(env.REACT_APP_CHART_URL);
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
@@ -19,8 +56,8 @@ export const fetchChartData = async () => {
 
 export const fetchChartDataWithFilters = async (bodyData: any) => {
   try {
-    const response = await fetch(
-      "https://chartsfunckm.azurewebsites.net/api/GetMetrics?data_type=charts",
+    const env = await fetchEnvVariables();
+    const response = await fetch(env.REACT_APP_CHART_URL,
       {
         headers: {
           "Content-Type": "application/json",
@@ -42,9 +79,8 @@ export const fetchChartDataWithFilters = async (bodyData: any) => {
 
 export const fetchFilterData = async () => {
   try {
-    const response = await fetch(
-      "https://chartsfunckm.azurewebsites.net/api/GetMetrics?data_type=filters"
-    );
+    const env = await fetchEnvVariables();
+    const response = await fetch(env.REACT_APP_FILTERS_URL);
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
@@ -55,7 +91,6 @@ export const fetchFilterData = async () => {
     throw error;
   }
 };
-
 
 export const historyRead = async (convId: string): Promise<message[]> => {
   const response = await fetch("/api/history/read", {
@@ -120,16 +155,18 @@ export const historyList = async (
     })
     .catch((_err) => {
       console.error("There was an issue fetching your data.", _err);
-      const conversations: Conversation[] = historyListResponse.map((conv: any) => {
-        const conversation: Conversation = {
-          id: conv.id,
-          title: conv.title,
-          date: conv.createdAt,
-          updatedAt: conv?.updatedAt,
-          messages: [],
-        };
-        return conversation;
-      });
+      const conversations: Conversation[] = historyListResponse.map(
+        (conv: any) => {
+          const conversation: Conversation = {
+            id: conv.id,
+            title: conv.title,
+            date: conv.createdAt,
+            updatedAt: conv?.updatedAt,
+            messages: [],
+          };
+          return conversation;
+        }
+      );
       return conversations;
       // return null;
     });
@@ -164,6 +201,57 @@ export const historyUpdate = async (
     });
   return response;
 };
+
+export async function getLayoutConfig(): Promise<{
+  appConfig: AppConfig;
+  charts: ChartConfigItem[];
+}> {
+  const response = await fetch("/api/layout-config", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  try {
+    if (response.ok) {
+      const layoutConfigData = await response.json();
+      console.log("layoutConfigData", layoutConfigData);
+      return layoutConfigData;
+    }
+  } catch {
+    console.error("Failed to parse Layout config data");
+  }
+  return {
+    appConfig: null,
+    charts: [],
+  };
+}
+
+// /api/conversation
+// /api/chat
+export async function callConversationApi(
+  options: ConversationRequest,
+  abortSignal: AbortSignal
+): Promise<Response> {
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messages: options.messages,
+      conversation_id: options.id,
+    }),
+    signal: abortSignal,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(JSON.stringify(errorData.error));
+  }
+
+  return response;
+}
 
 export const historyRename = async (
   convId: string,

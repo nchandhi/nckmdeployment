@@ -45,11 +45,27 @@ param USE_GRAPHRAG string = ''
 param GRAPHRAG_URL string = ''
 param RAG_URL string = ''
 
+@description('Azure Cosmos DB Account')
+param AZURE_COSMOSDB_ACCOUNT string = ''
+
+@description('Azure Cosmos DB Account Key')
+@secure()
+param AZURE_COSMOSDB_ACCOUNT_KEY string = ''
+
+@description('Azure Cosmos DB Conversations Container')
+param AZURE_COSMOSDB_CONVERSATIONS_CONTAINER string = ''
+
+@description('Azure Cosmos DB Database')
+param AZURE_COSMOSDB_DATABASE string = ''
+
+@description('Enable feedback in Cosmos DB')
+param AZURE_COSMOSDB_ENABLE_FEEDBACK string = 'True'
+
 // var WebAppImageName = 'DOCKER|byoaiacontainer.azurecr.io/byoaia-app:latest'
 
 // var WebAppImageName = 'DOCKER|ncwaappcontainerreg1.azurecr.io/ncqaappimage:v1.0.0'
 
-var WebAppImageName = 'DOCKER|kmpubliccr.azurecr.io/km-app1:latest'
+var WebAppImageName = 'DOCKER|kmcontainerreg.azurecr.io/km-app:latest'
 
 resource HostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: HostingPlanName
@@ -98,6 +114,21 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
         {name: 'FILTERS_URL', value: FILTERS_URL}
         {name: 'GRAPHRAG_URL', value: GRAPHRAG_URL}
         {name: 'RAG_URL', value: RAG_URL}
+        {name: 'AZURE_COSMOSDB_ACCOUNT'
+          value: AZURE_COSMOSDB_ACCOUNT
+        }
+        {name: 'AZURE_COSMOSDB_ACCOUNT_KEY'
+          value: AZURE_COSMOSDB_ACCOUNT_KEY
+        }
+        {name: 'AZURE_COSMOSDB_CONVERSATIONS_CONTAINER'
+          value: AZURE_COSMOSDB_CONVERSATIONS_CONTAINER
+        }
+        {name: 'AZURE_COSMOSDB_DATABASE'
+          value: AZURE_COSMOSDB_DATABASE
+        }
+        {name: 'AZURE_COSMOSDB_ENABLE_FEEDBACK'
+          value: AZURE_COSMOSDB_ENABLE_FEEDBACK
+        }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
           value: 'true'

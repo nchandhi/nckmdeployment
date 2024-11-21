@@ -1,5 +1,5 @@
 import numpy as np
-from quart import Quart, request, jsonify
+from quart import Quart, request, jsonify, send_from_directory
 import os
 from openai import AzureOpenAI
 from matplotlib import pyplot as plt
@@ -17,14 +17,33 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Quart(__name__)
-app = cors(app)
+app = cors(app, allow_origin="*")
+
+# Serve index.html from the React build folder
+@app.route('/')
+async def serve_index():
+    return await send_from_directory(os.path.join(app.root_path, 'frontend', 'build'), 'index.html')
+
+@app.route("/favicon.ico") 
+async def favicon():
+    return await send_from_directory(
+        os.path.join(app.root_path, 'frontend', 'build', 'static'),
+        'favicon.ico', 
+        mimetype='image/x-icon'
+    )
+# Serve static files (JS, CSS, images, etc.)
+@app.route("/assets/<path:path>") 
+async def assets(path):
+    return await send_from_directory(os.path.join(app.root_path, 'frontend', 'build', 'static', 'assets'), path)
+
 
 # Load environment variables
 # USE_GRAPHRAG = os.getenv("USE_GRAPHRAG", "false").lower() == "true"
 USE_GRAPHRAG = os.getenv("USE_GRAPHRAG", "false").strip().lower() == "true"
 GRAPHRAG_URL = os.getenv("GRAPHRAG_URL", "")
 RAG_URL = os.getenv("RAG_URL", "")
-
+RAG_CHART_URL = os.getenv("RAG_CHART_URL", "")
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_KEY", "")
 
 # Initialize Azure OpenAI client
 # client = AzureOpenAI(
@@ -249,9 +268,8 @@ async def complete_chat_request(request_body):
     except Exception as e:
         print(f"Error in complete_chat_request: {str(e)}")
         return jsonify({"error": "An error occurred during processing."}), 500
-
-
-
+    
+    
 @app.route('/api/chat', methods=['POST'])
 async def conversation():
     if not request.is_json:
@@ -261,6 +279,20 @@ async def conversation():
     # Call complete_chat_request with the request JSON
     return await complete_chat_request(request_json)
 
+@app.route('/api/env', methods=['GET'])
+def get_env():
+    return jsonify({
+        "REACT_APP_CHART_URL": os.getenv("REACT_APP_CHART_URL"),
+        "REACT_APP_FILTERS_URL": os.getenv("REACT_APP_FILTERS_URL")
+    })
+
+
+@app.route("/api/layout-config", methods=['GET'])
+async def get_layout_config():
+    layout_config_str = os.getenv("REACT_APP_LAYOUT_CONFIG", "")
+    if layout_config_str:
+        return layout_config_str
+    return jsonify({"error": "Layout config not found in environment variables"}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='127.0.0.1', port=5000)

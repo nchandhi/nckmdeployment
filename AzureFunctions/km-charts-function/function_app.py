@@ -4,13 +4,13 @@ import json
 import os
 import pymssql
 import pandas as pd
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 # add post methods - filters will come in the body (request.body), if body is not empty, update the where clause in the query
-@app.route(route="get_metrics", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="get_metrics", methods=["GET","POST"], auth_level=func.AuthLevel.ANONYMOUS)
 def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
 # select distinct mined_topic from processed_data
     # distinct sentiment from processed_data... union all the results
@@ -49,6 +49,7 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
 
         column_names = [i[0] for i in cursor.description]
         df = pd.DataFrame(rows, columns=column_names)
+        df.rename(columns={'key1':'key'}, inplace=True)
 
         nested_json = (
         df.groupby("filter_name")
@@ -64,47 +65,85 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         json_response = json.dumps(filters_data)
         return func.HttpResponse(json_response, mimetype="application/json", status_code=200)
     # where clauses for the charts data 
-    elif data_type == 'charts':
-        sql_stmt = '''select 'Total Calls' as id, 'Total Calls' as chart_name, 'card' as chart_type,
-        'Total Calls' as name1, count(*) as value1, '' as unit_of_measurement from [dbo].[processed_data]
+    elif data_type == 'charts': 
+        where_clause = ''
+        req_body = ''
+        try:
+            req_body = req.get_json()
+        except:
+            pass
+        if req_body != '': 
+            where_clause = ''
+            for key, value in req_body.items():
+                if key == 'selected_filters':
+                    for k, v in value.items():
+                        if k == 'Topics':
+                            topics = ''
+                            for topic in v:
+                                topics += (f''' '{topic}', ''')
+                            if where_clause: 
+                                where_clause += " and "
+                            
+                            where_clause += f" mined_topic  in ({topics})"
+                            where_clause = where_clause.replace(', )', ')')
+                        elif k == 'Sentiment':
+                            for sentiment in v:
+                                if where_clause: 
+                                    where_clause += " and "
+                                where_clause += f"sentiment = '{sentiment}'"
+
+                        elif k == 'Satisfaction':
+                            for satisfaction in v:
+                                if where_clause: 
+                                    where_clause += " and "
+                                where_clause += f"satisfied = '{satisfaction}'"
+                        elif k == 'DateRange':
+                            for date_range in v:
+                                if where_clause: 
+                                    where_clause += " and "
+                                if date_range == 'Last 7 days':
+                                    where_clause += "StartTime >= DATEADD(day, -7, GETDATE())"
+                                elif date_range == 'Last 14 days':
+                                    where_clause += "StartTime >= DATEADD(day, -14, GETDATE())"
+                                elif date_range == 'Last 90 days':
+                                    where_clause += "StartTime >= DATEADD(day, -90, GETDATE())"
+                                elif date_range == 'Year to Date':
+                                    where_clause += "StartTime >= DATEADD(year, -1, GETDATE())"
+        if where_clause:
+            where_clause = (f"where {where_clause} ")
+
+        sql_stmt = f'''select 'Total Calls' as id, 'Total Calls' as chart_name, 'card' as chart_type,
+        'Total Calls' as name, count(*) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause}
         union all 
         select 'Average Handling Time' as id, 'Average Handling Time' as chart_name, 'card' as chart_type,
-        'Average Handling Time' as name1, 
-        AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value1, 'mins' as unit_of_measurement from [dbo].[processed_data]
+        'Average Handling Time' as name, 
+        AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value, 'mins' as unit_of_measurement from [dbo].[processed_data]  {where_clause}
         union all 
         select 'Satisfied' as id, 'Satisfied' as chart_name, 'card' as chart_type,
-        'Satisfied' as name1, 
-        (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value1, '%' as unit_of_measurement from [dbo].[processed_data]
+        'Satisfied' as name, 
+        (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
         select 'Total Calls' as id, 'Total Calls' as chart_name, 'card' as chart_type,
-        'Total Calls' as name1, count(*) as value1, '' as unit_of_measurement from [dbo].[processed_data]
+        'Total Calls' as name, count(*) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause}
         union all 
         select 'Average Handling Time' as id, 'Average Handling Time' as chart_name, 'card' as chart_type,
-        'Average Handling Time' as name1, 
-        AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value1, 'mins' as unit_of_measurement from [dbo].[processed_data]
+        'Average Handling Time' as name, 
+        AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value, 'mins' as unit_of_measurement from [dbo].[processed_data] {where_clause}
         union all 
         select 'Satisfied' as id, 'Satisfied' as chart_name, 'card' as chart_type,
-        'Satisfied' as name1, 
-        (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value1, '%' as unit_of_measurement from [dbo].[processed_data] 
-        where satisfied = 'yes' 
+        'Satisfied' as name, 
+        (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
+        {where_clause}
         union all 
         select 'SENTIMENT' as id, 'Topics Overview' as chart_name, 'donutchart' as chart_type, 
-        sentiment as name1,
-        (count(sentiment) * 100 / sum(count(sentiment)) over ()) as value1, 
-        '' as unit_of_measurement from [dbo].[processed_data]  where sentiment = 'positive' group by sentiment
-        union all 
-        select 'SENTIMENT' as id, 'Topics Overview' as chart_name, 'donutchart' as chart_type, 
-        sentiment as name1,
-        (count(sentiment) * 100 / sum(count(sentiment)) over ()) as value1, 
-        '' as unit_of_measurement from [dbo].[processed_data]  where sentiment = 'negative' group by sentiment
-        union all 
-        select 'SENTIMENT' as id, 'Topics Overview' as chart_name, 'donutchart' as chart_type, 
-        sentiment as name1,
-        (count(sentiment) * 100 / sum(count(sentiment)) over ()) as value1, 
-        '' as unit_of_measurement from [dbo].[processed_data]  where sentiment = 'neutral' group by sentiment
+        sentiment as name,
+        (count(sentiment) * 100 / sum(count(sentiment)) over ()) as value, 
+        '' as unit_of_measurement from [dbo].[processed_data]  {where_clause} 
+        group by sentiment
         union all
         select 'AVG_HANDLING_TIME_BY_TOPIC' as id, 'Average Handling Time By Topic' as chart_name, 'bar' as chart_type,
-        mined_topic as name1, 
-        AVG(DATEDIFF(MINUTE, StartTime, EndTime)) as value1, '' as unit_of_measurement from [dbo].[processed_data] group by mined_topic
+        mined_topic as name, 
+        AVG(DATEDIFF(MINUTE, StartTime, EndTime)) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause} 
+        group by mined_topic
         '''
         #charts pt1
         cursor.execute(sql_stmt)
@@ -116,14 +155,14 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
 
         # charts pt1
         nested_json1 = (
-            df.groupby(['id', 'chart_name', 'chart_type']).apply(lambda x: x[['name1', 'value1', 'unit_of_measurement']].to_dict(orient='records')).reset_index(name='chart_value')
+            df.groupby(['id', 'chart_name', 'chart_type']).apply(lambda x: x[['name', 'value', 'unit_of_measurement']].to_dict(orient='records')).reset_index(name='chart_value')
             
         )
         result1 = nested_json1.to_dict(orient='records')
         # json_data1 = json.dumps(result, indent=4)
         # print(json_data)
 
-        sql_stmt = '''select mined_topic as name, 'Topics' as id, 'Trending Topics' as chart_name, 'table' as chart_type, call_frequency,
+        sql_stmt = (f'''select mined_topic as name, 'TOPICS' as id, 'Trending Topics' as chart_name, 'table' as chart_type, call_frequency,
         case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
         when avg_sentiment >= 2 THEN 'positive' end as average_sentiment
         from
@@ -133,10 +172,10 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
             (
                 select TRIM(mined_topic) as mined_topic, 1 as n,
                 CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
-                from [dbo].[processed_data]
-            ) t
+                from [dbo].[processed_data] {where_clause} 
+            ) t        
             group by mined_topic
-        ) t1'''
+        ) t1''')
 
         cursor.execute(sql_stmt)
 
@@ -152,7 +191,8 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         )
         result2 = nested_json2.to_dict(orient='records')
 
-        sql_stmt = '''select key_phrase as text1, 'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type, call_frequency as size1,
+        where_clause = ''
+        sql_stmt = (f'''select key_phrase as text, 'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type, call_frequency as size,
         case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
         when avg_sentiment >= 2 THEN 'positive' end as average_sentiment
         from
@@ -164,9 +204,10 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
                 CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
                 from [dbo].[processed_data_key_phrases]
             ) t
+            {where_clause}
             group by key_phrase
             order by call_frequency desc
-        ) t1'''
+        ) t1''')
 
         cursor.execute(sql_stmt)
 
@@ -176,7 +217,7 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         df = pd.DataFrame(rows, columns=column_names)
 
         nested_json3 = (
-            df.groupby(['id', 'chart_name', 'chart_type']).apply(lambda x: x[['text1', 'size1', 'average_sentiment']].to_dict(orient='records')).reset_index(name='chart_value')
+            df.groupby(['id', 'chart_name', 'chart_type']).apply(lambda x: x[['text', 'size', 'average_sentiment']].to_dict(orient='records')).reset_index(name='chart_value')
             
         )
         result3 = nested_json3.to_dict(orient='records')

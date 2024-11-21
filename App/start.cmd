@@ -1,17 +1,12 @@
 @echo off
-
-echo.
-echo Restoring backend python packages
-echo.
+echo Restoring backend python packages...
 call python -m pip install -r requirements.txt
 if "%errorlevel%" neq "0" (
     echo Failed to restore backend python packages
     exit /B %errorlevel%
 )
 
-echo.
-echo Restoring frontend npm packages
-echo.
+echo Restoring frontend npm packages...
 cd frontend
 call npm install
 if "%errorlevel%" neq "0" (
@@ -19,23 +14,18 @@ if "%errorlevel%" neq "0" (
     exit /B %errorlevel%
 )
 
-echo.
-echo Building frontend
-echo.
+echo Building frontend...
 call npm run build
 if "%errorlevel%" neq "0" (
     echo Failed to build frontend
     exit /B %errorlevel%
 )
 
-echo.    
-echo Starting backend    
-echo.    
-cd ..  
-start http://127.0.0.1:50505
-@REM call python app.py --port 50505 --reload
-call python -m uvicorn app:app  --port 50505 --reload
-if "%errorlevel%" neq "0" (    
-    echo Failed to start backend    
-    exit /B %errorlevel%    
-) 
+echo Starting backend...
+cd ..
+start http://127.0.0.1:5000
+call python -m uvicorn app:app --port 5000 --reload
+if "%errorlevel%" neq "0" (
+    echo Failed to start backend
+    exit /B %errorlevel%
+)

@@ -60,7 +60,7 @@
   position: relative;
   font-family: inherit;
   -webkit-font-smoothing: antialiased;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 400;
   background-color: transparent;
   border: none;
@@ -130,7 +130,7 @@
     min-width: fit-content;
   }
   .options span{
-    font-size: 0.7rem !important;
+    font-size: 0.6rem !important;
   }
 
   .searchTopics {
@@ -139,7 +139,7 @@
   }
 
   .searchTopics input{
-    font-size: .6rem;
+    font-size: .69rem;
   }
   .ms-SearchBox-iconContainer {
     font-size: .6rem;
@@ -172,6 +172,10 @@
 
   .filterOuterContainer button i {
     font-size: .8rem;
+  }
+
+  .options span{
+    font-size: 0.8rem !important;
   }
 
   ul>li>button{
@@ -209,6 +213,10 @@
     min-width: fit-content;
   }
 
+  .options span{
+    font-size: 0.8rem !important;
+  }
+
   ul>li>button{
     font-size: 0.8rem !important;
     height: 2rem !important;
@@ -237,6 +245,10 @@
   }
   .filterOuterContainer button i {
     font-size: 1.2rem;
+  }
+
+  .options span{
+    font-size: 1rem !important;
   }
 
   ul>li>button{

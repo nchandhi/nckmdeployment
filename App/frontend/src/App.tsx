@@ -9,19 +9,10 @@ import {
 import { SparkleRegular } from "@fluentui/react-icons";
 import "./App.css";
 import { AppLogo } from "./components/Svg/Svg";
-import chartConfigs from "./configs/chartConfig.json";
 import { ChatHistoryPanel } from "./components/ChatHistoryPanel/ChatHistoryPanel";
-import { historyList } from "./api/api";
-import { Conversation } from "./types/AppTypes";
+import { getLayoutConfig, historyList } from "./api/api";
 import { useAppContext } from "./state/useAppContext";
 import { actionConstants } from "./state/ActionConstants";
-
-const chartConfig: {
-  appConfig: Record<
-    string,
-    Record<string, number> | Record<string, Record<string, number>>
-  >;
-} = { ...chartConfigs };
 
 const panels = {
   DASHBOARD: "DASHBOARD",
@@ -47,7 +38,8 @@ const defaultPanelShowStates = {
 };
 
 const Dashboard: React.FC = () => {
-  const { appConfig } = chartConfig;
+  const { state, dispatch } = useAppContext();
+  const { appConfig } = state.config;
   const [panelShowStates, setPanelShowStates] = useState<
     Record<string, boolean>
   >({ ...defaultPanelShowStates });
@@ -55,10 +47,25 @@ const Dashboard: React.FC = () => {
     ...defaultThreeColumnConfig,
   });
   const [layoutWidthUpdated, setLayoutWidthUpdated] = useState<boolean>(false);
-  const { state, dispatch } = useAppContext();
+
+  useEffect(() => {
+    try {
+      const fetchConfig = async () => {
+        const configData = await getLayoutConfig();
+        console.log("configData", configData);
+        dispatch({ type: actionConstants.SAVE_CONFIG, payload: configData });
+      };
+      fetchConfig();
+    } catch (error) {
+      console.error("Failed to fetch chart configuration:", error);
+    }
+  }, []);
 
   const updateLayoutWidths = (newState: Record<string, boolean>) => {
     const noOfWidgetsOpen = Object.values(newState).filter((val) => val).length;
+    if (appConfig === null) {
+      return;
+    }
 
     if (
       noOfWidgetsOpen === 1 ||
@@ -95,7 +102,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     updateLayoutWidths(panelShowStates);
-  }, []);
+  }, [state.config.appConfig]);
 
   const onHandlePanelStates = (panelName: string) => {
     setLayoutWidthUpdated((prevFlag) => !prevFlag);
@@ -152,8 +159,7 @@ const Dashboard: React.FC = () => {
           >
             {`${panelShowStates?.[panels.CHAT] ? "Hide" : "Show"} Chat`}
           </Button>
-          <Button
-            // icon={<SparkleRegular />}
+          {/* <Button 
             appearance="outline"
             onClick={() => onHandlePanelStates(panels.CHATHISTORY)}
             disabled={!panelShowStates?.[panels.CHAT]}
@@ -161,7 +167,7 @@ const Dashboard: React.FC = () => {
             {`${
               panelShowStates?.[panels.CHATHISTORY] ? "Hide" : "Show"
             } Chat History`}
-          </Button>
+          </Button> */}
         </div>
       </div>
       <div className="main-container">
@@ -181,7 +187,11 @@ const Dashboard: React.FC = () => {
               width: `${panelWidths[panels.CHAT]}%`,
             }}
           >
-            <Chat />
+            <Chat
+              onHandlePanelStates={onHandlePanelStates}
+              panels={panels}
+              panelShowStates={panelShowStates}
+            />
           </div>
         )}
         {/* RIGHT PANEL: CHAT HISTORY */}
