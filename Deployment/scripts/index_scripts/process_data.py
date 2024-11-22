@@ -287,7 +287,7 @@ create_processed_data_sql = """CREATE TABLE processed_data (
                 EndTime varchar(255),
                 StartTime varchar(255),
                 Content varchar(max),
-                summary varchar(500),
+                summary varchar(3000),
                 satisfied varchar(255),
                 sentiment varchar(255),
                 topic varchar(255),
