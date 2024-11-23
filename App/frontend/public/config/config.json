@@ -19,44 +19,44 @@
   "charts": [
     {
       "id": "SATISFIED",
-      "name": "Satisfied",
-      "type": "card",
+      "chart_name": "Satisfied",
+      "chart_type": "card",
       "layout": { "row": 1, "column": 1, "height": 11 }
     },
     {
       "id": "TOTAL_CALLS",
-      "name": "Total Calls",
-      "type": "card",
+      "chart_name": "Total Calls",
+      "chart_type": "card",
       "layout": { "row": 1, "column": 2, "span": 1 }
     },
     {
       "id": "AVG_HANDLING_TIME",
-      "name": "Average Handling Time",
-      "type": "card",
+      "chart_name": "Average Handling Time",
+      "chart_type": "card",
       "layout": { "row": 1, "column": 3, "span": 1 }
     },
     {
       "id": "SENTIMENT",
-      "name": "Topics Overview",
-      "type": "donutchart",
+      "chart_name": "Topics Overview",
+      "chart_type": "donutchart",
       "layout": { "row": 2, "column": 1, "width": 40, "height": 44.5 }
     },
     {
       "id": "AVG_HANDLING_TIME_BY_TOPIC",
-      "name": "Average Handling Time By Topic",
-      "type": "bar",
+      "chart_name": "Average Handling Time By Topic",
+      "chart_type": "bar",
       "layout": { "row": 2, "column": 2, "row-span": 2, "width": 60 }
     },
     {
       "id": "TOPICS",
-      "name": "Trending Topics",
-      "type": "table",
+      "chart_name": "Trending Topics",
+      "chart_type": "table",
       "layout": { "row": 3, "column": 1, "span": 2 }
     },
     {
       "id": "KEY_PHRASES",
-      "name": "Key Phrases",
-      "type": "wordcloud",
+      "chart_name": "Key Phrases",
+      "chart_type": "wordcloud",
       "layout": { "row": 3, "column": 2, "height": 44.5 }
     }
   ]

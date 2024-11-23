@@ -16,7 +16,7 @@ export const sentimentIcons: { [key: string]: string } = {
 export const defaultSelectedFilters = {
   Topic: [],
   Sentiment: ["all"],
-  DateRange: "yearToDate",
+  DateRange: ["Last 7 days"],
 };
 
 export const widgetsContainerMaxHeight = 82.5; // in vh

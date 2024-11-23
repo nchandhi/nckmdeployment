@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Button, Input, Text } from "@fluentui/react-components"; // Added Spinner for generatingResponse state
+import { Button, Input, Text, Textarea } from "@fluentui/react-components"; // Added Spinner for generatingResponse state
 import axios from "axios";
 import "./Chat.css";
 import SparkleIcon from "../../Assets/Sparkle.svg";
@@ -37,7 +37,7 @@ const Chat: React.FC<ChatProps> = ({
     generateUUIDv4()
   );
 
-  const questionInputRef = useRef<HTMLInputElement>(null);
+  const questionInputRef = useRef<HTMLTextAreaElement>(null);
   const abortFuncs = useRef([] as AbortController[]);
 
   const saveToDB = async (messages: message[], convId: string) => {
@@ -304,7 +304,7 @@ const Chat: React.FC<ChatProps> = ({
     // }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -396,17 +396,19 @@ const Chat: React.FC<ChatProps> = ({
           title="Create new Conversation"
           disabled={generatingResponse}
         />
-        <div className="chat-input">
-          <Input
-            value={userMessage}
-            onChange={(e, data) => setUserMessage(data.value || "")}
-            placeholder="Ask a question..."
-            // disabled={generatingResponse}
-            onKeyDown={handleKeyDown}
-            className="input-field"
-            // ref={questionInputRef}
-            input={{ ref: questionInputRef }}
-          />
+        <div className="text-area-container">
+           <Textarea
+              className="textarea-field"
+              value={userMessage}
+              onChange={(e, data) => setUserMessage(data.value || "")}
+              placeholder="Ask a question..."
+              disabled={generatingResponse}
+              onKeyDown={handleKeyDown}
+              ref={questionInputRef}
+              rows={2}
+              style={{ resize: "none" }} 
+              appearance="outline" 
+            />
           <DefaultButton
             iconProps={{ iconName: "Send" }}
             role="button"

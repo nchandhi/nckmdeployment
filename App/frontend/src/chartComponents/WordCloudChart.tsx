@@ -73,7 +73,7 @@ const WordCloudChart: React.FC<WordCloudChartProps> = ({
         .data(words)
         .enter()
         .append("text")
-        .style("font-size", (d) => `${d.size - 8}px`)
+        .style("font-size", (d) => `${d.size}px`)
         .style("fill", (d) => d.color || "#69b3a2")
         .attr("text-anchor", "middle")
         .attr(
@@ -82,7 +82,7 @@ const WordCloudChart: React.FC<WordCloudChartProps> = ({
         )
         .text((d) => d.text);
     }
-  }, [data.words.length]);
+  }, [data.words.length, widthInPixels]);
 
   return (
     <div style={WordCloudStyles.mainContainer}>

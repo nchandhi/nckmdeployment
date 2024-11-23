@@ -59,7 +59,7 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         }).to_list()
         )
 
-        print(nested_json)
+        # print(nested_json)
         filters_data = nested_json
         
         json_response = json.dumps(filters_data)
@@ -77,20 +77,21 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
             for key, value in req_body.items():
                 if key == 'selected_filters':
                     for k, v in value.items():
-                        if k == 'Topics':
+                        if k == 'Topic':
                             topics = ''
                             for topic in v:
                                 topics += (f''' '{topic}', ''')
                             if where_clause: 
-                                where_clause += " and "
-                            
-                            where_clause += f" mined_topic  in ({topics})"
-                            where_clause = where_clause.replace(', )', ')')
+                                where_clause += " and "  
+                            if topics:
+                                where_clause += f" mined_topic  in ({topics})"
+                                where_clause = where_clause.replace(', )', ')')
                         elif k == 'Sentiment':
                             for sentiment in v:
-                                if where_clause: 
-                                    where_clause += " and "
-                                where_clause += f"sentiment = '{sentiment}'"
+                                if sentiment != 'all':
+                                    if where_clause: 
+                                        where_clause += " and "
+                                    where_clause += f"sentiment = '{sentiment}'"
 
                         elif k == 'Satisfaction':
                             for satisfaction in v:
@@ -112,39 +113,30 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         if where_clause:
             where_clause = (f"where {where_clause} ")
 
-        sql_stmt = f'''select 'Total Calls' as id, 'Total Calls' as chart_name, 'card' as chart_type,
-        'Total Calls' as name, count(*) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause}
-        union all 
-        select 'Average Handling Time' as id, 'Average Handling Time' as chart_name, 'card' as chart_type,
-        'Average Handling Time' as name, 
-        AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value, 'mins' as unit_of_measurement from [dbo].[processed_data]  {where_clause}
-        union all 
-        select 'Satisfied' as id, 'Satisfied' as chart_name, 'card' as chart_type,
-        'Satisfied' as name, 
-        (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
-        select 'Total Calls' as id, 'Total Calls' as chart_name, 'card' as chart_type,
-        'Total Calls' as name, count(*) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause}
-        union all 
-        select 'Average Handling Time' as id, 'Average Handling Time' as chart_name, 'card' as chart_type,
-        'Average Handling Time' as name, 
-        AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value, 'mins' as unit_of_measurement from [dbo].[processed_data] {where_clause}
-        union all 
-        select 'Satisfied' as id, 'Satisfied' as chart_name, 'card' as chart_type,
-        'Satisfied' as name, 
-        (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
-        {where_clause}
-        union all 
-        select 'SENTIMENT' as id, 'Topics Overview' as chart_name, 'donutchart' as chart_type, 
-        sentiment as name,
-        (count(sentiment) * 100 / sum(count(sentiment)) over ()) as value, 
-        '' as unit_of_measurement from [dbo].[processed_data]  {where_clause} 
-        group by sentiment
-        union all
-        select 'AVG_HANDLING_TIME_BY_TOPIC' as id, 'Average Handling Time By Topic' as chart_name, 'bar' as chart_type,
-        mined_topic as name, 
-        AVG(DATEDIFF(MINUTE, StartTime, EndTime)) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause} 
-        group by mined_topic
-        '''
+        sql_stmt = (f'''select 'TOTAL_CALLS' as id, 'Total Calls' as chart_name, 'card' as chart_type,
+                'Total Calls' as name, count(*) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause}
+                union all 
+                select 'AVG_HANDLING_TIME' as id, 'Average Handling Time' as chart_name, 'card' as chart_type,
+                'Average Handling Time' as name, 
+                AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value, 'mins' as unit_of_measurement from [dbo].[processed_data] {where_clause}
+                union all 
+                select 'SATISFIED' as id, 'Satisfied' as chart_name, 'card' as chart_type,
+                'Satisfied' as name, 
+                (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
+                {where_clause}
+                union all 
+                select 'SENTIMENT' as id, 'Topics Overview' as chart_name, 'donutchart' as chart_type, 
+                sentiment as name,
+                (count(sentiment) * 100 / sum(count(sentiment)) over ()) as value, 
+                '' as unit_of_measurement from [dbo].[processed_data]  {where_clause} 
+                group by sentiment
+                union all
+                select 'AVG_HANDLING_TIME_BY_TOPIC' as id, 'Average Handling Time By Topic' as chart_name, 'bar' as chart_type,
+                mined_topic as name, 
+                AVG(DATEDIFF(MINUTE, StartTime, EndTime)) as value, '' as unit_of_measurement from [dbo].[processed_data] {where_clause} 
+                group by mined_topic
+                ''')
+
         #charts pt1
         cursor.execute(sql_stmt)
 
@@ -215,6 +207,8 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
 
         column_names = [i[0] for i in cursor.description]
         df = pd.DataFrame(rows, columns=column_names)
+        
+        df = df.head(15)
 
         nested_json3 = (
             df.groupby(['id', 'chart_name', 'chart_type']).apply(lambda x: x[['text', 'size', 'average_sentiment']].to_dict(orient='records')).reset_index(name='chart_value')

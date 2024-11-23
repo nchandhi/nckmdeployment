@@ -29,12 +29,12 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
 
   console.log("filtersMeta", filtersMeta);
   const initialDateRange =
-    typeof selectedFilters.DateRange === "string"
+    typeof Array.isArray(selectedFilters.DateRange)
       ? selectedFilters.DateRange
-      : "";
+      : [""];
 
   const [selectedDateRange, setSelectedDateRange] =
-    useState<string>(initialDateRange);
+    useState<string[]>(initialDateRange as string[]);
   const [selectedCsat, setSelectedCsat] = useState<string[]>(
     selectedFilters.Sentiment as string[]
   );
@@ -68,7 +68,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   };
 
   const handleDateSelection = (key: string) => {
-    setSelectedDateRange(key);
+    setSelectedDateRange([key]);
     setIsDateMenuOpen(false);
   };
 
@@ -78,7 +78,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   };
 
   const handleApplyFilters = () => {
-    const startDate = selectedDateRange || "";
+    const startDate = selectedDateRange || [""];
     const updatedFilters: SelectedFilters = {};
     updatedFilters.Topic = selectedTopics;
     updatedFilters.Sentiment = selectedCsat;
@@ -91,7 +91,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   };
 
   const handleResetFilters = () => {
-    setSelectedDateRange(defaultSelectedFilters.DateRange as string);
+    setSelectedDateRange(defaultSelectedFilters.DateRange as string[]);
     setSelectedCsat(defaultSelectedFilters.Sentiment as []);
     setSelectedTopics(defaultSelectedFilters.Topic as []);
   };
@@ -200,7 +200,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
           iconProps={{ iconName: "Calendar" }}
           text={getDisplayValue(
             filtersMeta?.DateRange,
-            selectedDateRange || ""
+            selectedDateRange[0] || ""
           )}
           onClick={() => setIsDateMenuOpen(!isDateMenuOpen)}
           menuProps={{
@@ -208,7 +208,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
               key: String(option.key),
               text: option.displayValue,
               canCheck: true,
-              checked: option.key === selectedDateRange,
+              checked: option.key === selectedDateRange[0],
               onClick: () => handleDateSelection(String(option.key)),
             })),
             calloutProps: {

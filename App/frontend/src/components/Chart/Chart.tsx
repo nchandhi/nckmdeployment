@@ -20,7 +20,12 @@ import {
 } from "../../types/AppTypes";
 import { useAppContext } from "../../state/useAppContext";
 import { actionConstants } from "../../state/ActionConstants";
-import { ACCEPT_FILTERS, getGridStyles } from "../../configs/Utils";
+import {
+  ACCEPT_FILTERS,
+  defaultSelectedFilters,
+  getGridStyles,
+} from "../../configs/Utils";
+import { ChartsResponse } from "../../configs/StaticData";
 
 type ChartProps = {
   layoutWidthUpdated: boolean;
@@ -29,7 +34,7 @@ type ChartProps = {
 const Chart = (props: ChartProps) => {
   const { state, dispatch } = useAppContext();
   const { charts } = state.dashboards;
-  const { config: chartConfig } = state;
+  const { config: layoutConfig } = state;
   const { layoutWidthUpdated } = props;
 
   const [fetchingFilters, setFetchingFilters] = useState<boolean>(false);
@@ -71,15 +76,23 @@ const Chart = (props: ChartProps) => {
 
   const getChartData = async (reqBody: any) => {
     setFetchingCharts(true);
+
+    if (String(reqBody?.Sentiment?.[0]).toLowerCase() === "all") {
+      reqBody.Sentiment = [];
+    }
     try {
       let chartData: any;
       if (reqBody) {
-        chartData = await fetchChartDataWithFilters(reqBody);
+        chartData = await fetchChartDataWithFilters({
+          selected_filters: reqBody,
+        });
       } else {
         chartData = await fetchChartData();
       }
       // Update charts with data
-      const updatedCharts: ChartConfigItem[] = chartConfig.charts
+      // chartData = ChartsResponse
+      // console.log("chartData received", chartData, layoutConfig.charts);
+      const updatedCharts: ChartConfigItem[] = layoutConfig.charts
         .map((configChart: any) => {
           if (!configChart || !configChart.id) {
             console.warn(
@@ -95,8 +108,8 @@ const Chart = (props: ChartProps) => {
           );
           const configObj = {
             id: configChart?.id,
-            type: configChart?.type,
-            title: apiData ? apiData?.chart_name : configChart.name || "",
+            type: apiData ? apiData?.chart_type : configChart?.chart_type,
+            title: apiData ? apiData?.chart_name : configChart.chart_name || "",
             data: apiData ? apiData?.chart_value : [],
             layout: {
               row: configChart?.layout?.row,
@@ -146,7 +159,7 @@ const Chart = (props: ChartProps) => {
           setFetchingFilters(false);
         }
         if (!state.dashboards.initialChartsDataFetched) {
-          await getChartData(undefined);
+          await getChartData(defaultSelectedFilters);
           dispatch({
             type: actionConstants.UPDATE_INITIAL_CHARTS_FETCHED_FLAG,
             payload: true,
@@ -158,7 +171,7 @@ const Chart = (props: ChartProps) => {
         setFetchingFilters(false);
       }
     };
-    if(state.config.charts.length > 0){
+    if (state.config.charts.length > 0) {
       loadData();
     }
   }, [state.config.charts]);
@@ -197,7 +210,7 @@ const Chart = (props: ChartProps) => {
             data={chart.data.map((item) => ({
               label: item.name,
               value: parseInt(item.value) || 0,
-              color: getColorForLabel(item.name),
+              color: getColorForLabel(item.name.toLowerCase()),
             }))}
             containerHeight={heightInPixes}
             widthInPixels={document?.getElementById(chart?.id)!?.clientWidth}
@@ -265,7 +278,6 @@ const Chart = (props: ChartProps) => {
   }, [charts, windowSize.height, windowSize.width, layoutWidthUpdated]);
 
   const getHeightInPixels = (vh: number) => (vh / 100) * window.innerHeight;
-
 
   const groupedByRows: any = {};
   charts.forEach((obj) => {
