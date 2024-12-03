@@ -242,11 +242,13 @@ from azure.storage.filedatalake import (
 )
 
 account_name =  get_secrets_from_kv(key_vault_name, "ADLS-ACCOUNT-NAME")
-account_key = get_secrets_from_kv(key_vault_name, "ADLS-ACCOUNT-KEY")
+
 
 account_url = f"https://{account_name}.dfs.core.windows.net"
 
-service_client = DataLakeServiceClient(account_url, credential=account_key,api_version='2023-01-03') 
+# need to check this! 
+credential = DefaultAzureCredential()
+service_client = DataLakeServiceClient(account_url, credential=credential,api_version='2023-01-03') 
 
 file_system_client = service_client.get_file_system_client(file_system_client_name)  
 directory_name = directory
@@ -585,6 +587,49 @@ for index, row in df_processed_data.iterrows():
     
     cursor.execute(f"UPDATE processed_data SET mined_topic = %s WHERE ConversationId = %s", (mined_topic_str, row['ConversationId']))
     # print(f"Updated mined_topic for ConversationId: {row['ConversationId']}")
+conn.commit()
+
+import uuid
+import random
+sql_stmt = 'SELECT * FROM processed_data'
+cursor.execute(sql_stmt)
+
+rows = cursor.fetchall()
+column_names = [i[0] for i in cursor.description]
+df = pd.DataFrame(rows, columns=column_names)
+columns_lst = df.columns
+df_append = pd.DataFrame(df, columns=columns_lst)
+days_list = [7, 14, 21, 28, 35, 42]
+
+text = 'Billing'
+
+
+for idx, row in df.iterrows():
+    for i in range(10):
+    
+        days = random.choice(days_list)
+       
+        if text in row['mined_topic'].lstrip():
+            
+            row['sentiment'] = 'Negative'
+            row['satisfied'] = 'No'
+            row['EndTime'] = pd.to_datetime(row['EndTime']) - pd.to_timedelta(f"{days} days")
+            row['StartTime'] = pd.to_datetime(row['StartTime']) - pd.to_timedelta(f"{days} days")
+            row['EndTime'] = row['EndTime'].strftime('%Y-%m-%d %H:%M:%S')
+            row['StartTime'] = row['StartTime'].strftime('%Y-%m-%d %H:%M:%S')
+            row['ConversationId'] = str(uuid.uuid4())
+                
+        else:
+            row['ConversationId'] = str(uuid.uuid4())
+            row['EndTime'] = pd.to_datetime(row['EndTime']) - pd.to_timedelta(f"{days} days")
+            row['StartTime'] = pd.to_datetime(row['StartTime']) - pd.to_timedelta(f"{days} days")
+            row['EndTime'] = row['EndTime'].strftime('%Y-%m-%d %H:%M:%S')
+            row['StartTime'] = row['StartTime'].strftime('%Y-%m-%d %H:%M:%S')
+            
+    # write the new row to the processed_data table
+        cursor.execute(f"INSERT INTO processed_data (ConversationId, EndTime, StartTime, Content, summary, satisfied, sentiment, topic, key_phrases, complaint, mined_topic) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (row['ConversationId'], row['EndTime'], row['StartTime'], row['Content'], row['summary'], row['satisfied'], row['sentiment'], row['topic'], row['key_phrases'], row['complaint'], row['mined_topic']))
+        # add to search index 
+        
 conn.commit()
 
 cursor.close()

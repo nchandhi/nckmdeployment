@@ -30,7 +30,29 @@ const conversations = [
 ];
 
 export const historyListResponse = [].concat(...Array(0).fill(conversations));
-
+export const historyReadResponse = {
+  "conversation_id": "c6430b2c-3bc6-4259-a695-db31af20e52c",
+  "messages": [
+      {
+          "content": "hi",
+          "createdAt": "2024-11-27T08:00:38.706Z",
+          "feedback": null,
+          "id": "301cc2d1-aba6-47a9-8362-f44c63d52ce3",
+          "role": "user",
+          "context":'',
+          "contentType":''
+      },
+      {
+          "content": "Hello! How can I assist you today?",
+          "createdAt": "2024-11-27T08:00:38.867Z",
+          "feedback": null,
+          "id": "a2521228-0f88-401f-9d39-d78e0a3ef2cd",
+          "role": "assistant",
+           "context":'',
+          "contentType":''
+      }
+  ]
+};
 export const ChartsResponse = [
   {
     id: "AVG_HANDLING_TIME",

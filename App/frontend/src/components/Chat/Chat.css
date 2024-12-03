@@ -1,3 +1,12 @@
+:root {
+  --msg-block-font: 0.875rem;
+  --answer-disclaimer-font: 0.75rem;
+  --create-conv-btn-min-width: 2rem;
+  --send-button-font-size: 1.5rem;
+  --btn-create-conv-svg: 2rem;
+  --text-area-font: 0.875rem;
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
@@ -18,8 +27,11 @@
   border: 0px solid #dcdcdc;
   border-radius: 4px;
   padding: 8px;
-  font-size: 14px;
   resize: vertical; /* Allow resizing only vertically */
+}
+.textarea-field textarea,
+.textarea-field textarea::placeholder {
+  font-size: var(--text-area-font);
 }
 
 .chat-messages {
@@ -38,13 +50,13 @@
 
 .user-message {
   flex: 0 0 auto;
-  max-width: 60%;
+  max-width: 70%;
   align-self: flex-end;
   margin-left: auto;
   background-color: #ebefff;
   color: #242424;
   font-family: var(--Font-family-Base, "Segoe UI");
-  font-size: var(--Font-size-300, 14px);
+  font-size: var(--msg-block-font, 14px);
   font-style: normal;
   font-weight: 400;
   line-height: var(--Line-height-300, 20px);
@@ -56,10 +68,10 @@
 
 .assistant-message {
   flex: 0 0 auto;
-  max-width: 60%;
+  max-width: 70%;
   align-self: flex-start;
   font-family: var(--Font-family-Base, "Segoe UI");
-  font-size: var(--Font-size-300, 14px);
+  font-size: var(--msg-block-font, 14px);
   font-style: normal;
   font-weight: 400;
   padding: 8px 16px;
@@ -70,7 +82,6 @@
   word-wrap: break-word;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  margin-left: 9px;
 }
 
 .answerDisclaimerContainer {
@@ -78,7 +89,7 @@
 }
 
 .answerDisclaimer {
-  font-size: 12px;
+  font-size: var(--answer-disclaimer-font, 12px);
   color: #a0a0a0;
 }
 
@@ -118,7 +129,7 @@
   background-color: transparent;
 }
 .send-button > span > i {
-  font-size: 1.5rem;
+  font-size: var(--send-button-font-size, 1.5rem);
 }
 
 .chart-image {
@@ -158,7 +169,7 @@
 }
 
 .initial-msg > span:nth-of-type(2) {
-  color: #bdbdbd;
+  color: #737373;
   font-weight: 400;
   font-size: 0.875em;
 }
@@ -217,6 +228,17 @@
 }
 .btn-create-conv {
   margin-left: 0.75rem !important;
+  min-width: var(--create-conv-btn-min-width) !important;
+}
+
+.btn-create-conv svg {
+  width: var(--btn-create-conv-svg, 2rem);
+  height: var(--btn-create-conv-svg, 2rem);
+}
+
+.hide-chat-history {
+  height: var(--button-height) !important;
+  font-size: var(--header-btn-font-size) !important;
 }
 
 /* Large screens (≥992px) */
@@ -226,6 +248,14 @@
   .chat-input {
     font-size: 0.8rem;
   }
+  :root {
+    --msg-block-font: 0.625rem;
+    --answer-disclaimer-font: 0.75rem;
+    --create-conv-btn-min-width: 1.3rem;
+    --send-button-font-size: 1.1rem;
+    --btn-create-conv-svg: 1.1rem;
+    --text-area-font: 0.7rem;
+  }
 }
 
 /* Extra Large screens (≥1200px) */
@@ -234,6 +264,14 @@
   .initial-msg,
   .chat-input {
     font-size: 0.9rem;
+  }
+  :root {
+    --msg-block-font: 0.7rem;
+    --answer-disclaimer-font: 0.6rem;
+    --create-conv-btn-min-width: 1.5rem;
+    --send-button-font-size: 1.3rem;
+    --btn-create-conv-svg: 1.5rem;
+    --text-area-font: 0.825rem;
   }
 }
 
@@ -248,6 +286,14 @@
     padding: 0.75rem;
     margin: 0.75rem;
   }
+  :root {
+    --msg-block-font: 0.875rem;
+    --answer-disclaimer-font: 0.75rem;
+    --create-conv-btn-min-width: 2rem;
+    --send-button-font-size: 1.5rem;
+    --btn-create-conv-svg: 2rem;
+    --text-area-font: 0.875rem;
+  }
 }
 
 /* Very Extra Large screens (≥1600px) */
@@ -256,5 +302,13 @@
   .initial-msg,
   .chat-input {
     font-size: 1.2rem;
+  }
+  :root {
+    --msg-block-font: 1rem;
+    --answer-disclaimer-font: 0.75rem;
+    --create-conv-btn-min-width: 2.2rem;
+    --send-button-font-size: 1.7rem;
+    --btn-create-conv-svg: 2.2rem;
+    --text-area-font: 1rem;
   }
 }

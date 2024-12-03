@@ -110,8 +110,9 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
           name: 'AZURE_OPENAI_KEY'
           value: AzureOpenAIKey
         }
-        {name: 'CHARTS_URL', value: CHARTS_URL}
-        {name: 'FILTERS_URL', value: FILTERS_URL}
+        {name: 'USE_GRAPHRAG', value: USE_GRAPHRAG}
+        {name: 'CHART_DASHBOARD_URL', value: CHARTS_URL}
+        {name: 'CHART_DASHBOARD_FILTERS_URL', value: FILTERS_URL}
         {name: 'GRAPHRAG_URL', value: GRAPHRAG_URL}
         {name: 'RAG_URL', value: RAG_URL}
         {name: 'AZURE_COSMOSDB_ACCOUNT'

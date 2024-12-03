@@ -1,52 +1,26 @@
-import { historyListResponse } from "../configs/StaticData";
+import {
+  historyListResponse,
+  historyReadResponse,
+} from "../configs/StaticData";
 import {
   AppConfig,
   ChartConfigItem,
+  ChatMessage,
   Conversation,
   ConversationRequest,
-  message,
+  CosmosDBHealth,
+  CosmosDBStatus,
 } from "../types/AppTypes";
-
-interface EnvVariables {
-  REACT_APP_CHART_URL: string;
-  REACT_APP_FILTERS_URL: string;
-}
-
-let envVariables: EnvVariables | null = null;
-
-export const fetchEnvVariables = async (): Promise<EnvVariables> => {
-  if (!envVariables) {
-    try {
-      const response = await fetch('/api/env');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch environment variables: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
-      // Validate the structure of the response
-      if (!data.REACT_APP_CHART_URL || !data.REACT_APP_FILTERS_URL) {
-        throw new Error("Environment variables are incomplete.");
-      }
-
-      envVariables = data as EnvVariables;
-    } catch (error) {
-      console.error("Error fetching environment variables:", error);
-      throw error;
-    }
-  }
-  return envVariables;
-};
-
 
 export const fetchChartData = async () => {
   try {
-    const env = await fetchEnvVariables();
-    const response = await fetch(env.REACT_APP_CHART_URL);
+    console.log("Fetching chart data...");
+    const response = await fetch("/api/fetchChartData");
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
     const data = await response.json();
+    console.log("data", data);
     return data;
   } catch (error) {
     console.error("Failed to fetch chart data:", error);
@@ -56,31 +30,28 @@ export const fetchChartData = async () => {
 
 export const fetchChartDataWithFilters = async (bodyData: any) => {
   try {
-    const env = await fetchEnvVariables();
-    const response = await fetch(env.REACT_APP_CHART_URL,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(bodyData),
-      }
-    );
+    const response = await fetch("/api/fetchChartDataWithFilters", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(bodyData),
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch chart data:", error);
+    console.error("Failed to fetch filtered chart data:", error);
     throw error; // Rethrow the error so the calling function can handle it
   }
 };
 
 export const fetchFilterData = async () => {
   try {
-    const env = await fetchEnvVariables();
-    const response = await fetch(env.REACT_APP_FILTERS_URL);
+    console.log("Fetching filter data...");
+    const response = await fetch("/api/fetchFilterData");
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
@@ -92,8 +63,8 @@ export const fetchFilterData = async () => {
   }
 };
 
-export const historyRead = async (convId: string): Promise<message[]> => {
-  const response = await fetch("/api/history/read", {
+export const historyRead = async (convId: string): Promise<ChatMessage[]> => {
+  const response = await fetch("/history/read", {
     method: "POST",
     body: JSON.stringify({
       conversation_id: convId,
@@ -103,19 +74,32 @@ export const historyRead = async (convId: string): Promise<message[]> => {
     },
   })
     .then(async (res) => {
-      if (!res) {
-        return [];
+      if (!res.ok) {
+        // return [];
+        return historyReadResponse.messages.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          date: msg.createdAt,
+          feedback: msg.feedback ?? undefined,
+          context: msg.context, // if available
+          contentType: msg.contentType, // if available
+        }));
       }
       const payload = await res.json();
-      const messages: message[] = [];
-      if (payload?.messages) {
+      const messages: ChatMessage[] = [];
+
+      // Ensure payload.messages is treated as an array
+      if (Array.isArray(payload?.messages)) {
         payload.messages.forEach((msg: any) => {
-          const message = {
+          const message: ChatMessage = {
             id: msg.id,
             role: msg.role,
-            date: msg.createdAt,
             content: msg.content,
+            date: msg.createdAt,
             feedback: msg.feedback ?? undefined,
+            context: msg.context, // if available
+            contentType: msg.contentType, // if available
           };
           messages.push(message);
         });
@@ -126,13 +110,14 @@ export const historyRead = async (convId: string): Promise<message[]> => {
       console.error("There was an issue fetching your data.");
       return [];
     });
+  console.log("historyReadResponse.messages::", historyReadResponse.messages);
   return response;
 };
 
 export const historyList = async (
   offset = 0
 ): Promise<Conversation[] | null> => {
-  let response = await fetch(`/api/history/list?offset=${offset}`, {
+  let response = await fetch(`/history/list?offset=${offset}`, {
     method: "GET",
   })
     .then(async (res) => {
@@ -174,10 +159,10 @@ export const historyList = async (
 };
 
 export const historyUpdate = async (
-  messages: message[],
+  messages: ChatMessage[],
   convId: string
 ): Promise<Response> => {
-  const response = await fetch("/api/history/update", {
+  const response = await fetch("/history/update", {
     method: "POST",
     body: JSON.stringify({
       conversation_id: convId,
@@ -257,7 +242,7 @@ export const historyRename = async (
   convId: string,
   title: string
 ): Promise<Response> => {
-  const response = await fetch("/api/history/rename", {
+  const response = await fetch("/history/rename", {
     method: "POST",
     body: JSON.stringify({
       conversation_id: convId,
@@ -283,7 +268,7 @@ export const historyRename = async (
 };
 
 export const historyDelete = async (convId: string): Promise<Response> => {
-  const response = await fetch("/api/history/delete", {
+  const response = await fetch("/history/delete", {
     method: "DELETE",
     body: JSON.stringify({
       conversation_id: convId,
@@ -326,6 +311,84 @@ export const historyDeleteAll = async (): Promise<Response> => {
         status: 500,
       };
       return errRes;
+    });
+  return response;
+};
+
+export const historyEnsure = async (): Promise<CosmosDBHealth> => {
+  const response = await fetch("/history/ensure", {
+    method: "GET",
+  })
+    .then(async (res) => {
+      const respJson = await res.json();
+      let formattedResponse;
+      if (respJson.message) {
+        formattedResponse = CosmosDBStatus.Working;
+      } else {
+        if (res.status === 500) {
+          formattedResponse = CosmosDBStatus.NotWorking;
+        } else if (res.status === 401) {
+          formattedResponse = CosmosDBStatus.InvalidCredentials;
+        } else if (res.status === 422) {
+          formattedResponse = respJson.error;
+        } else {
+          formattedResponse = CosmosDBStatus.NotConfigured;
+        }
+      }
+      if (!res.ok) {
+        return {
+          cosmosDB: false,
+          status: formattedResponse,
+        };
+      } else {
+        return {
+          cosmosDB: true,
+          status: formattedResponse,
+        };
+      }
+    })
+    .catch((err) => {
+      console.error("There was an issue fetching your data.");
+      return {
+        cosmosDB: false,
+        status: err,
+      };
+    });
+  return response;
+};
+
+export const historyGenerate = async (
+  options: ConversationRequest,
+  abortSignal: AbortSignal,
+  convId?: string
+): Promise<Response> => {
+  let body;
+  if (convId) {
+    body = JSON.stringify({
+      conversation_id: convId,
+      messages: options.messages,
+      // client_id:options.client_id
+    });
+  } else {
+    body = JSON.stringify({
+      messages: options.messages,
+      // client_id:options.client_id
+    });
+  }
+  const response = await fetch("/history/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: body,
+    signal: abortSignal,
+  })
+    .then((res) => {
+      return res;
+    })
+    .catch((_err) => {
+      console.error("There was an issue fetching your data.");
+      return new Response();
     });
   return response;
 };

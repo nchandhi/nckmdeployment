@@ -83,7 +83,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
     case actionConstants.UPDATE_GENERATED_CONV_ID:
       return {
         ...state,
-        generatedConversationId: action.payload,
+        generatedConversationId: generateUUIDv4(),
       };
     case actionConstants.NEW_CONVERSATION_START:
       return {
@@ -91,6 +91,82 @@ const appReducer = (state: AppState, action: Action): AppState => {
         chat: { ...state.chat, messages: [] },
         selectedConversationId: "",
         generatedConversationId: generateUUIDv4(),
+      };
+    case actionConstants.UPDATE_CONVERSATIONS_FETCHING_FLAG:
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          fetchingConversations: action.payload,
+        },
+      };
+    case actionConstants.UPDATE_CONVERSATION_TITLE:
+      const tempConvsList = [...state.chatHistory.list];
+      const index = tempConvsList.findIndex(
+        (obj) => obj.id === action.payload.id
+      );
+      if (index > -1) {
+        tempConvsList[index].title = action.payload.newTitle;
+      }
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          list: [...tempConvsList],
+        },
+      };
+    case actionConstants.UPDATE_ON_CLEAR_ALL_CONVERSATIONS:
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          list: [],
+        },
+        chat: { ...state.chat, messages: [] },
+        selectedConversationId: "",
+        generatedConversationId: generateUUIDv4(),
+      };
+    case actionConstants.SHOW_CHATHISTORY_CONVERSATION:
+      const tempConvList = [...state.chatHistory.list];
+      const matchedIndex = tempConvList.findIndex(
+        (obj) => obj.id === action.payload.id
+      );
+      if (matchedIndex > -1) {
+        // Update the messages of the matched conversation
+        tempConvList[matchedIndex].messages = action.payload.messages;
+      }
+      console.log("tempConvList::", tempConvList);
+      return {
+        ...state,
+        chat: { ...state.chat, messages: action.payload.messages },
+        chatHistory: {
+          ...state.chatHistory,
+          list: tempConvList,
+        },
+      };
+    case actionConstants.UPDATE_CHATHISTORY_CONVERSATION_FLAG:
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          fetchingConversations: action.payload,
+        },
+      };
+    case actionConstants.DELETE_CONVERSATION_FROM_LIST:
+      const updatedChatHistoryList = state.chatHistory.list.filter(
+        (conversation) => conversation.id !== action.payload
+      );
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          list: updatedChatHistoryList, // Use the temp variable here
+        },
+      };
+    case actionConstants.STORE_COSMOS_INFO:
+      return {
+        ...state,
+        cosmosInfo: action.payload
       };
     default:
       return state;

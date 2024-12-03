@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "8251730434572368897"
+      "templateHash": "6197239493669574134"
     }
   },
   "parameters": {
@@ -2224,7 +2224,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "79794722195370335"
+              "templateHash": "12033872055428885820"
             }
           },
           "parameters": {
@@ -2417,11 +2417,15 @@
                       "value": "[parameters('AzureOpenAIKey')]"
                     },
                     {
-                      "name": "CHARTS_URL",
+                      "name": "USE_GRAPHRAG",
+                      "value": "[parameters('USE_GRAPHRAG')]"
+                    },
+                    {
+                      "name": "CHART_DASHBOARD_URL",
                       "value": "[parameters('CHARTS_URL')]"
                     },
                     {
-                      "name": "FILTERS_URL",
+                      "name": "CHART_DASHBOARD_FILTERS_URL",
                       "value": "[parameters('FILTERS_URL')]"
                     },
                     {

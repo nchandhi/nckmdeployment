@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
 import cloud from "d3-cloud";
-import { colors } from "../configs/Utils";
+import { colors, normalize } from "../configs/Utils";
 interface WordCloudData {
   words: {
     text: string;
@@ -31,6 +31,32 @@ const WordCloudChart: React.FC<WordCloudChartProps> = ({
     // Clear previous SVG elements
     d3.select("#wordcloud").selectAll("*").remove();
 
+
+    // calculate min and max 
+    function getMinMax(arr: any) {
+      // Use reduce to find min and max values
+      const minMax = arr.reduce(
+        (acc : any, curr : any) => {
+          // Compare current value with existing min and max
+          if(acc.min === -Infinity){
+            acc.min = curr.size;
+          }
+          if (curr.size < acc.min) acc.min = curr.size;
+          if (curr.size > acc.max) acc.max = curr.size;
+          return acc;
+        },
+        { min: Infinity, max: -Infinity } // Initial values for min and max
+      );
+     
+      // Return the result in the format [min, max]
+      return [minMax.min, minMax.max];
+    }
+    
+    const result = getMinMax(data.words) as number[];
+    const input  = 15;
+    const ref = [15,40]
+    const normalized = normalize(input, result, ref);
+
     // Prepare words data
     const words = data.words.map((d) => ({
       text: d.text,
@@ -42,7 +68,7 @@ const WordCloudChart: React.FC<WordCloudChartProps> = ({
       .size([width, height])
       .words(words)
       .padding(5)
-      .fontSize((d) => d.size)
+      .fontSize((d) => normalize(d.size, result, ref))
       .rotate(() => Math.floor(Math.random() * 2) * 0)
       .on("end", (words: any) => {
         draw(words);

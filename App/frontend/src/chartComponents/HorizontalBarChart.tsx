@@ -46,10 +46,9 @@ const BarChart: React.FC<BarChartProps> = ({
       .range([0, containerHeight - margin.top - margin.bottom])
       .padding(0.2);
 
-         // Define a color scale based on the x-axis values
     const colorScale = d3
-    .scaleSequential(d3.interpolateBlues)
-    .domain([0, d3.max(data, (d) => d.value)!]);
+      .scaleSequential(d3.interpolateBlues)
+      .domain([0, d3.max(data, (d) => d.value)!]);
 
     g.append("g")
       .attr("class", "x-axis")
@@ -63,6 +62,19 @@ const BarChart: React.FC<BarChartProps> = ({
 
     g.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
 
+    // Create tooltip element
+    const tooltip = d3
+      .select("body")
+      .append("div")
+      .style("position", "absolute")
+      .style("background", "#fff")
+      .style("padding", "5px 10px")
+      .style("border", "1px solid #ccc")
+      .style("border-radius", "4px")
+      .style("font-size", "12px")
+      .style("pointer-events", "none")
+      .style("display", "none");
+
     g.selectAll(".bar")
       .data(data)
       .enter()
@@ -74,7 +86,20 @@ const BarChart: React.FC<BarChartProps> = ({
       .attr("height", y.bandwidth())
       .attr("fill", (d) => colorScale(d.value)) // Use color scale here
       .attr("rx", 8)
-      .attr("ry", 8);
+      .attr("ry", 8)
+      .on("mouseover", (event, d) => {
+        tooltip
+          .style("display", "block")
+          .html(`<strong>${d.category}</strong><br>Value: ${d.value}`);
+      })
+      .on("mousemove", (event) => {
+        tooltip
+          .style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY - 20}px`);
+      })
+      .on("mouseout", () => {
+        tooltip.style("display", "none");
+      });
 
     if (yLabel) {
       svg

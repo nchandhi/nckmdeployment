@@ -7,7 +7,7 @@ export type FilterObject = {
 export type FilterMetaData = Record<string, FilterObject[]>;
 export type SelectedFilters = Record<string, string | string[]>;
 
-type Roles = "assistant" | "user" | "error"
+type Roles = "assistant" | "user" | "error";
 
 export enum Feedback {
   Neutral = "neutral",
@@ -25,28 +25,36 @@ export enum Feedback {
   OtherHarmful = "other_harmlful",
 }
 
-export type message = {
-  role: Roles;
-  content: string | ReactNode;
-  // role: string;
-  // content: string;
+export type ChatMessage = {
+  id: string;
+  role: string;
+  content: string;
   end_turn?: boolean;
-  id?: string;
-  date?: string;
+  date: string;
   feedback?: Feedback;
   context?: string;
-  contentType?: "text" | "image"
+  contentType?: "text" | "image";
 };
+
+// export type message = {
+//   id?: string;
+//   role: Roles;
+//   content: string;
+//   end_turn?: boolean;
+//   date?: string;
+//   feedback?: Feedback;
+//   context?: string;
+// };
 
 export type ConversationRequest = {
   id?: string;
-  messages: message[];
+  messages: ChatMessage[];
 };
 
 export type Conversation = {
   id: string;
   title: string;
-  messages: message[];
+  messages: ChatMessage[];
   date: string;
   updatedAt?: string;
 };
@@ -80,6 +88,7 @@ export interface ChartConfigItem {
   data: ChartDataItem[];
   layout: ChartLayout;
   id: string;
+  domId: string;
 }
 
 export enum ChatCompletionType {
@@ -88,8 +97,8 @@ export enum ChatCompletionType {
 }
 
 export type ChatResponseChoice = {
-    messages: message[];
-}
+  messages: ChatMessage[];
+};
 
 export type ChatResponse = {
   id: string;
@@ -97,6 +106,24 @@ export type ChatResponse = {
   created: number;
   object: ChatCompletionType;
   choices: ChatResponseChoice[];
-  error?: string;
+  history_metadata: {
+    conversation_id: string;
+    title: string;
+    date: string;
+  };
+  error?: any;
+};
+
+export enum CosmosDBStatus {
+  NotConfigured = "CosmosDB is not configured",
+  NotWorking = "CosmosDB is not working",
+  InvalidCredentials = "CosmosDB has invalid credentials",
+  InvalidDatabase = "Invalid CosmosDB database name",
+  InvalidContainer = "Invalid CosmosDB container name",
+  Working = "CosmosDB is configured and working",
 }
- 
+
+export type CosmosDBHealth = {
+  cosmosDB: boolean;
+  status: string;
+};

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
+import { Caption1, Title3 } from "@fluentui/react-components";
 
 interface DonutChartProps {
   data: {
@@ -23,7 +24,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
   const [centerText, setCenterText] = useState({
     label: "Positive",
     percentage: (
-      ((data.find((d) => d.label === "positive")?.value || 0) /
+      ((data.find((d) => d.label?.toLowerCase() === "positive")?.value || 0) /
         d3.sum(data, (d) => d.value)) *
       100
     ).toFixed(0),
@@ -31,7 +32,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
 
   useEffect(() => {
     const containerWidth =
-      document?.getElementById(containerID)!.clientWidth || 200;
+      document?.getElementById(containerID)!?.clientWidth || 200;
     const donutWidthAndHeight =
       (containerHeight > containerWidth ? containerWidth : containerHeight) /
       1.7;
@@ -109,7 +110,9 @@ const DonutChart: React.FC<DonutChartProps> = ({
               fontSize: `${containerHeight / 160}rem`,
             }}
           >
-            {centerText.percentage}%
+        <Title3 style={{ fontSize: `${containerHeight / 160}rem` }}>
+          {centerText.percentage}%
+        </Title3>
           </div>
           <div
             style={{
@@ -117,7 +120,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
               fontSize: `${containerHeight / 240}rem`,
             }}
           >
-            {centerText.label}
+            <Caption1>{centerText.label}</Caption1>
           </div>
         </div>
       </div>

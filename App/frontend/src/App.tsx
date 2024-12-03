@@ -8,11 +8,18 @@ import {
 } from "@fluentui/react-components";
 import { SparkleRegular } from "@fluentui/react-icons";
 import "./App.css";
-import { AppLogo } from "./components/Svg/Svg";
 import { ChatHistoryPanel } from "./components/ChatHistoryPanel/ChatHistoryPanel";
-import { getLayoutConfig, historyList } from "./api/api";
+import {
+  getLayoutConfig,
+  historyDelete,
+  historyDeleteAll,
+  historyList,
+  historyRead,
+} from "./api/api";
 import { useAppContext } from "./state/useAppContext";
 import { actionConstants } from "./state/ActionConstants";
+import { Conversation } from "./types/AppTypes";
+import { AppLogo } from "./components/Svg/Svg";
 
 const panels = {
   DASHBOARD: "DASHBOARD",
@@ -47,6 +54,11 @@ const Dashboard: React.FC = () => {
     ...defaultThreeColumnConfig,
   });
   const [layoutWidthUpdated, setLayoutWidthUpdated] = useState<boolean>(false);
+  const [showClearAllConfirmationDialog, setChowClearAllConfirmationDialog] =
+    useState(false);
+  const [clearing, setClearing] = React.useState(false);
+  const [clearingError, setClearingError] = React.useState(false);
+  console.log("state", { ...state });
 
   useEffect(() => {
     try {
@@ -115,6 +127,10 @@ const Dashboard: React.FC = () => {
   };
 
   const getHistoryListData = async () => {
+    dispatch({
+      type: actionConstants.UPDATE_CONVERSATIONS_FETCHING_FLAG,
+      payload: true,
+    });
     const convs = await historyList();
     if (convs !== null) {
       dispatch({
@@ -122,11 +138,91 @@ const Dashboard: React.FC = () => {
         payload: convs,
       });
     }
+    dispatch({
+      type: actionConstants.UPDATE_CONVERSATIONS_FETCHING_FLAG,
+      payload: false,
+    });
   };
 
   useEffect(() => {
     getHistoryListData();
   }, []);
+
+  const onClearAllChatHistory = async () => {
+    // toggleToggleSpinner(true);
+    setClearing(true);
+    const response = await historyDeleteAll();
+    if (!response.ok) {
+      setClearingError(true);
+    } else {
+      setChowClearAllConfirmationDialog(false);
+      dispatch({ type: actionConstants.UPDATE_ON_CLEAR_ALL_CONVERSATIONS });
+    }
+    setClearing(false);
+    // toggleToggleSpinner(false);
+  };
+
+  // const getMessagesByConvId = (id: string) => {
+  //   const conv = chatHistory.find((obj) => String(obj.id) === String(id));
+  //   if (conv) {
+  //     return conv?.messages || [];
+  //   }
+  //   return [];
+  // };
+
+  // const setMessagesByConvId = (id: string, messagesList: ChatMessage[]) => {
+  //   const tempHistory = [...chatHistory];
+  //   const matchedIndex = tempHistory.findIndex(
+  //     (obj) => String(obj.id) === String(id)
+  //   );
+  //   if (matchedIndex > -1) {
+  //     tempHistory[matchedIndex].messages = messagesList;
+  //   }
+  // };
+
+  const onSelectConversation = async (id: string) => {
+    console.log("onSelectConversation::id:>> ", id); 
+    if (!id) {
+      console.error("No conversation ID found");
+      return;
+    }
+    dispatch({
+      type: actionConstants.UPDATE_CHATHISTORY_CONVERSATION_FLAG,
+      payload: true,
+    });
+    try {
+      const responseMessages = await historyRead(id);
+      console.log("responseMessages::id:>> ", id, responseMessages);
+
+      if (responseMessages) {
+        dispatch({
+          type: actionConstants.SHOW_CHATHISTORY_CONVERSATION,
+          payload: {
+            id,
+            messages: responseMessages,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching conversation messages:", error);
+    } finally {
+      dispatch({
+        type: actionConstants.UPDATE_CHATHISTORY_CONVERSATION_FLAG,
+        payload: false,
+      });
+    }
+  };
+
+  const onClickClearAllOption = () => {
+    setChowClearAllConfirmationDialog((prevFlag) => !prevFlag);
+  };
+
+  const onHideClearAllDialog = () => {
+    setChowClearAllConfirmationDialog((prevFlag) => !prevFlag);
+    setTimeout(() => {
+      setClearingError(false);
+    }, 1000);
+  };
 
   // console.log("panelsInOpenState", panelShowStates, panelWidths);
 
@@ -145,7 +241,7 @@ const Dashboard: React.FC = () => {
         <div className="header-right-section">
           <Button
             // icon={<SparkleRegular />}
-            appearance="outline"
+            appearance="subtle"
             onClick={() => onHandlePanelStates(panels.DASHBOARD)}
           >
             {`${
@@ -154,7 +250,7 @@ const Dashboard: React.FC = () => {
           </Button>
           <Button
             icon={<SparkleRegular />}
-            appearance="outline"
+            appearance="subtle"
             onClick={() => onHandlePanelStates(panels.CHAT)}
           >
             {`${panelShowStates?.[panels.CHAT] ? "Hide" : "Show"} Chat`}
@@ -204,27 +300,18 @@ const Dashboard: React.FC = () => {
             >
               {/* <ChatHistory />*/}
               <ChatHistoryPanel
-                clearing={false}
-                clearingError={false}
-                fetchingChatHistory={false}
+                clearing={clearing}
+                clearingError={clearingError}
                 fetchingConvMessages={false}
                 handleFetchHistory={() => {
                   return new Promise(() => {});
                 }}
-                hideClearAllDialog={true}
-                onClearAllChatHistory={() => {
-                  return new Promise(() => {});
-                }}
-                onHideClearAllDialog={() => {}}
-                onHistoryDelete={() => {}}
-                onHistoryTitleChange={() => {}}
-                onSelectConversation={() => {
-                  return new Promise(() => {});
-                }}
-                selectedConvId={""}
-                showContextualPopup={false}
-                showLoadingMessage={false}
-                toggleClearAllDialog={() => {}}
+                onClearAllChatHistory={onClearAllChatHistory}
+                onClickClearAllOption={onClickClearAllOption}
+                onHideClearAllDialog={onHideClearAllDialog}
+                // onHistoryDelete={onHistoryDelete}
+                onSelectConversation={onSelectConversation}
+                showClearAllConfirmationDialog={showClearAllConfirmationDialog}
                 toggleToggleSpinner={() => {}}
               />
             </div>

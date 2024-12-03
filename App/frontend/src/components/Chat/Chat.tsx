@@ -10,11 +10,15 @@ import {
   ChatCompletionType,
   ChatResponse,
   ConversationRequest,
-  type message,
+  type ChatMessage,
 } from "../../types/AppTypes";
-import { callConversationApi, historyUpdate } from "../../api/api";
+import {
+  callConversationApi,
+  historyGenerate,
+  historyUpdate,
+} from "../../api/api";
 import { ChatAdd24Regular } from "@fluentui/react-icons";
-import { generateUUIDv4 } from "../../configs/Utils";
+import { generateUUIDv4, parseErrorMessage } from "../../configs/Utils";
 
 type ChatProps = {
   onHandlePanelStates: (name: string) => void;
@@ -32,25 +36,20 @@ const Chat: React.FC<ChatProps> = ({
 }) => {
   const { state, dispatch } = useAppContext();
   const { userMessage, generatingResponse } = state?.chat;
-  const [selectedConvId, setSelectedConvId] = useState("");
-  const [conversationId, setConversationId] = useState<string>(
-    generateUUIDv4()
-  );
-
   const questionInputRef = useRef<HTMLTextAreaElement>(null);
   const abortFuncs = useRef([] as AbortController[]);
 
-  const saveToDB = async (messages: message[], convId: string) => {
+  const saveToDB = async (messages: ChatMessage[], convId: string) => {
     if (!convId || !messages.length) {
       return;
     }
-    const isNewConversation = !selectedConvId;
+    const isNewConversation = !state.selectedConversationId;
     // setIsSavingToDB(true);
     await historyUpdate(messages, convId)
       .then(async (res) => {
         if (!res.ok) {
           let errorMessage = "Answers can't be saved at this time.";
-          let errorChatMsg: message = {
+          let errorChatMsg: ChatMessage = {
             id: generateUUIDv4(),
             role: "error",
             content: errorMessage,
@@ -75,7 +74,10 @@ const Chat: React.FC<ChatProps> = ({
             date: metaData?.date,
           };
           // setChatHistory((prevHistory) => [newConversation, ...prevHistory]);
-          setSelectedConvId(metaData?.conversation_id);
+          dispatch({
+            type: actionConstants.UPDATE_SELECTED_CONV_ID,
+            payload: metaData?.conversation_id,
+          });
         } else if (responseJson?.success) {
           // setMessagesByConvId(convId, messages);
         }
@@ -101,7 +103,7 @@ const Chat: React.FC<ChatProps> = ({
     if (!userMessage.trim()) return;
     const abortController = new AbortController();
     abortFuncs.current.unshift(abortController);
-    const newMessage: message = {
+    const newMessage: ChatMessage = {
       role: "user",
       content: userMessage,
       id: generateUUIDv4(),
@@ -121,7 +123,7 @@ const Chat: React.FC<ChatProps> = ({
     });
 
     const request: ConversationRequest = {
-      id: selectedConvId || conversationId,
+      id: state.selectedConversationId || state.generatedConversationId,
       messages: [...state.chat.messages, newMessage].filter(
         (messageObj) => messageObj.role !== ERROR
       ),
@@ -133,23 +135,24 @@ const Chat: React.FC<ChatProps> = ({
         request,
         abortController.signal
       );
-      console.log("response>>> ", response);
       if (response?.body) {
+        console.log(">>> response?.body", response);
         const reader = response.body.getReader();
         while (true) {
           const { done, value } = await reader.read();
+          console.log(">>> response?.body value", done, value);
           let runningText = "";
           if (done) break;
           var text = new TextDecoder("utf-8").decode(value);
           const objects = text.split("\n");
-          // console.log("<> objects", objects, objects.length);
+          console.log(">>> objects", objects, objects.length);
           objects.forEach((obj) => {
-            // console.log("<> obj", obj);
+            console.log(">>>> ", obj);
             try {
               runningText += obj;
               result = JSON.parse(runningText);
               // setShowLoadingMessage(false);
-              // console.log("<> objects", result, runningText);
+              console.log(">>>> ", result, runningText);
               if (result.error) {
                 // setAnswers([
                 //   ...answers,
@@ -172,6 +175,19 @@ const Chat: React.FC<ChatProps> = ({
             } catch {}
           });
         }
+        if (Array.isArray(result.choices[0].messages)) {
+          result.choices[0].messages = result.choices[0].messages.map(
+            (msgObj) => {
+              if (!msgObj?.date) {
+                msgObj.date = new Date().toISOString();
+              }
+              if (!msgObj?.id) {
+                msgObj.id = generateUUIDv4();
+              }
+              return msgObj;
+            }
+          );
+        }
         const updatedMessages = [
           ...state.chat.messages,
           newMessage,
@@ -183,11 +199,14 @@ const Chat: React.FC<ChatProps> = ({
         });
         // setAnswers(updatedMessages);
         console.log(
-          "response>>> final",
+          ">>> response final",
           result.choices[0].messages,
           state.chat.messages
         );
-        // saveToDB(updatedMessages, selectedConvId || conversationId);
+        saveToDB(
+          updatedMessages,
+          state.selectedConversationId || state.generatedConversationId
+        );
       }
     } catch (e) {
       if (!abortController.signal.aborted) {
@@ -199,115 +218,197 @@ const Chat: React.FC<ChatProps> = ({
           );
         }
       }
-      // setAnswers([...answers, userMessage]);
-      // since chat API failing checking update history API in fail block with sample response
-      // result = {
-      //   choices: [
-      //     {
-      //       messages: [
-      //         {
-      //           content:
-      //             "I am sorry but I am unable to answer this question given the provided data.",
-      //           role: "assistant",
-      //         },
-      //       ],
-      //     },
-      //   ],
-      //   created: 1732022783,
-      //   id: "1c5282ac-5cf9-4451-9d91-ab4be3aaaa4e",
-      //   model: "graphrag-model",
-      //   object: "chat.completion" as ChatCompletionType.ChatCompletion,
-      // };
-      // const updatedMessages = [
-      //   ...state.chat.messages,
-      //   newMessage,
-      //   ...result.choices[0].messages,
-      // ];
-      // saveToDB(updatedMessages, selectedConvId || conversationId);
     } finally {
       dispatch({
         type: actionConstants.UPDATE_GENERATING_RESPONSE_FLAG,
         payload: false,
       });
     }
-
-    // try {
-    //   // Send the user's message to the backend
-    //   const response = await axios.post("/api/chat", {
-    //     messages: [{ role: "user", content: userMessage }],
-    //   });
-    //   console.log("Response:", response.data);
-    //   // Define the type for assistantResponse
-    //   type AssistantResponse = {
-    //     content: string;
-    //     chart_image?: string;
-    //   };
-    //   // Extract assistant's response content from the response data
-    //   let responseMessage: message = { content: "", role: Roles.ASSISTANT };
-    //   let assistantResponse: AssistantResponse;
-    //   try {
-    //     // Attempt to parse as JSON if possible
-    //     assistantResponse = response.data?.choices?.[0]?.messages?.[0]?.content;
-    //   } catch (parseError) {
-    //     // If parsing fails, treat it as plain text
-    //     assistantResponse = response.data;
-    //     console.error(
-    //       "Response is not valid JSON. Treating as plain text:",
-    //       assistantResponse
-    //     );
-    //   }
-    //   console.log("Assistant Response:", assistantResponse);
-    //   // Check if the response contains a chart (base64 string) or regular text
-    //   if (assistantResponse.chart_image) {
-    //     responseMessage = {
-    //       role: Roles.ASSISTANT,
-    //       content: (
-    //         <img
-    //           src={`data:image/png;base64,${assistantResponse.chart_image}`}
-    //           alt="Generated Chart"
-    //           className="chart-image"
-    //         />
-    //       ),
-    //       contentType: "image",
-    //     };
-    //   } else if (typeof assistantResponse === "string") {
-    //     responseMessage = {
-    //       role: Roles.ASSISTANT,
-    //       content: assistantResponse,
-    //     };
-    //   } else {
-    //     console.error("Unexpected response format:", assistantResponse);
-    //     responseMessage = {
-    //       role: Roles.ASSISTANT,
-    //       content: "Unexpected response format.",
-    //     };
-    //   }
-    //   dispatch({
-    //     type: actionConstants.UPDATE_MESSAGES,
-    //     payload: [responseMessage],
-    //   });
-    // } catch (error) {
-    //   console.error("Error sending message:", error);
-    //   const errorMessage: message = {
-    //     role: Roles.ASSISTANT,
-    //     content: "Error while generating response.",
-    //   };
-    //   dispatch({
-    //     type: actionConstants.UPDATE_MESSAGES,
-    //     payload: [errorMessage],
-    //   });
-    // } finally {
-    //   dispatch({
-    //     type: actionConstants.UPDATE_GENERATING_RESPONSE_FLAG,
-    //     payload: false,
-    //   });
-    // }
   };
+
+  // let assistantMessage = {} as ChatMessage
+  // let toolMessage = {} as ChatMessage
+  // let assistantContent = ''
+
+  // const processResultMessage = (resultMessage: ChatMessage, userMessage: ChatMessage, conversationId?: string) => {
+  //   if (resultMessage.role === ASSISTANT) {
+  //     assistantContent += resultMessage.content
+  //     assistantMessage = resultMessage
+  //     assistantMessage.content = assistantContent
+
+  //     if (resultMessage.context) {
+  //       toolMessage = {
+  //         id: uuid(),
+  //         role: TOOL,
+  //         content: resultMessage.context,
+  //         date: new Date().toISOString()
+  //       }
+  //     }
+  //   }
+
+  //   if (resultMessage.role === TOOL) toolMessage = resultMessage
+
+  //   if (!conversationId) {
+  //     isEmpty(toolMessage)
+  //       ? setMessages([...messages, userMessage, assistantMessage])
+  //       : setMessages([...messages, userMessage, toolMessage, assistantMessage])
+  //   } else {
+  //     isEmpty(toolMessage)
+  //       ? setMessages([...messages, assistantMessage])
+  //       : setMessages([...messages, toolMessage, assistantMessage])
+  //   }
+  // }
+
+  const makeApiRequestWithCosmosDB = async (
+    question: string,
+    conversationId?: string
+  ) => {
+    if (generatingResponse || !question.trim()) {
+      return;
+    }
+    
+    const newMessage: ChatMessage = {
+      id: generateUUIDv4(),
+      role: "user",
+      content: question,
+      date: new Date().toISOString(),
+    };
+    dispatch({
+      type: actionConstants.UPDATE_GENERATING_RESPONSE_FLAG,
+      payload: true,
+    });
+    dispatch({
+      type: actionConstants.UPDATE_MESSAGES,
+      payload: [newMessage],
+    });
+    dispatch({
+      type: actionConstants.UPDATE_USER_MESSAGE,
+      payload: "",
+    });
+
+    const abortController = new AbortController();
+    abortFuncs.current.unshift(abortController);
+
+    const request: ConversationRequest = {
+      id: state.selectedConversationId || state.generatedConversationId,
+      messages: [...state.chat.messages, newMessage].filter(
+        (messageObj) => messageObj.role !== ERROR
+      ),
+    };
+    let result = {} as ChatResponse;
+
+    try {
+      const response = await callConversationApi(
+        request,
+        abortController.signal
+      );
+      if (response?.body) {
+        console.log(">>> response?.body", response);
+        const reader = response.body.getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          console.log(">>> response?.body value", done, value);
+          let runningText = "";
+          if (done) break;
+          var text = new TextDecoder("utf-8").decode(value);
+          const objects = text.split("\n");
+          console.log(">>> objects", objects, objects.length);
+          objects.forEach((obj) => {
+            console.log(">>>> ", obj);
+            try {
+              runningText += obj;
+              result = JSON.parse(runningText);
+              // setShowLoadingMessage(false);
+              console.log(">>>> ", result, runningText);
+              if (result.error) {
+                // setAnswers([
+                //   ...answers,
+                //   newMessage,
+                //   {
+                //     role: "error",
+                //     content: result.error,
+                //     id: "",
+                //     date: "",
+                //   },
+                // ]);
+              } else {
+                // setAnswers([
+                //   ...answers,
+                //   newMessage,
+                //   ...result.choices[0].messages,
+                // ]);
+              }
+              runningText = "";
+            } catch {}
+          });
+        }
+        if (Array.isArray(result.choices[0].messages)) {
+          result.choices[0].messages = result.choices[0].messages.map(
+            (msgObj) => {
+              if (!msgObj?.date) {
+                msgObj.date = new Date().toISOString();
+              }
+              if (!msgObj?.id) {
+                msgObj.id = generateUUIDv4();
+              }
+              return msgObj;
+            }
+          );
+        }
+        const updatedMessages = [
+          ...state.chat.messages,
+          newMessage,
+          ...result.choices[0].messages,
+        ];
+        dispatch({
+          type: actionConstants.UPDATE_MESSAGES,
+          payload: [...result.choices[0].messages],
+        });
+        // setAnswers(updatedMessages);
+        console.log(
+          ">>> response final",
+          result.choices[0].messages,
+          state.chat.messages
+        );
+        saveToDB(
+          updatedMessages,
+          state.selectedConversationId || state.generatedConversationId
+        );
+      }
+    } catch (e) {
+      if (!abortController.signal.aborted) {
+        if (e instanceof Error) {
+          alert(e.message);
+        } else {
+          alert(
+            "An error occurred. Please try again. If the problem persists, please contact the site administrator."
+          );
+        }
+      }
+    } finally {
+      dispatch({
+        type: actionConstants.UPDATE_GENERATING_RESPONSE_FLAG,
+        payload: false,
+      });
+    }
+    return abortController.abort();
+  };
+
+  const makeApiRequestWithoutCosmosDB = (
+    question: string,
+    conversationId?: string
+  ) => {};
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      // handleSendMessage();
+      const conversationId = state?.selectedConversationId;
+      if (userMessage) {
+        state.cosmosInfo?.cosmosDB
+          ? makeApiRequestWithCosmosDB(userMessage, conversationId)
+          : makeApiRequestWithoutCosmosDB(userMessage, conversationId);
+      }
       if (questionInputRef?.current) {
         questionInputRef?.current.focus();
       }
@@ -332,6 +433,7 @@ const Chat: React.FC<ChatProps> = ({
             appearance="outline"
             onClick={() => onHandlePanelStates(panels.CHATHISTORY)}
             // disabled={!panelShowStates?.[panels.CHAT]}
+            className="hide-chat-history"
           >
             {`${
               panelShowStates?.[panels.CHATHISTORY] ? "Hide" : "Show"
@@ -354,14 +456,22 @@ const Chat: React.FC<ChatProps> = ({
           <div key={index} className={`chat-message ${msg.role}`}>
             {msg.role === "user" ? (
               <div className="user-message">
-                <Text>{msg.content}</Text>
+                <span>{msg.content}</span>
               </div>
             ) : (
               <div className="assistant-message">
-                {typeof msg.content === "string" ? (
-                  <span dangerouslySetInnerHTML={{ __html: msg.content }} />
+                {msg.contentType === "image" ? (
+                  <img
+                    src={`data:image/png;base64,${msg.content}`}
+                    alt="Generated Chart"
+                    className="chart-image"
+                  />
                 ) : (
-                  msg.content
+                  typeof msg.content === "string" && (
+                    <>
+                      <span dangerouslySetInnerHTML={{ __html: msg.content }} />
+                    </>
+                  )
                 )}
                 <div className="answerDisclaimerContainer">
                   <span className="answerDisclaimer">
@@ -397,18 +507,18 @@ const Chat: React.FC<ChatProps> = ({
           disabled={generatingResponse}
         />
         <div className="text-area-container">
-           <Textarea
-              className="textarea-field"
-              value={userMessage}
-              onChange={(e, data) => setUserMessage(data.value || "")}
-              placeholder="Ask a question..."
-              disabled={generatingResponse}
-              onKeyDown={handleKeyDown}
-              ref={questionInputRef}
-              rows={2}
-              style={{ resize: "none" }} 
-              appearance="outline" 
-            />
+          <Textarea
+            className="textarea-field"
+            value={userMessage}
+            onChange={(e, data) => setUserMessage(data.value || "")}
+            placeholder="Ask a question..."
+            // disabled={generatingResponse}
+            onKeyDown={handleKeyDown}
+            ref={questionInputRef}
+            rows={2}
+            style={{ resize: "none" }}
+            appearance="outline"
+          />
           <DefaultButton
             iconProps={{ iconName: "Send" }}
             role="button"

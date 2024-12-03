@@ -16,6 +16,7 @@ import { type SelectedFilters } from "../../types/AppTypes";
 import { defaultSelectedFilters, sentimentIcons } from "../../configs/Utils";
 import { useAppContext } from "../../state/useAppContext";
 import { actionConstants } from "../../state/ActionConstants";
+import { ArrowClockwise20Regular, CalendarLtr20Regular, ChatMultiple20Regular, Emoji20Regular, EmojiMeh20Regular, EmojiMultiple20Regular, EmojiSad20Regular } from "@fluentui/react-icons";
 interface FilterComponentProps {
   applyFilters: (updatedFilters: SelectedFilters) => void;
   acceptFilters: string[];
@@ -27,7 +28,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   const { selectedFilters, filtersMeta } = state.dashboards;
   const { applyFilters, fetchingCharts } = props;
 
-  console.log("filtersMeta", filtersMeta);
+  // console.log("filtersMeta", filtersMeta);
   const initialDateRange =
     typeof Array.isArray(selectedFilters.DateRange)
       ? selectedFilters.DateRange
@@ -91,8 +92,9 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   };
 
   const handleResetFilters = () => {
+    
     setSelectedDateRange(defaultSelectedFilters.DateRange as string[]);
-    setSelectedCsat(defaultSelectedFilters.Sentiment as []);
+    setSelectedCsat(defaultSelectedFilters.Sentiment); // Assuming "all" is the key for the "all" sentiment
     setSelectedTopics(defaultSelectedFilters.Topic as []);
   };
   const getDisplayValue = (
@@ -123,7 +125,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   ) => (
     <div>
       <button
-        className="options"
+        className="options resetTopicsButton"
         onClick={handleDeselectAll}
         disabled={selectedTopics.length === 0}
       >
@@ -197,7 +199,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
     >
       <div className="filterOuterContainer">
         <DefaultButton
-          iconProps={{ iconName: "Calendar" }}
+          onRenderIcon={() => <CalendarLtr20Regular />} 
           text={getDisplayValue(
             filtersMeta?.DateRange,
             selectedDateRange[0] || ""
@@ -222,21 +224,26 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
         />
         <VerticalDivider />
         <DefaultButton
-          text={getDisplayValue(
-            filtersMeta?.Sentiment,
-            selectedCsat?.[0] || ""
-          )}
-          iconProps={{
-            iconName:
-              sentimentIcons[selectedCsat?.[0] || "neutral"] || "EmojiNeutral",
-          }}
+          className="capitalize-text"
           onClick={() => setIsCsatMenuOpen(!isCsatMenuOpen)}
           menuProps={{
             styles: { root: { minWidth: "13rem" } },
             items: filtersMeta?.Sentiment?.map((option) => ({
               key: String(option.key),
               iconProps: {
-                iconName: sentimentIcons[option.key] || "EmojiNeutral",
+                iconName: sentimentIcons[option.key] || "EmojiMultiple20Regular",
+              },
+              onRenderIcon: (renderIconProps)=>{console.log("renderIconProps::",renderIconProps);
+                switch(renderIconProps?.item.key) {
+                  case "Positive":
+                    return <Emoji20Regular />; // Positive sentiment icon
+                  case "Neutral":
+                    return <EmojiMeh20Regular />; // Neutral sentiment icon
+                  case "Negative":
+                    return <EmojiSad20Regular />; // Negative sentiment icon
+                  default:
+                    return <EmojiMultiple20Regular />; // Default neutral icon
+                }
               },
               text: option.displayValue,
               // canCheck: true,
@@ -251,10 +258,29 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
             onDismiss: () => setIsCsatMenuOpen(false),
           }}
           disabled={fetchingCharts}
-        />
+        > 
+        {(() => {
+          // Use a switch statement to determine the display value
+          switch (selectedCsat?.[0]) {
+            case "Positive":
+              return <Emoji20Regular />; // Positive sentiment icon
+            case "Neutral":
+              return <EmojiMeh20Regular />; // Neutral sentiment icon
+            case "Negative":
+              return <EmojiSad20Regular />; // Negative sentiment icon
+            default:
+              return <EmojiMultiple20Regular />; // Default neutral icon
+          }
+        })()}
+          {
+          getDisplayValue(
+            filtersMeta?.Sentiment,
+            selectedCsat?.[0] || ""
+          )}
+        </DefaultButton>
         <VerticalDivider />
         <DefaultButton
-          iconProps={{ iconName: "OfficeChat" }}
+          onRenderIcon={() => <ChatMultiple20Regular />} 
           text={`Topics (${selectedTopics?.length})`}
           onClick={() => setIsTopicsMenuOpen(!isTopicsMenuOpen)}
           disabled={fetchingCharts}
@@ -262,9 +288,9 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
         />
         <VerticalDivider />
         <DefaultButton
+          onRenderIcon={() => <ArrowClockwise20Regular />} 
           onClick={handleResetFilters}
           styles={{ root: { padding: "0px" } }}
-          iconProps={{ iconName: "Refresh" }}
           title="Reset"
           disabled={fetchingCharts}
         />

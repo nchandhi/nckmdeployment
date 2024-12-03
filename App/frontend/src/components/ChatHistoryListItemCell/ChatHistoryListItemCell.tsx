@@ -19,14 +19,13 @@ import { historyRename, historyDelete } from "../../api/api";
 
 import styles from "./ChatHistoryListItemCell.module.css";
 import { Conversation } from "../../types/AppTypes";
+import { useAppContext } from "../../state/useAppContext";
+import { actionConstants } from "../../state/ActionConstants";
 
 interface ChatHistoryListItemCellProps {
   item?: Conversation;
   onSelect: (item: Conversation | null) => void;
-  selectedConvId: string;
-  onHistoryTitleChange: (id: string, newTitle: string) => void;
-  onHistoryDelete: (id: string) => void;
-  isGenerating: boolean;
+  // onHistoryDelete: (id: string) => void;
   toggleToggleSpinner: (toggler: boolean) => void;
 }
 
@@ -35,12 +34,10 @@ export const ChatHistoryListItemCell: React.FC<
 > = ({
   item,
   onSelect,
-  selectedConvId,
-  onHistoryTitleChange,
-  onHistoryDelete,
-  isGenerating,
+  // onHistoryDelete,
   toggleToggleSpinner,
 }) => {
+  const { state, dispatch } = useAppContext();
   const [isHovered, setIsHovered] = React.useState(false);
   const [edit, setEdit] = useState(false);
   const [editTitle, setEditTitle] = useState("");
@@ -50,7 +47,7 @@ export const ChatHistoryListItemCell: React.FC<
   const [errorRename, setErrorRename] = useState<string | undefined>(undefined);
   const [textFieldFocused, setTextFieldFocused] = useState(false);
   const textFieldRef = useRef<ITextField | null>(null);
-  const isSelected = item?.id === selectedConvId;
+  const isSelected = item?.id === state.selectedConversationId;
   const dialogContentProps = {
     type: DialogType.close,
     title: "Are you sure you want to delete this item?",
@@ -65,8 +62,6 @@ export const ChatHistoryListItemCell: React.FC<
     styles: { main: { maxWidth: 450 } },
   };
 
-
-
   useEffect(() => {
     if (textFieldFocused && textFieldRef.current) {
       textFieldRef.current.focus();
@@ -79,15 +74,20 @@ export const ChatHistoryListItemCell: React.FC<
   }
 
   const onDelete = async () => {
+    console.log('onDelete:::',item.id)
     toggleToggleSpinner(true);
     const response = await historyDelete(item.id);
+    console.log('onDelete:response::',response)
     if (!response.ok) {
       setErrorDelete(true);
       setTimeout(() => {
         setErrorDelete(false);
       }, 5000);
     } else {
-      onHistoryDelete(item.id);
+      dispatch({
+        type: actionConstants.DELETE_CONVERSATION_FROM_LIST,
+        payload: item.id,
+      });
     }
     toggleDeleteDialog();
     toggleToggleSpinner(false);
@@ -130,11 +130,15 @@ export const ChatHistoryListItemCell: React.FC<
           textFieldRef.current.focus();
         }
       }, 5000);
+      setRenameLoading(false);
     } else {
       setRenameLoading(false);
       setEdit(false);
-      onHistoryTitleChange(item.id, editTitle);
       setEditTitle("");
+      dispatch({
+        type: actionConstants.UPDATE_CONVERSATION_TITLE,
+        payload: { id: item?.id, newTitle: editTitle },
+      });
     }
   };
 
@@ -161,7 +165,7 @@ export const ChatHistoryListItemCell: React.FC<
     e.stopPropagation();
     toggleDeleteDialog();
   };
-  const isButtonDisabled = isGenerating && isSelected;
+  const isButtonDisabled = state.chat.generatingResponse && isSelected;
   return (
     <Stack
       key={item.id}
@@ -201,6 +205,7 @@ export const ChatHistoryListItemCell: React.FC<
                     onKeyDown={handleKeyPressEdit}
                     errorMessage={errorRename}
                     disabled={errorRename ? true : false}
+                    title={editTitle}
                   />
                 </Stack.Item>
                 {editTitle && (
@@ -240,28 +245,29 @@ export const ChatHistoryListItemCell: React.FC<
                   </Stack.Item>
                 )}
               </Stack>
-              {errorRename && (
-                <Text
-                  role="alert"
-                  aria-label={errorRename}
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 400,
-                    color: "rgb(164,38,44)",
-                  }}
-                >
-                  {errorRename}
-                </Text>
-              )}
             </form>
           </Stack.Item>
         </>
       ) : (
         <>
-          <Stack horizontal verticalAlign={"center"} style={{ width: "100%" }} title={item?.title}>
-            <div className={styles.chatTitle} >{truncatedTitle}</div>
-            {(isSelected || isHovered) && (
-              <Stack horizontal horizontalAlign="end">
+          <Stack
+            horizontal
+            verticalAlign={"center"}
+            className={styles.chatHistoryItem}
+            title={item?.title}
+          >
+            <div
+              className={styles.chatTitle}
+              style={{ width: isHovered || isSelected ? "68%" : "100%" }}
+            >
+              {truncatedTitle}
+            </div>
+            {(isHovered || isSelected) && (
+              <Stack
+                horizontal
+                horizontalAlign="end"
+                className={styles.chatHistoryItemsButtonsContainer}
+              >
                 <IconButton
                   className={styles.itemButton}
                   disabled={isButtonDisabled}

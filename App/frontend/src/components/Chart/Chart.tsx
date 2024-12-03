@@ -39,7 +39,7 @@ const Chart = (props: ChartProps) => {
 
   const [fetchingFilters, setFetchingFilters] = useState<boolean>(false);
   const [fetchingCharts, setFetchingCharts] = useState<boolean>(false);
-  console.log(">>> state", state);
+  // console.log(">>> state", state);
   const [widths, setWidths] = useState<Record<string, number>>({});
   const [widgetsGapInPercentage, setWidgetsGapInPercentage] =
     useState<number>(1);
@@ -108,8 +108,9 @@ const Chart = (props: ChartProps) => {
           );
           const configObj = {
             id: configChart?.id,
-            type: apiData ? apiData?.chart_type : configChart?.chart_type,
-            title: apiData ? apiData?.chart_name : configChart.chart_name || "",
+            domId: (configChart?.id.replace(/\s+/g, "_").toUpperCase()),
+            type: configChart?.type,
+            title: apiData ? apiData?.chart_name : configChart.name || "",
             data: apiData ? apiData?.chart_value : [],
             layout: {
               row: configChart?.layout?.row,
@@ -159,7 +160,7 @@ const Chart = (props: ChartProps) => {
           setFetchingFilters(false);
         }
         if (!state.dashboards.initialChartsDataFetched) {
-          await getChartData(defaultSelectedFilters);
+          await getChartData({...defaultSelectedFilters});
           dispatch({
             type: actionConstants.UPDATE_INITIAL_CHARTS_FETCHED_FLAG,
             payload: true,
@@ -210,11 +211,11 @@ const Chart = (props: ChartProps) => {
             data={chart.data.map((item) => ({
               label: item.name,
               value: parseInt(item.value) || 0,
-              color: getColorForLabel(item.name.toLowerCase()),
+              color: getColorForLabel((item.name).toLowerCase()),
             }))}
             containerHeight={heightInPixes}
-            widthInPixels={document?.getElementById(chart?.id)!?.clientWidth}
-            containerID={chart?.id}
+            widthInPixels={document?.getElementById(chart?.domId)!?.clientWidth}
+            containerID={chart?.domId}
           />
         );
       case "bar":
@@ -226,7 +227,7 @@ const Chart = (props: ChartProps) => {
               value: parseFloat(item.value),
             }))}
             containerHeight={heightInPixes}
-            containerID={chart?.id}
+            containerID={chart?.domId}
           />
         );
       case "table":
@@ -253,7 +254,7 @@ const Chart = (props: ChartProps) => {
                 average_sentiment: item.average_sentiment,
               })),
             }}
-            widthInPixels={document?.getElementById(chart?.id)!?.clientWidth}
+            widthInPixels={document?.getElementById(chart?.domId)!?.clientWidth}
             containerHeight={heightInPixes}
           />
         );
@@ -267,9 +268,9 @@ const Chart = (props: ChartProps) => {
     const updateWidths = () => {
       const newWidths: Record<string, number> = {};
       charts.forEach((chartObj) => {
-        const element = document.getElementById(chartObj?.id);
+        const element = document.getElementById(chartObj?.domId);
         if (element) {
-          newWidths[chartObj?.id] = element.clientWidth;
+          newWidths[chartObj?.domId] = element!?.clientWidth;
         }
       });
       setWidths(newWidths);
@@ -290,7 +291,7 @@ const Chart = (props: ChartProps) => {
 
   return (
     <>
-      {fetchingCharts ? (
+      {(fetchingCharts || fetchingFilters) ? (
         <div>Loading Please wait...</div>
       ) : (
         <div className="all-widgets-container">
@@ -315,7 +316,7 @@ const Chart = (props: ChartProps) => {
                 {chartsList.map((chart: any) => (
                   <div
                     key={chart.title}
-                    id={chart?.id}
+                    id={chart?.domId}
                     className={`chart-item ${chart.type}Container`}
                   >
                     <div className="chart-title">{chart.title}</div>

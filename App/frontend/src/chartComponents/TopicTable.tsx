@@ -1,3 +1,12 @@
+import React from "react";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableBody,
+  TableCell,
+  TableHeaderCell,
+} from "@fluentui/react-components";
 import { colors } from "../configs/Utils";
 
 interface TopicTableProps {
@@ -14,26 +23,30 @@ const TopicTable: React.FC<TopicTableProps> = ({
 }) => {
   return (
     <div
+      tabIndex={0}
       style={{
         ...tableStyles.container,
         height: "91%",
       }}
     >
-      <table style={tableStyles.table} className="topic-table">
-        <thead style={tableStyles.thead}>
-          <tr>
+      <Table>
+        {/* Header */}
+        <TableHeader>
+          <TableRow>
             {columns.map((column, index) => (
-              <th key={index} style={tableStyles.header}>
+              <TableHeaderCell key={index} style={tableStyles.header}>
                 {column}
-              </th>
+              </TableHeaderCell>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+
+        {/* Body */}
+        <TableBody>
           {rows.map((row, index) => (
-            <tr key={index}>
+            <TableRow key={index}>
               {columnKeys.map((columnKey) => (
-                <td key={columnKey} style={tableStyles.cell}>
+                <TableCell key={columnKey} style={tableStyles.cell}>
                   {columnKey === "average_sentiment" ? (
                     <div style={{ display: "flex", alignItems: "center" }}>
                       <div
@@ -51,12 +64,12 @@ const TopicTable: React.FC<TopicTableProps> = ({
                   ) : (
                     row[columnKey]
                   )}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };
@@ -67,31 +80,20 @@ const tableStyles: { [key: string]: React.CSSProperties } = {
   container: {
     overflowY: "auto",
     backgroundColor: "#fff",
-    borderRadius: "8px",
+    borderRadius: "2px",
     boxShadow: "0px 1px 5px rgba(0, 0, 0, 0.1)",
-  },
-  title: {
-    color: "#707070",
-    fontWeight: "400",
-    fontFamily: "Segoe UI",
-    fontSize: "16px",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse" as "collapse",
-  },
-  thead: {
-    position: "sticky" as "sticky",
-    top: "0",
-    zIndex: 1,
   },
   header: {
     backgroundColor: "#f4f4f4",
-    fontWeight: "bold" as "bold",
-    textAlign: "left" as "left",
+    fontWeight: "bold",
+    textAlign: "left",
+    padding: "2px",
+    fontSize: "calc(0.6rem + 0.5vw)", // Responsive font size for header
   },
   cell: {
     borderBottom: "1px solid #ddd",
+    padding: "2px",
     textTransform: "capitalize",
+    fontSize: "calc(0.5rem + 0.4vw)", // Responsive font size for body cells
   },
 };

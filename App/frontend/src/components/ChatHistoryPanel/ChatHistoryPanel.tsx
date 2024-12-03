@@ -28,23 +28,18 @@ const commandBarStyle: ICommandBarStyles = {
   },
 };
 
-export type ChatHistoryPanelProps = {  
+export type ChatHistoryPanelProps = {
   clearingError: boolean;
   clearing: boolean;
   onHideClearAllDialog?: () => void;
   onClearAllChatHistory?: () => Promise<void>;
-  hideClearAllDialog: boolean;
-  toggleToggleSpinner: (toggler: boolean) => void;
-  toggleClearAllDialog: () => void; 
-  fetchingChatHistory: boolean;
+  toggleToggleSpinner: (toggler: boolean) => void; 
   handleFetchHistory: () => Promise<void>;
   onSelectConversation: (id: string) => Promise<void>;
-  selectedConvId: string;
-  onHistoryTitleChange: (id: string, newTitle: string) => void;
-  onHistoryDelete: (id: string) => void;
-  showLoadingMessage: boolean;
-  showContextualPopup: boolean;
+  // onHistoryDelete: (id: string) => void;
+  showClearAllConfirmationDialog: boolean;
   fetchingConvMessages: boolean;
+  onClickClearAllOption: () => void;
 };
 
 const modalProps = {
@@ -55,23 +50,18 @@ const modalProps = {
 };
 
 export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
-  const {  
+  const {
     clearingError,
     clearing,
     onHideClearAllDialog,
     onClearAllChatHistory,
-    hideClearAllDialog,
-    toggleToggleSpinner,
-    toggleClearAllDialog, 
-    fetchingChatHistory,
+    toggleToggleSpinner, 
     handleFetchHistory,
     onSelectConversation,
-    selectedConvId,
-    onHistoryTitleChange,
-    onHistoryDelete,
-    showLoadingMessage,
-    showContextualPopup,
+    // onHistoryDelete,
+    showClearAllConfirmationDialog,
     fetchingConvMessages,
+    onClickClearAllOption,
   } = props;
   const { state, dispatch } = useAppContext();
   const { chatHistory } = state;
@@ -94,13 +84,16 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
     !chatHistory.list.length ||
     generatingResponse ||
     fetchingConvMessages ||
-    fetchingChatHistory;
+    state.chatHistory.fetchingConversations;
   const menuItems: IContextualMenuItem[] = [
     {
       key: "clearAll",
       text: "Clear all chat history",
       disabled: disableClearAllChatHistory,
       iconProps: { iconName: "Delete" },
+      onClick: () => {
+        onClickClearAllOption();
+      },
     },
   ];
 
@@ -120,23 +113,17 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
         verticalAlign="center"
         wrap
         aria-label="chat history header"
-        className="mt-8"
+        className={styles.chatHistoryHeader}
       >
-        <StackItem>
-          <Text
-            role="heading"
-            aria-level={2}
-            style={{
-              alignSelf: "center",
-              fontWeight: "600",
-              fontSize: "18px",
-              marginRight: "auto",
-              paddingLeft: "20px",
-            }}
-          >
-            Chat history
-          </Text>
-        </StackItem>
+        <div
+          role="heading"
+          aria-level={2}
+          style={{
+            fontWeight: "600",
+          }}
+        >
+          Chat history
+        </div>
         <Stack horizontal className={styles.historyPanelTopRightButtons}>
           <Stack horizontal>
             <CommandBarButton
@@ -151,8 +138,7 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
             <ContextualMenu
               items={menuItems}
               hidden={!showClearAllContextMenu}
-              target={"#moreButton"}
-              onItemClick={toggleClearAllDialog}
+              target={"#moreButton"} 
               onDismiss={handleClearAllContextualMenu}
             />
           </Stack>
@@ -173,45 +159,38 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
         style={{
           display: "flex",
           height: "calc(100% - 3rem)",
-          padding: "1px",
         }}
       >
         <Stack className={styles.chatHistoryListContainer}>
           <ChatHistoryListItemGroups
-            fetchingChatHistory={fetchingChatHistory}
             handleFetchHistory={handleFetchHistory}
             onSelectConversation={onSelectConversation}
-            selectedConvId={selectedConvId}
-            onHistoryTitleChange={onHistoryTitleChange}
-            onHistoryDelete={onHistoryDelete}
-            isGenerating={showLoadingMessage}
+            // onHistoryDelete={onHistoryDelete}
             toggleToggleSpinner={toggleToggleSpinner}
           />
         </Stack>
       </Stack>
-      {showContextualPopup && (
-        <Dialog
-          hidden={hideClearAllDialog}
-          onDismiss={clearing ? () => {} : onHideClearAllDialog}
-          dialogContentProps={clearAllDialogContentProps}
-          modalProps={modalProps}
-        >
-          <DialogFooter>
-            {!clearingError && (
-              <PrimaryButton
-                onClick={onClearAllChatHistory}
-                disabled={clearing}
-                text="Clear All"
-              />
-            )}
-            <DefaultButton
-              onClick={onHideClearAllDialog}
+      <Dialog
+        hidden={!showClearAllConfirmationDialog}
+        onDismiss={clearing ? () => {} : onHideClearAllDialog}
+        dialogContentProps={clearAllDialogContentProps}
+        modalProps={modalProps}
+      >
+        <DialogFooter>
+          {!clearingError && (
+            <PrimaryButton
+              onClick={onClearAllChatHistory}
               disabled={clearing}
-              text={!clearingError ? "Cancel" : "Close"}
+              text="Clear All"
             />
-          </DialogFooter>
-        </Dialog>
-      )}
+          )}
+          <DefaultButton
+            onClick={onHideClearAllDialog}
+            disabled={clearing}
+            text={!clearingError ? "Cancel" : "Close"}
+          />
+        </DialogFooter>
+      </Dialog>
     </section>
   );
 };

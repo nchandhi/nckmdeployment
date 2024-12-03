@@ -22,7 +22,7 @@ header {
   background-color: white;
   padding: 0.7rem;
   border-radius: 8px;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.14);
+  /* box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.14); */
 }
 
 .chart-title {

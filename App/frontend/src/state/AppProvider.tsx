@@ -1,15 +1,18 @@
-import { useReducer, createContext, type ReactNode } from "react";
+import { useReducer, createContext, type ReactNode, useEffect } from "react";
 import {
-  AppConfig,
-  ChartConfigItem,
-  Conversation,
-  FilterMetaData,
-  message,
-  SelectedFilters,
+  type AppConfig,
+  type ChartConfigItem,
+  type ChatMessage,
+  type Conversation,
+  type CosmosDBHealth,
+  CosmosDBStatus,
+  type FilterMetaData,
+  type SelectedFilters,
 } from "../types/AppTypes";
 import { appReducer } from "./AppReducer";
 import { actionConstants } from "./ActionConstants";
 import { defaultSelectedFilters, generateUUIDv4 } from "../configs/Utils";
+import { historyEnsure } from "../api/api";
 
 export type AppState = {
   dashboards: {
@@ -21,11 +24,12 @@ export type AppState = {
   };
   chat: {
     generatingResponse: boolean;
-    messages: message[];
+    messages: ChatMessage[];
     userMessage: string;
   };
   chatHistory: {
     list: Conversation[];
+    fetchingConversations: boolean;
   };
   selectedConversationId: string;
   generatedConversationId: string;
@@ -33,6 +37,7 @@ export type AppState = {
     appConfig: AppConfig;
     charts: ChartConfigItem[];
   };
+  cosmosInfo: CosmosDBHealth;
 };
 
 const initialState: AppState = {
@@ -54,6 +59,7 @@ const initialState: AppState = {
   },
   chatHistory: {
     list: [],
+    fetchingConversations: false,
   },
   selectedConversationId: "",
   generatedConversationId: generateUUIDv4(),
@@ -61,6 +67,7 @@ const initialState: AppState = {
     appConfig: null,
     charts: [],
   },
+  cosmosInfo: { cosmosDB: false, status: "" },
 };
 
 export type Action =
@@ -94,7 +101,7 @@ export type Action =
     }
   | {
       type: typeof actionConstants.UPDATE_MESSAGES;
-      payload: message[];
+      payload: ChatMessage[];
     }
   | {
       type: typeof actionConstants.ADD_CONVERSATIONS_TO_LIST;
@@ -114,7 +121,35 @@ export type Action =
     }
   | {
       type: typeof actionConstants.NEW_CONVERSATION_START;
+    }
+  | {
+      type: typeof actionConstants.UPDATE_CONVERSATIONS_FETCHING_FLAG;
+      payload: boolean;
+    }
+  | {
+      type: typeof actionConstants.UPDATE_CONVERSATION_TITLE;
+      payload: { id: string; newTitle: string };
+    }
+  | {
+      type: typeof actionConstants.UPDATE_ON_CLEAR_ALL_CONVERSATIONS;
+    }
+  | {
+      type: typeof actionConstants.SHOW_CHATHISTORY_CONVERSATION;
+      payload: { id: string; messages: ChatMessage[] };
+    }
+  | {
+      type: typeof actionConstants.UPDATE_CHATHISTORY_CONVERSATION_FLAG;
+      payload: boolean;
+    }
+  | {
+      type: typeof actionConstants.DELETE_CONVERSATION_FROM_LIST;
+      payload: string;
+    }
+  | {
+      type: typeof actionConstants.STORE_COSMOS_INFO;
+      payload: CosmosDBHealth;
     };
+
 export const AppContext = createContext<{
   state: AppState;
   dispatch: React.Dispatch<Action>;
@@ -122,6 +157,53 @@ export const AppContext = createContext<{
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
+  useEffect(() => {
+    const getHistoryEnsure = async () => {
+      // dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Loading })
+      historyEnsure()
+        .then((response) => {
+          if (response?.cosmosDB) {
+            console.log("COSMOS DB IS OKAY ");
+            dispatch({
+              type: actionConstants.STORE_COSMOS_INFO,
+              payload: response,
+            });
+            // fetchChatHistory()
+            //   .then(res => {
+            //     if (res) {
+            //       // dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Success })
+            //     } else {
+            //       // dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
+            //       // dispatch({
+            //       //   type: 'SET_COSMOSDB_STATUS',
+            //       //   payload: { cosmosDB: false, status: CosmosDBStatus.NotWorking }
+            //       // })
+            //     }
+            //   })
+            //   .catch(_err => {
+            //     // dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
+            //     // dispatch({
+            //     //   type: 'SET_COSMOSDB_STATUS',
+            //     //   payload: { cosmosDB: false, status: CosmosDBStatus.NotWorking }
+            //     // })
+            //   })
+          } else {
+            dispatch({
+              type: actionConstants.STORE_COSMOS_INFO,
+              payload: response,
+            });
+          }
+        })
+        .catch((_err) => {
+          dispatch({
+            type: actionConstants.STORE_COSMOS_INFO,
+            payload: { cosmosDB: false, status: CosmosDBStatus.NotConfigured },
+          });
+        });
+    };
+    getHistoryEnsure();
+  }, []);
 
   return (
     <AppContext.Provider value={{ state, dispatch: dispatch }}>

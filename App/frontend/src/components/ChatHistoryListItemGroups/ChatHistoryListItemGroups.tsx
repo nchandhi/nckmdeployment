@@ -20,14 +20,10 @@ export interface GroupedChatHistory {
   title: string;
   entries: Conversation[];
 }
-interface ChatHistoryListItemGroupsProps {
-  fetchingChatHistory: boolean;
+interface ChatHistoryListItemGroupsProps { 
   handleFetchHistory: () => Promise<void>;
   onSelectConversation: (id: string) => void;
-  selectedConvId: string;
-  onHistoryTitleChange: (id: string, newTitle: string) => void;
-  onHistoryDelete: (id: string) => void;
-  isGenerating: boolean;
+  // onHistoryDelete: (id: string) => void;
   toggleToggleSpinner: (toggler: boolean) => void;
 }
 
@@ -35,12 +31,8 @@ export const ChatHistoryListItemGroups: React.FC<
   ChatHistoryListItemGroupsProps
 > = ({
   handleFetchHistory,
-  fetchingChatHistory,
   onSelectConversation,
-  selectedConvId,
-  onHistoryTitleChange,
-  onHistoryDelete,
-  isGenerating,
+  // onHistoryDelete,
   toggleToggleSpinner,
 }) => {
   const observerTarget = useRef(null);
@@ -61,11 +53,8 @@ export const ChatHistoryListItemGroups: React.FC<
       <ChatHistoryListItemCell
         item={item}
         onSelect={() => handleSelectHistory(item)}
-        selectedConvId={selectedConvId}
         key={item?.id}
-        onHistoryTitleChange={onHistoryTitleChange}
-        onHistoryDelete={onHistoryDelete}
-        isGenerating={isGenerating}
+        // onHistoryDelete={onHistoryDelete}
         toggleToggleSpinner={toggleToggleSpinner}
       />
     );
@@ -94,7 +83,7 @@ export const ChatHistoryListItemGroups: React.FC<
     0
   );
 
-  if (!fetchingChatHistory && allConversationsLength === 0) {
+  if (!chatHistory.fetchingConversations && allConversationsLength === 0) {
     return (
       <Stack
         horizontal
@@ -155,7 +144,7 @@ export const ChatHistoryListItemGroups: React.FC<
           },
         }}
       />
-      {Boolean(fetchingChatHistory) && (
+      {Boolean(chatHistory?.fetchingConversations) && (
         <div className={styles.spinnerContainer}>
           <Spinner
             size={SpinnerSize.small}
