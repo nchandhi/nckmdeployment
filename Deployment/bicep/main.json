@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "6197239493669574134"
+      "templateHash": "4137454728452314488"
     }
   },
   "parameters": {
@@ -2114,7 +2114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "7729839089333281575"
+              "templateHash": "5287003375944856307"
             }
           },
           "parameters": {
@@ -2140,7 +2140,8 @@
             "functionURLsOutput": {
               "type": "object",
               "value": {
-                "charts_function_url": "[format('https://{0}/api/{1}', reference(resourceId('Microsoft.Web/sites', variables('chartsfunctionAppName')), '2021-02-01').defaultHostName, variables('chartsfunctionName'))]",
+                "charts_function_url": "[format('https://{0}/api/{1}?data_type=charts', reference(resourceId('Microsoft.Web/sites', variables('chartsfunctionAppName')), '2021-02-01').defaultHostName, variables('chartsfunctionName'))]",
+                "filters_function_url": "[format('https://{0}/api/{1}?data_type=charts', reference(resourceId('Microsoft.Web/sites', variables('chartsfunctionAppName')), '2021-02-01').defaultHostName, variables('chartsfunctionName'))]",
                 "rag_function_url": "[format('https://{0}/api/{1}', reference(resourceId('Microsoft.Web/sites', variables('ragfunctionAppName')), '2021-02-01').defaultHostName, variables('ragfunctionName'))]",
                 "graphrag_function_url": "[variables('graphrag_function_url')]"
               }
@@ -2190,7 +2191,7 @@
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_urls'), '2022-09-01').outputs.functionURLsOutput.value.charts_function_url]"
           },
           "FILTERS_URL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_urls'), '2022-09-01').outputs.functionURLsOutput.value.charts_function_url]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_azure_function_urls'), '2022-09-01').outputs.functionURLsOutput.value.filters_function_url]"
           },
           "USE_GRAPHRAG": {
             "value": "False"
@@ -2224,7 +2225,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "12033872055428885820"
+              "templateHash": "5493838741230733873"
             }
           },
           "parameters": {
@@ -2367,7 +2368,8 @@
             }
           },
           "variables": {
-            "WebAppImageName": "DOCKER|kmcontainerreg.azurecr.io/km-app:latest"
+            "WebAppImageName": "DOCKER|kmcontainerreg.azurecr.io/km-app:latest",
+            "REACT_APP_LAYOUT_CONFIG": "{\n  \"appConfig\": {\n    \"THREE_COLUMN\": {\n      \"DASHBOARD\": 50,\n      \"CHAT\": 33,\n      \"CHATHISTORY\": 17\n    },\n    \"TWO_COLUMN\": {\n      \"DASHBOARD_CHAT\": {\n        \"DASHBOARD\": 65,\n        \"CHAT\": 35\n      },\n      \"CHAT_CHATHISTORY\": {\n        \"CHAT\": 80,\n        \"CHATHISTORY\": 20\n      }\n    }\n  },\n  \"charts\": [\n    {\n      \"id\": \"SATISFIED\",\n      \"name\": \"Satisfied\",\n      \"type\": \"card\",\n      \"layout\": { \"row\": 1, \"column\": 1, \"height\": 11 }\n    },\n    {\n      \"id\": \"TOTAL_CALLS\",\n      \"name\": \"Total Calls\",\n      \"type\": \"card\",\n      \"layout\": { \"row\": 1, \"column\": 2, \"span\": 1 }\n    },\n    {\n      \"id\": \"AVG_HANDLING_TIME\",\n      \"name\": \"Average Handling Time\",\n      \"type\": \"card\",\n      \"layout\": { \"row\": 1, \"column\": 3, \"span\": 1 }\n    },\n    {\n      \"id\": \"SENTIMENT\",\n      \"name\": \"Topics Overview\",\n      \"type\": \"donutchart\",\n      \"layout\": { \"row\": 2, \"column\": 1, \"width\": 40, \"height\": 44.5 }\n    },\n    {\n      \"id\": \"AVG_HANDLING_TIME_BY_TOPIC\",\n      \"name\": \"Average Handling Time By Topic\",\n      \"type\": \"bar\",\n      \"layout\": { \"row\": 2, \"column\": 2, \"row-span\": 2, \"width\": 60 }\n    },\n    {\n      \"id\": \"TOPICS\",\n      \"name\": \"Trending Topics\",\n      \"type\": \"table\",\n      \"layout\": { \"row\": 3, \"column\": 1, \"span\": 2 }\n    },\n    {\n      \"id\": \"KEY_PHRASES\",\n      \"name\": \"Key Phrases\",\n      \"type\": \"wordcloud\",\n      \"layout\": { \"row\": 3, \"column\": 2, \"height\": 44.5 }\n    }\n  ]\n}"
           },
           "resources": [
             {
@@ -2435,6 +2437,10 @@
                     {
                       "name": "RAG_URL",
                       "value": "[parameters('RAG_URL')]"
+                    },
+                    {
+                      "name": "REACT_APP_LAYOUT_CONFIG",
+                      "value": "[variables('REACT_APP_LAYOUT_CONFIG')]"
                     },
                     {
                       "name": "AZURE_COSMOSDB_ACCOUNT",

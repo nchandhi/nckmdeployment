@@ -242,7 +242,7 @@ module appserviceModule 'deploy_app_service.bicep' = {
     AzureOpenAIKey:azOpenAI.outputs.openAIOutput.openAPIKey
     azureOpenAIApiVersion:'2024-02-15-preview'
     CHARTS_URL:azureFunctionURL.outputs.functionURLsOutput.charts_function_url
-    FILTERS_URL:azureFunctionURL.outputs.functionURLsOutput.charts_function_url
+    FILTERS_URL:azureFunctionURL.outputs.functionURLsOutput.filters_function_url
     USE_GRAPHRAG:'False'
     GRAPHRAG_URL:azureFunctionURL.outputs.functionURLsOutput.graphrag_function_url
     RAG_URL:azureFunctionURL.outputs.functionURLsOutput.rag_function_url

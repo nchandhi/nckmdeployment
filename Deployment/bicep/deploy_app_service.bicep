@@ -79,6 +79,69 @@ resource HostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   }
   kind: 'linux'
 }
+var REACT_APP_LAYOUT_CONFIG ='''{
+  "appConfig": {
+    "THREE_COLUMN": {
+      "DASHBOARD": 50,
+      "CHAT": 33,
+      "CHATHISTORY": 17
+    },
+    "TWO_COLUMN": {
+      "DASHBOARD_CHAT": {
+        "DASHBOARD": 65,
+        "CHAT": 35
+      },
+      "CHAT_CHATHISTORY": {
+        "CHAT": 80,
+        "CHATHISTORY": 20
+      }
+    }
+  },
+  "charts": [
+    {
+      "id": "SATISFIED",
+      "name": "Satisfied",
+      "type": "card",
+      "layout": { "row": 1, "column": 1, "height": 11 }
+    },
+    {
+      "id": "TOTAL_CALLS",
+      "name": "Total Calls",
+      "type": "card",
+      "layout": { "row": 1, "column": 2, "span": 1 }
+    },
+    {
+      "id": "AVG_HANDLING_TIME",
+      "name": "Average Handling Time",
+      "type": "card",
+      "layout": { "row": 1, "column": 3, "span": 1 }
+    },
+    {
+      "id": "SENTIMENT",
+      "name": "Topics Overview",
+      "type": "donutchart",
+      "layout": { "row": 2, "column": 1, "width": 40, "height": 44.5 }
+    },
+    {
+      "id": "AVG_HANDLING_TIME_BY_TOPIC",
+      "name": "Average Handling Time By Topic",
+      "type": "bar",
+      "layout": { "row": 2, "column": 2, "row-span": 2, "width": 60 }
+    },
+    {
+      "id": "TOPICS",
+      "name": "Trending Topics",
+      "type": "table",
+      "layout": { "row": 3, "column": 1, "span": 2 }
+    },
+    {
+      "id": "KEY_PHRASES",
+      "name": "Key Phrases",
+      "type": "wordcloud",
+      "layout": { "row": 3, "column": 2, "height": 44.5 }
+    }
+  ]
+}'''
 
 resource Website 'Microsoft.Web/sites@2020-06-01' = {
   name: WebsiteName
@@ -115,6 +178,7 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
         {name: 'CHART_DASHBOARD_FILTERS_URL', value: FILTERS_URL}
         {name: 'GRAPHRAG_URL', value: GRAPHRAG_URL}
         {name: 'RAG_URL', value: RAG_URL}
+        {name: 'REACT_APP_LAYOUT_CONFIG', value: REACT_APP_LAYOUT_CONFIG}
         {name: 'AZURE_COSMOSDB_ACCOUNT'
           value: AZURE_COSMOSDB_ACCOUNT
         }

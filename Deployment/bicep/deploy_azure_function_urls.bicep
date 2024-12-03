@@ -7,7 +7,8 @@ var chartsfunctionName = 'get_metrics'
 resource existingFunctionApp 'Microsoft.Web/sites@2021-02-01' existing = {
   name: chartsfunctionAppName
 }
-var charts_function_url = 'https://${existingFunctionApp.properties.defaultHostName}/api/${chartsfunctionName}'
+var charts_function_url = 'https://${existingFunctionApp.properties.defaultHostName}/api/${chartsfunctionName}?data_type=charts'
+var filters_function_url = 'https://${existingFunctionApp.properties.defaultHostName}/api/${chartsfunctionName}?data_type=filters'
 
 var ragfunctionAppName = '${solutionName}-rag-fn'
 var ragfunctionName = 'stream_openai_text'
@@ -28,6 +29,7 @@ var graphrag_function_url = 'TBD'
 
 output functionURLsOutput object = {
   charts_function_url:charts_function_url
+  filters_function_url:charts_function_url
   rag_function_url:rag_function_url
   graphrag_function_url:graphrag_function_url
 }
