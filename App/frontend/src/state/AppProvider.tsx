@@ -30,6 +30,8 @@ export type AppState = {
   chatHistory: {
     list: Conversation[];
     fetchingConversations: boolean;
+    isFetchingConvMessages: boolean;
+    isHistoryUpdateAPIPending: boolean;
   };
   selectedConversationId: string;
   generatedConversationId: string;
@@ -38,6 +40,7 @@ export type AppState = {
     charts: ChartConfigItem[];
   };
   cosmosInfo: CosmosDBHealth;
+  showAppSpinner: boolean;
 };
 
 const initialState: AppState = {
@@ -60,6 +63,8 @@ const initialState: AppState = {
   chatHistory: {
     list: [],
     fetchingConversations: false,
+    isFetchingConvMessages: false,
+    isHistoryUpdateAPIPending: false,
   },
   selectedConversationId: "",
   generatedConversationId: generateUUIDv4(),
@@ -68,6 +73,7 @@ const initialState: AppState = {
     charts: [],
   },
   cosmosInfo: { cosmosDB: false, status: "" },
+  showAppSpinner: false,
 };
 
 export type Action =
@@ -148,6 +154,18 @@ export type Action =
   | {
       type: typeof actionConstants.STORE_COSMOS_INFO;
       payload: CosmosDBHealth;
+    }
+  | {
+      type: typeof actionConstants.ADD_NEW_CONVERSATION_TO_CHAT_HISTORY;
+      payload: Conversation;
+    }
+  | {
+      type: typeof actionConstants.UPDATE_APP_SPINNER_STATUS;
+      payload: boolean;
+    }
+  | {
+      type: typeof actionConstants.UPDATE_HISTORY_UPDATE_API_FLAG;
+      payload: boolean;
     };
 
 export const AppContext = createContext<{
@@ -202,7 +220,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           });
         });
     };
-    getHistoryEnsure();
+    // getHistoryEnsure();
   }, []);
 
   return (

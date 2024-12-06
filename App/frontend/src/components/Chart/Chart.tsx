@@ -26,6 +26,7 @@ import {
   getGridStyles,
 } from "../../configs/Utils";
 import { ChartsResponse } from "../../configs/StaticData";
+import { Subtitle2 } from "@fluentui/react-components";
 
 type ChartProps = {
   layoutWidthUpdated: boolean;
@@ -39,7 +40,6 @@ const Chart = (props: ChartProps) => {
 
   const [fetchingFilters, setFetchingFilters] = useState<boolean>(false);
   const [fetchingCharts, setFetchingCharts] = useState<boolean>(false);
-  // console.log(">>> state", state);
   const [widths, setWidths] = useState<Record<string, number>>({});
   const [widgetsGapInPercentage, setWidgetsGapInPercentage] =
     useState<number>(1);
@@ -90,8 +90,6 @@ const Chart = (props: ChartProps) => {
         chartData = await fetchChartData();
       }
       // Update charts with data
-      // chartData = ChartsResponse
-      // console.log("chartData received", chartData, layoutConfig.charts);
       const updatedCharts: ChartConfigItem[] = layoutConfig.charts
         .map((configChart: any) => {
           if (!configChart || !configChart.id) {
@@ -319,7 +317,8 @@ const Chart = (props: ChartProps) => {
                     id={chart?.domId}
                     className={`chart-item ${chart.type}Container`}
                   >
-                    <div className="chart-title">{chart.title}</div>
+                    {/* <div className="chart-title">{chart.title}</div> */}
+                    <Subtitle2 className="chart-title">{chart.title}</Subtitle2>
                     {renderChart(chart, heightInPixes)}
                   </div>
                 ))}

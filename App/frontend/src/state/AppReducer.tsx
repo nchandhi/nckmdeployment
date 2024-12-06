@@ -135,7 +135,6 @@ const appReducer = (state: AppState, action: Action): AppState => {
         // Update the messages of the matched conversation
         tempConvList[matchedIndex].messages = action.payload.messages;
       }
-      console.log("tempConvList::", tempConvList);
       return {
         ...state,
         chat: { ...state.chat, messages: action.payload.messages },
@@ -149,24 +148,56 @@ const appReducer = (state: AppState, action: Action): AppState => {
         ...state,
         chatHistory: {
           ...state.chatHistory,
-          fetchingConversations: action.payload,
+          isFetchingConvMessages: action.payload,
         },
       };
     case actionConstants.DELETE_CONVERSATION_FROM_LIST:
       const updatedChatHistoryList = state.chatHistory.list.filter(
         (conversation) => conversation.id !== action.payload
       );
+      const isDeletedSelectedConv =
+        action.payload === state.selectedConversationId;
+
       return {
         ...state,
         chatHistory: {
           ...state.chatHistory,
-          list: updatedChatHistoryList, // Use the temp variable here
+          list: updatedChatHistoryList,
+        },
+        selectedConversationId: isDeletedSelectedConv
+          ? ""
+          : state.selectedConversationId,
+        chat: {
+          ...state.chat,
+          messages: isDeletedSelectedConv ? [] : state.chat.messages,
+          userMessage: isDeletedSelectedConv ? "" : state.chat.userMessage,
         },
       };
     case actionConstants.STORE_COSMOS_INFO:
       return {
         ...state,
-        cosmosInfo: action.payload
+        cosmosInfo: action.payload,
+      };
+    case actionConstants.ADD_NEW_CONVERSATION_TO_CHAT_HISTORY:
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          list: [action.payload, ...state.chatHistory.list],
+        },
+      };
+    case actionConstants.UPDATE_APP_SPINNER_STATUS:
+      return {
+        ...state,
+        showAppSpinner: action.payload,
+      };
+    case actionConstants.UPDATE_HISTORY_UPDATE_API_FLAG:
+      return {
+        ...state,
+        chatHistory: {
+          ...state.chatHistory,
+          isHistoryUpdateAPIPending: action.payload,
+        },
       };
     default:
       return state;

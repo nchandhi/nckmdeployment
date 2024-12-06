@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "4137454728452314488"
+      "templateHash": "5450925825704629157"
     }
   },
   "parameters": {
@@ -2114,7 +2114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5287003375944856307"
+              "templateHash": "5366544535884273146"
             }
           },
           "parameters": {
@@ -2141,7 +2141,7 @@
               "type": "object",
               "value": {
                 "charts_function_url": "[format('https://{0}/api/{1}?data_type=charts', reference(resourceId('Microsoft.Web/sites', variables('chartsfunctionAppName')), '2021-02-01').defaultHostName, variables('chartsfunctionName'))]",
-                "filters_function_url": "[format('https://{0}/api/{1}?data_type=charts', reference(resourceId('Microsoft.Web/sites', variables('chartsfunctionAppName')), '2021-02-01').defaultHostName, variables('chartsfunctionName'))]",
+                "filters_function_url": "[format('https://{0}/api/{1}?data_type=filters', reference(resourceId('Microsoft.Web/sites', variables('chartsfunctionAppName')), '2021-02-01').defaultHostName, variables('chartsfunctionName'))]",
                 "rag_function_url": "[format('https://{0}/api/{1}', reference(resourceId('Microsoft.Web/sites', variables('ragfunctionAppName')), '2021-02-01').defaultHostName, variables('ragfunctionName'))]",
                 "graphrag_function_url": "[variables('graphrag_function_url')]"
               }

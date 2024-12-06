@@ -6,6 +6,10 @@ import {
   TableBody,
   TableCell,
   TableHeaderCell,
+  TableCellLayout,
+  Caption1,
+  Body1,
+  Body1Strong,
 } from "@fluentui/react-components";
 import { colors } from "../configs/Utils";
 
@@ -30,40 +34,43 @@ const TopicTable: React.FC<TopicTableProps> = ({
       }}
     >
       <Table>
-        {/* Header */}
         <TableHeader>
           <TableRow>
             {columns.map((column, index) => (
-              <TableHeaderCell key={index} style={tableStyles.header}>
-                {column}
+              <TableHeaderCell
+                key={index}
+                style={{ backgroundColor: "#f4f4f4" }}
+              >
+                <Body1Strong>{column}</Body1Strong>
               </TableHeaderCell>
             ))}
           </TableRow>
         </TableHeader>
-
-        {/* Body */}
         <TableBody>
           {rows.map((row, index) => (
             <TableRow key={index}>
               {columnKeys.map((columnKey) => (
-                <TableCell key={columnKey} style={tableStyles.cell}>
-                  {columnKey === "average_sentiment" ? (
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <div
-                        style={{
-                          backgroundColor:
-                            colors[row[columnKey] as string] || colors.default,
-                          width: "20px",
-                          height: "20px",
-                          marginRight: "10px",
-                          borderRadius: "4px",
-                        }}
-                      ></div>
-                      <span>{row[columnKey]}</span>
-                    </div>
-                  ) : (
-                    row[columnKey]
-                  )}
+                <TableCell key={columnKey}>
+                  <TableCellLayout>
+                    {columnKey === "average_sentiment" ? (
+                      <div style={{ display: "flex", alignItems: "center", textTransform:"capitalize" }}>
+                        <div
+                          style={{
+                            backgroundColor:
+                              colors[row[columnKey] as string] ||
+                              colors.default,
+                            width: "20px",
+                            height: "20px",
+                            marginRight: "10px",
+                            borderRadius: "4px",
+                          }}
+                        ></div>
+                        <Caption1>{row[columnKey]}</Caption1>
+                      </div>
+                    ) : (
+                      <Caption1>{row[columnKey]}</Caption1>
+                    )}
+                  </TableCellLayout>
                 </TableCell>
               ))}
             </TableRow>
@@ -88,12 +95,12 @@ const tableStyles: { [key: string]: React.CSSProperties } = {
     fontWeight: "bold",
     textAlign: "left",
     padding: "2px",
-    fontSize: "calc(0.6rem + 0.5vw)", // Responsive font size for header
+    fontSize: "calc(0.6rem + 0.3vw)",
   },
   cell: {
     borderBottom: "1px solid #ddd",
     padding: "2px",
     textTransform: "capitalize",
-    fontSize: "calc(0.5rem + 0.4vw)", // Responsive font size for body cells
+    fontSize: "calc(0.5rem + 0.3vw)",
   },
 };

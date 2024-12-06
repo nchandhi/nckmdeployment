@@ -33,12 +33,9 @@ export type ChatHistoryPanelProps = {
   clearing: boolean;
   onHideClearAllDialog?: () => void;
   onClearAllChatHistory?: () => Promise<void>;
-  toggleToggleSpinner: (toggler: boolean) => void; 
   handleFetchHistory: () => Promise<void>;
   onSelectConversation: (id: string) => Promise<void>;
-  // onHistoryDelete: (id: string) => void;
   showClearAllConfirmationDialog: boolean;
-  fetchingConvMessages: boolean;
   onClickClearAllOption: () => void;
 };
 
@@ -55,12 +52,9 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
     clearing,
     onHideClearAllDialog,
     onClearAllChatHistory,
-    toggleToggleSpinner, 
     handleFetchHistory,
     onSelectConversation,
-    // onHistoryDelete,
     showClearAllConfirmationDialog,
-    fetchingConvMessages,
     onClickClearAllOption,
   } = props;
   const { state, dispatch } = useAppContext();
@@ -83,7 +77,6 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
   const disableClearAllChatHistory =
     !chatHistory.list.length ||
     generatingResponse ||
-    fetchingConvMessages ||
     state.chatHistory.fetchingConversations;
   const menuItems: IContextualMenuItem[] = [
     {
@@ -165,8 +158,6 @@ export const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = (props) => {
           <ChatHistoryListItemGroups
             handleFetchHistory={handleFetchHistory}
             onSelectConversation={onSelectConversation}
-            // onHistoryDelete={onHistoryDelete}
-            toggleToggleSpinner={toggleToggleSpinner}
           />
         </Stack>
       </Stack>

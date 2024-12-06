@@ -16,7 +16,15 @@ import { type SelectedFilters } from "../../types/AppTypes";
 import { defaultSelectedFilters, sentimentIcons } from "../../configs/Utils";
 import { useAppContext } from "../../state/useAppContext";
 import { actionConstants } from "../../state/ActionConstants";
-import { ArrowClockwise20Regular, CalendarLtr20Regular, ChatMultiple20Regular, Emoji20Regular, EmojiMeh20Regular, EmojiMultiple20Regular, EmojiSad20Regular } from "@fluentui/react-icons";
+import {
+  ArrowClockwise20Regular,
+  CalendarLtr20Regular,
+  ChatMultiple20Regular,
+  Emoji20Regular,
+  EmojiMeh20Regular,
+  EmojiMultiple20Regular,
+  EmojiSad20Regular,
+} from "@fluentui/react-icons";
 interface FilterComponentProps {
   applyFilters: (updatedFilters: SelectedFilters) => void;
   acceptFilters: string[];
@@ -27,15 +35,13 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   const { state, dispatch } = useAppContext();
   const { selectedFilters, filtersMeta } = state.dashboards;
   const { applyFilters, fetchingCharts } = props;
+  const initialDateRange = typeof Array.isArray(selectedFilters.DateRange)
+    ? selectedFilters.DateRange
+    : [""];
 
-  // console.log("filtersMeta", filtersMeta);
-  const initialDateRange =
-    typeof Array.isArray(selectedFilters.DateRange)
-      ? selectedFilters.DateRange
-      : [""];
-
-  const [selectedDateRange, setSelectedDateRange] =
-    useState<string[]>(initialDateRange as string[]);
+  const [selectedDateRange, setSelectedDateRange] = useState<string[]>(
+    initialDateRange as string[]
+  );
   const [selectedCsat, setSelectedCsat] = useState<string[]>(
     selectedFilters.Sentiment as string[]
   );
@@ -92,7 +98,6 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
   };
 
   const handleResetFilters = () => {
-    
     setSelectedDateRange(defaultSelectedFilters.DateRange as string[]);
     setSelectedCsat(defaultSelectedFilters.Sentiment); // Assuming "all" is the key for the "all" sentiment
     setSelectedTopics(defaultSelectedFilters.Topic as []);
@@ -199,7 +204,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
     >
       <div className="filterOuterContainer">
         <DefaultButton
-          onRenderIcon={() => <CalendarLtr20Regular />} 
+          onRenderIcon={() => <CalendarLtr20Regular />}
           text={getDisplayValue(
             filtersMeta?.DateRange,
             selectedDateRange[0] || ""
@@ -231,22 +236,22 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
             items: filtersMeta?.Sentiment?.map((option) => ({
               key: String(option.key),
               iconProps: {
-                iconName: sentimentIcons[option.key] || "EmojiMultiple20Regular",
+                iconName:
+                  sentimentIcons[option.key] || "EmojiMultiple20Regular",
               },
-              onRenderIcon: (renderIconProps)=>{console.log("renderIconProps::",renderIconProps);
-                switch(renderIconProps?.item.key) {
+              onRenderIcon: (renderIconProps) => {
+                switch (renderIconProps?.item.key) {
                   case "Positive":
-                    return <Emoji20Regular />; // Positive sentiment icon
+                    return <Emoji20Regular />;
                   case "Neutral":
-                    return <EmojiMeh20Regular />; // Neutral sentiment icon
+                    return <EmojiMeh20Regular />;
                   case "Negative":
-                    return <EmojiSad20Regular />; // Negative sentiment icon
+                    return <EmojiSad20Regular />;
                   default:
-                    return <EmojiMultiple20Regular />; // Default neutral icon
+                    return <EmojiMultiple20Regular />;
                 }
               },
               text: option.displayValue,
-              // canCheck: true,
               checked: option.key === selectedCsat?.[0],
               onClick: () => handleCsatSelection(String(option.key)),
             })),
@@ -258,29 +263,24 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
             onDismiss: () => setIsCsatMenuOpen(false),
           }}
           disabled={fetchingCharts}
-        > 
-        {(() => {
-          // Use a switch statement to determine the display value
-          switch (selectedCsat?.[0]) {
-            case "Positive":
-              return <Emoji20Regular />; // Positive sentiment icon
-            case "Neutral":
-              return <EmojiMeh20Regular />; // Neutral sentiment icon
-            case "Negative":
-              return <EmojiSad20Regular />; // Negative sentiment icon
-            default:
-              return <EmojiMultiple20Regular />; // Default neutral icon
-          }
-        })()}
-          {
-          getDisplayValue(
-            filtersMeta?.Sentiment,
-            selectedCsat?.[0] || ""
-          )}
+        >
+          {(() => {
+            switch (selectedCsat?.[0]) {
+              case "Positive":
+                return <Emoji20Regular />;
+              case "Neutral":
+                return <EmojiMeh20Regular />;
+              case "Negative":
+                return <EmojiSad20Regular />;
+              default:
+                return <EmojiMultiple20Regular />;
+            }
+          })()}
+          {getDisplayValue(filtersMeta?.Sentiment, selectedCsat?.[0] || "")}
         </DefaultButton>
         <VerticalDivider />
         <DefaultButton
-          onRenderIcon={() => <ChatMultiple20Regular />} 
+          onRenderIcon={() => <ChatMultiple20Regular />}
           text={`Topics (${selectedTopics?.length})`}
           onClick={() => setIsTopicsMenuOpen(!isTopicsMenuOpen)}
           disabled={fetchingCharts}
@@ -288,7 +288,7 @@ const ChartFilter: React.FC<FilterComponentProps> = (props) => {
         />
         <VerticalDivider />
         <DefaultButton
-          onRenderIcon={() => <ArrowClockwise20Regular />} 
+          onRenderIcon={() => <ArrowClockwise20Regular />}
           onClick={handleResetFilters}
           styles={{ root: { padding: "0px" } }}
           title="Reset"

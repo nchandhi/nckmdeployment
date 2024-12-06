@@ -15,7 +15,6 @@ import {
 import { useBoolean } from "@fluentui/react-hooks";
 
 import { historyRename, historyDelete } from "../../api/api";
-// import _ from 'lodash';
 
 import styles from "./ChatHistoryListItemCell.module.css";
 import { Conversation } from "../../types/AppTypes";
@@ -25,8 +24,6 @@ import { actionConstants } from "../../state/ActionConstants";
 interface ChatHistoryListItemCellProps {
   item?: Conversation;
   onSelect: (item: Conversation | null) => void;
-  // onHistoryDelete: (id: string) => void;
-  toggleToggleSpinner: (toggler: boolean) => void;
 }
 
 export const ChatHistoryListItemCell: React.FC<
@@ -34,8 +31,6 @@ export const ChatHistoryListItemCell: React.FC<
 > = ({
   item,
   onSelect,
-  // onHistoryDelete,
-  toggleToggleSpinner,
 }) => {
   const { state, dispatch } = useAppContext();
   const [isHovered, setIsHovered] = React.useState(false);
@@ -74,10 +69,11 @@ export const ChatHistoryListItemCell: React.FC<
   }
 
   const onDelete = async () => {
-    console.log('onDelete:::',item.id)
-    toggleToggleSpinner(true);
+    dispatch({
+      type: actionConstants.UPDATE_APP_SPINNER_STATUS,
+      payload: true,
+    });
     const response = await historyDelete(item.id);
-    console.log('onDelete:response::',response)
     if (!response.ok) {
       setErrorDelete(true);
       setTimeout(() => {
@@ -90,17 +86,30 @@ export const ChatHistoryListItemCell: React.FC<
       });
     }
     toggleDeleteDialog();
-    toggleToggleSpinner(false);
+    dispatch({
+      type: actionConstants.UPDATE_APP_SPINNER_STATUS,
+      payload: false,
+    });
   };
 
-  const onEdit = () => {
+  const onEdit = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     setEdit(true);
     setTextFieldFocused(true);
     setEditTitle(item?.title);
   };
 
-  const handleSelectItem = () => {
-    onSelect(item);
+  const handleSelectItem = (e: any) => {
+    if (isSelected) {
+      return;
+    }
+    if (e?.target?.tagName === "INPUT") {
+      e.preventDefault();
+      e.stopPropagation();
+    } else {
+      onSelect(item);
+    }
   };
 
   const truncatedTitle =
@@ -110,7 +119,8 @@ export const ChatHistoryListItemCell: React.FC<
 
   const handleSaveEdit = async (e: any) => {
     e.preventDefault();
-    if (errorRename || renameLoading) {
+    e.stopPropagation();
+    if (errorRename || renameLoading || editTitle.trim() === "") {
       return;
     }
 
@@ -146,17 +156,20 @@ export const ChatHistoryListItemCell: React.FC<
     setEditTitle(e.target.value);
   };
 
-  const cancelEditTitle = () => {
+  const cancelEditTitle = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     setEdit(false);
     setEditTitle("");
   };
 
   const handleKeyPressEdit = (e: any) => {
+    console.log("handleKeyPressEdit", e.key, e);
     if (e.key === "Enter") {
       return handleSaveEdit(e);
     }
     if (e.key === "Escape") {
-      cancelEditTitle();
+      cancelEditTitle(e);
       return;
     }
   };
@@ -165,19 +178,26 @@ export const ChatHistoryListItemCell: React.FC<
     e.stopPropagation();
     toggleDeleteDialog();
   };
+
+  const handleOnKeyDownOnItemcell = (e: React.KeyboardEvent) => {
+    const target = e.target as HTMLElement;
+    if (
+      e.key === "Enter" ||
+      (e.key === " " && target.className.includes("itemCell"))
+    ) {
+      handleSelectItem(e);
+    }
+  };
   const isButtonDisabled = state.chat.generatingResponse && isSelected;
   return (
     <Stack
       key={item.id}
       tabIndex={0}
       aria-label="chat history item"
-      className={styles.itemCell}
-      onClick={() => handleSelectItem()}
-      onKeyDown={(e) =>
-        e.key === "Enter" || e.key === " " ? handleSelectItem() : null
-      }
+      className={`${styles.itemCell} ${isSelected ? styles.cursorDefault : ""}`}
+      onClick={(e) => handleSelectItem(e)}
+      onKeyDown={(e) => handleOnKeyDownOnItemcell(e)}
       verticalAlign="center"
-      // horizontal
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       styles={{
@@ -206,6 +226,10 @@ export const ChatHistoryListItemCell: React.FC<
                     errorMessage={errorRename}
                     disabled={errorRename ? true : false}
                     title={editTitle}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                   />
                 </Stack.Item>
                 {editTitle && (
@@ -217,7 +241,7 @@ export const ChatHistoryListItemCell: React.FC<
                     >
                       <IconButton
                         role="button"
-                        disabled={errorRename !== undefined}
+                        disabled={errorRename !== undefined || editTitle.trim() === ""}
                         onKeyDown={(e) =>
                           e.key === " " || e.key === "Enter"
                             ? handleSaveEdit(e)
@@ -233,10 +257,10 @@ export const ChatHistoryListItemCell: React.FC<
                         disabled={errorRename !== undefined}
                         onKeyDown={(e) =>
                           e.key === " " || e.key === "Enter"
-                            ? cancelEditTitle()
+                            ? cancelEditTitle(e)
                             : null
                         }
-                        onClick={() => cancelEditTitle()}
+                        onClick={(e) => cancelEditTitle(e)}
                         aria-label="cancel edit title"
                         iconProps={{ iconName: "Cancel" }}
                         styles={{ root: { color: "red", marginLeft: "5px" } }}
@@ -283,8 +307,8 @@ export const ChatHistoryListItemCell: React.FC<
                   disabled={isButtonDisabled}
                   iconProps={{ iconName: "Edit" }}
                   title="Edit"
-                  onClick={onEdit}
-                  onKeyDown={(e) => (e.key === " " ? onEdit() : null)}
+                  onClick={(e) => onEdit(e)}
+                  onKeyDown={(e) => (e.key === " " ? onEdit(e) : null)}
                 />
               </Stack>
             )}

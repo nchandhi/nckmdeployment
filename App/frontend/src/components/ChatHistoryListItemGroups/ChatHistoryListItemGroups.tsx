@@ -20,11 +20,9 @@ export interface GroupedChatHistory {
   title: string;
   entries: Conversation[];
 }
-interface ChatHistoryListItemGroupsProps { 
+interface ChatHistoryListItemGroupsProps {
   handleFetchHistory: () => Promise<void>;
   onSelectConversation: (id: string) => void;
-  // onHistoryDelete: (id: string) => void;
-  toggleToggleSpinner: (toggler: boolean) => void;
 }
 
 export const ChatHistoryListItemGroups: React.FC<
@@ -32,12 +30,10 @@ export const ChatHistoryListItemGroups: React.FC<
 > = ({
   handleFetchHistory,
   onSelectConversation,
-  // onHistoryDelete,
-  toggleToggleSpinner,
 }) => {
   const observerTarget = useRef(null);
-
-  const { state } = useAppContext()
+  const initialCall = useRef(true);
+  const { state } = useAppContext();
   const { chatHistory } = state;
 
   const groupedChatHistory = segregateItems(chatHistory.list);
@@ -54,17 +50,25 @@ export const ChatHistoryListItemGroups: React.FC<
         item={item}
         onSelect={() => handleSelectHistory(item)}
         key={item?.id}
-        // onHistoryDelete={onHistoryDelete}
-        toggleToggleSpinner={toggleToggleSpinner}
       />
     );
   };
+  useEffect(() => {
+    if (initialCall.current) {
+      initialCall.current = false;
+    }
+  }, []);
 
   useEffect(() => {
+    if (initialCall.current) {
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          handleFetchHistory();
+          if (!chatHistory?.fetchingConversations) {
+            handleFetchHistory();
+          }
         }
       },
       { threshold: 1 }
@@ -75,7 +79,7 @@ export const ChatHistoryListItemGroups: React.FC<
     return () => {
       if (observerTarget.current) observer.unobserve(observerTarget.current);
     };
-  }, [observerTarget.current]);
+  }, [observerTarget.current, chatHistory?.fetchingConversations]);
 
   const allConversationsLength = groupedChatHistory.reduce(
     (previousValue, currentValue) =>

@@ -1,26 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+
 import Chart from "./components/Chart/Chart";
 import Chat from "./components/Chat/Chat";
 import {
+  Body1,
   Button,
   FluentProvider,
+  Subtitle2Stronger,
   webLightTheme,
 } from "@fluentui/react-components";
 import { SparkleRegular } from "@fluentui/react-icons";
 import "./App.css";
 import { ChatHistoryPanel } from "./components/ChatHistoryPanel/ChatHistoryPanel";
+
 import {
+  getUserInfo,
   getLayoutConfig,
   historyDelete,
   historyDeleteAll,
   historyList,
   historyRead,
 } from "./api/api";
+
 import { useAppContext } from "./state/useAppContext";
 import { actionConstants } from "./state/ActionConstants";
 import { Conversation } from "./types/AppTypes";
 import { AppLogo } from "./components/Svg/Svg";
-
+import CustomSpinner from "./components/CustomSpinner/CustomSpinner";
 const panels = {
   DASHBOARD: "DASHBOARD",
   CHAT: "CHAT",
@@ -58,7 +64,11 @@ const Dashboard: React.FC = () => {
     useState(false);
   const [clearing, setClearing] = React.useState(false);
   const [clearingError, setClearingError] = React.useState(false);
-  console.log("state", { ...state });
+  const [isInitialAPItriggered, setIsInitialAPItriggered] = useState(false);
+  const [showAuthMessage, setShowAuthMessage] = useState<boolean | undefined>();
+  const [offset, setOffset] = useState<number>(0);
+  const OFFSET_INCREMENT = 25;
+  const [hasMoreRecords, setHasMoreRecords] = useState<boolean>(true);
 
   useEffect(() => {
     try {
@@ -71,6 +81,23 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       console.error("Failed to fetch chart configuration:", error);
     }
+  }, []);
+
+  const getUserInfoList = async () => {
+    const userInfoList = await getUserInfo();
+    if (
+      userInfoList.length === 0 &&
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1"
+    ) {
+      setShowAuthMessage(true);
+    } else {
+      setShowAuthMessage(false);
+    }
+  };
+
+  useEffect(() => {
+    getUserInfoList();
   }, []);
 
   const updateLayoutWidths = (newState: Record<string, boolean>) => {
@@ -127,12 +154,21 @@ const Dashboard: React.FC = () => {
   };
 
   const getHistoryListData = async () => {
+    if (!hasMoreRecords) {
+      return;
+    }
     dispatch({
       type: actionConstants.UPDATE_CONVERSATIONS_FETCHING_FLAG,
       payload: true,
     });
-    const convs = await historyList();
+    const convs = await historyList(offset);
     if (convs !== null) {
+      if (convs.length === OFFSET_INCREMENT) {
+        setOffset((offset) => (offset += OFFSET_INCREMENT));
+        // Stopping offset increment if there were no records
+      } else if (convs.length < OFFSET_INCREMENT) {
+        setHasMoreRecords(false);
+      }
       dispatch({
         type: actionConstants.ADD_CONVERSATIONS_TO_LIST,
         payload: convs,
@@ -144,12 +180,12 @@ const Dashboard: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    getHistoryListData();
-  }, []);
 
   const onClearAllChatHistory = async () => {
-    // toggleToggleSpinner(true);
+    dispatch({
+      type: actionConstants.UPDATE_APP_SPINNER_STATUS,
+      payload: true,
+    });
     setClearing(true);
     const response = await historyDeleteAll();
     if (!response.ok) {
@@ -159,29 +195,26 @@ const Dashboard: React.FC = () => {
       dispatch({ type: actionConstants.UPDATE_ON_CLEAR_ALL_CONVERSATIONS });
     }
     setClearing(false);
-    // toggleToggleSpinner(false);
+    dispatch({
+      type: actionConstants.UPDATE_APP_SPINNER_STATUS,
+      payload: false,
+    });
   };
 
-  // const getMessagesByConvId = (id: string) => {
-  //   const conv = chatHistory.find((obj) => String(obj.id) === String(id));
-  //   if (conv) {
-  //     return conv?.messages || [];
-  //   }
-  //   return [];
-  // };
+  useEffect(() => {
+    setIsInitialAPItriggered(true);
+  }, []);
 
-  // const setMessagesByConvId = (id: string, messagesList: ChatMessage[]) => {
-  //   const tempHistory = [...chatHistory];
-  //   const matchedIndex = tempHistory.findIndex(
-  //     (obj) => String(obj.id) === String(id)
-  //   );
-  //   if (matchedIndex > -1) {
-  //     tempHistory[matchedIndex].messages = messagesList;
-  //   }
-  // };
+  useEffect(() => {
+    if (isInitialAPItriggered) {
+      (async () => {
+        getHistoryListData();
+      })();
+    }
+  }, [isInitialAPItriggered]);
+
 
   const onSelectConversation = async (id: string) => {
-    console.log("onSelectConversation::id:>> ", id); 
     if (!id) {
       console.error("No conversation ID found");
       return;
@@ -190,9 +223,12 @@ const Dashboard: React.FC = () => {
       type: actionConstants.UPDATE_CHATHISTORY_CONVERSATION_FLAG,
       payload: true,
     });
+    dispatch({
+      type: actionConstants.UPDATE_SELECTED_CONV_ID,
+      payload: id,
+    });
     try {
       const responseMessages = await historyRead(id);
-      console.log("responseMessages::id:>> ", id, responseMessages);
 
       if (responseMessages) {
         dispatch({
@@ -224,23 +260,19 @@ const Dashboard: React.FC = () => {
     }, 1000);
   };
 
-  // console.log("panelsInOpenState", panelShowStates, panelWidths);
-
   return (
     <FluentProvider
       theme={webLightTheme}
       style={{ height: "100%", backgroundColor: "#F5F5F5" }}
     >
+      <CustomSpinner loading={state.showAppSpinner} label="Please wait.....!" />
       <div className="header">
         <div className="header-left-section">
           <AppLogo />
-          <h2 className="header-title">
-            Woodgrove <span className="analysis">| Call Analysis</span>
-          </h2>
+          <Subtitle2Stronger>Woodgrove <Body1 style={{ gap: "10px" }}>| Call Analysis</Body1></Subtitle2Stronger>
         </div>
         <div className="header-right-section">
           <Button
-            // icon={<SparkleRegular />}
             appearance="subtle"
             onClick={() => onHandlePanelStates(panels.DASHBOARD)}
           >
@@ -255,15 +287,6 @@ const Dashboard: React.FC = () => {
           >
             {`${panelShowStates?.[panels.CHAT] ? "Hide" : "Show"} Chat`}
           </Button>
-          {/* <Button 
-            appearance="outline"
-            onClick={() => onHandlePanelStates(panels.CHATHISTORY)}
-            disabled={!panelShowStates?.[panels.CHAT]}
-          >
-            {`${
-              panelShowStates?.[panels.CHATHISTORY] ? "Hide" : "Show"
-            } Chat History`}
-          </Button> */}
         </div>
       </div>
       <div className="main-container">
@@ -298,22 +321,18 @@ const Dashboard: React.FC = () => {
                 width: `${panelWidths[panels.CHATHISTORY]}%`,
               }}
             >
-              {/* <ChatHistory />*/}
               <ChatHistoryPanel
                 clearing={clearing}
                 clearingError={clearingError}
-                fetchingConvMessages={false}
-                handleFetchHistory={() => {
-                  return new Promise(() => {});
-                }}
+                handleFetchHistory={() => getHistoryListData()}
                 onClearAllChatHistory={onClearAllChatHistory}
                 onClickClearAllOption={onClickClearAllOption}
                 onHideClearAllDialog={onHideClearAllDialog}
-                // onHistoryDelete={onHistoryDelete}
                 onSelectConversation={onSelectConversation}
                 showClearAllConfirmationDialog={showClearAllConfirmationDialog}
-                toggleToggleSpinner={() => {}}
               />
+              {/* {useAppContext?.state.isChatHistoryOpen &&
+            useAppContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && <ChatHistoryPanel />} */}
             </div>
           )}
       </div>

@@ -28,7 +28,7 @@ export enum Feedback {
 export type ChatMessage = {
   id: string;
   role: string;
-  content: string;
+  content: string | ChartDataResponse;
   end_turn?: boolean;
   date: string;
   feedback?: Feedback;
@@ -36,19 +36,10 @@ export type ChatMessage = {
   contentType?: "text" | "image";
 };
 
-// export type message = {
-//   id?: string;
-//   role: Roles;
-//   content: string;
-//   end_turn?: boolean;
-//   date?: string;
-//   feedback?: Feedback;
-//   context?: string;
-// };
-
 export type ConversationRequest = {
   id?: string;
   messages: ChatMessage[];
+  last_rag_response: string | null;
 };
 
 export type Conversation = {
@@ -100,11 +91,17 @@ export type ChatResponseChoice = {
   messages: ChatMessage[];
 };
 
+export type ChartDataResponse = {
+  data: any,
+  options: any,
+  type: string
+};
+
 export type ChatResponse = {
   id: string;
   model: string;
   created: number;
-  object: ChatCompletionType;
+  object: ChatCompletionType | any;
   choices: ChatResponseChoice[];
   history_metadata: {
     conversation_id: string;
@@ -112,6 +109,12 @@ export type ChatResponse = {
     date: string;
   };
   error?: any;
+  chartType?: string;
+  chartOptions: any;
+  chartData: {
+    datasets?: any[];
+    labels: any[];
+  };
 };
 
 export enum CosmosDBStatus {
@@ -126,4 +129,10 @@ export enum CosmosDBStatus {
 export type CosmosDBHealth = {
   cosmosDB: boolean;
   status: string;
+};
+
+export type HistoryMetaData = {
+  conversation_id: string;
+  title: string;
+  date: string;
 };

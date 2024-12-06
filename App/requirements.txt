@@ -10,4 +10,8 @@ python-dotenv==1.0.1
 requests
 matplotlib
 flask==3.0.3
+azure-mgmt-cognitiveservices
 azure-cosmos
+azure-identity
+azure-mgmt-resource
+aiohttp

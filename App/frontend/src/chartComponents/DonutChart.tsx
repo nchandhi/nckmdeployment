@@ -22,13 +22,26 @@ const DonutChart: React.FC<DonutChartProps> = ({
 }) => {
   const chartRef = useRef<SVGSVGElement | null>(null);
   const [centerText, setCenterText] = useState({
-    label: "Positive",
-    percentage: (
-      ((data.find((d) => d.label?.toLowerCase() === "positive")?.value || 0) /
-        d3.sum(data, (d) => d.value)) *
-      100
-    ).toFixed(0),
+    label: "",
+    percentage: "0",
   });
+  useEffect(() => {
+    if (data.length === 0) {
+      setCenterText({ label: "No Data", percentage: "0" });
+      return;
+    }
+  
+    const total = d3.sum(data, (d) => d.value);
+    const positiveData = data.find((d) => d.label.toLowerCase() === "positive");
+    const defaultLabel = positiveData?.label || data[0]?.label || "Unknown";
+    const defaultValue = positiveData?.value || data[0]?.value || 0;
+    const defaultPercentage = ((defaultValue / total) * 100).toFixed(0);
+  
+    setCenterText({
+      label: defaultLabel,
+      percentage: defaultPercentage,
+    });
+  }, [data]);
 
   useEffect(() => {
     const containerWidth =
@@ -76,7 +89,8 @@ const DonutChart: React.FC<DonutChartProps> = ({
     return () => {
       d3.select(chartRef.current).selectAll("*").remove();
     };
-  }, [data, containerHeight]);
+  }, [data, containerHeight, containerID]);
+
   return (
     <div style={styles.container}>
       <div style={styles.legend}>
@@ -95,33 +109,16 @@ const DonutChart: React.FC<DonutChartProps> = ({
                 borderRadius: "2px",
               }}
             />
-            <span className="donut-label" style={styles.labelText}>
-              {item.label}
-            </span>
+            <Caption1>{item.label}</Caption1>
           </div>
         ))}
       </div>
       <div style={styles.chartOuterContainer}>
         <svg ref={chartRef} />
         <div style={styles.centerText}>
-          <div
-            style={{
-              ...styles.percentageText,
-              fontSize: `${containerHeight / 160}rem`,
-            }}
-          >
-        <Title3 style={{ fontSize: `${containerHeight / 160}rem` }}>
-          {centerText.percentage}%
-        </Title3>
-          </div>
-          <div
-            style={{
-              ...styles.labelText,
-              fontSize: `${containerHeight / 240}rem`,
-            }}
-          >
-            <Caption1>{centerText.label}</Caption1>
-          </div>
+          <Title3>{centerText.percentage}%</Title3>
+          <br />
+          <Caption1>{centerText.label}</Caption1>
         </div>
       </div>
     </div>
@@ -148,11 +145,6 @@ const styles = {
     backgroundColor: "#fff",
     height: "91%",
   },
-  title: {
-    marginBottom: "10px",
-    fontSize: "1rem",
-    color: "#333",
-  },
   legend: {
     display: "flex",
     flexDirection: "column" as const,
@@ -163,8 +155,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     marginBottom: "0.5rem",
-    fontSize: "0.875rem",
-    color: "#333",
     paddingBottom: "0.25rem",
     gap: "0.375rem",
     alignSelf: "stretch",
@@ -176,13 +166,5 @@ const styles = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     textAlign: "center" as const,
-    textTransform: "capitalize" as "capitalize",
-  },
-  percentageText: {
-    fontSize: "1.5rem",
-    fontWeight: "bold" as const,
-  },
-  labelText: {
-    textTransform: "capitalize" as "capitalize",
   },
 };

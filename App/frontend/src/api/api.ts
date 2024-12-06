@@ -44,7 +44,7 @@ export const fetchChartDataWithFilters = async (bodyData: any) => {
     return data;
   } catch (error) {
     console.error("Failed to fetch filtered chart data:", error);
-    throw error; // Rethrow the error so the calling function can handle it
+    throw error;
   }
 };
 
@@ -63,6 +63,26 @@ export const fetchFilterData = async () => {
   }
 };
 
+export type UserInfo = {
+  access_token: string;
+  expires_on: string;
+  id_token: string;
+  provider_name: string;
+  user_claims: any[];
+  user_id: string;
+};
+
+export async function getUserInfo(): Promise<UserInfo[]> {
+  const response = await fetch("/.auth/me");
+  if (!response.ok) {
+    console.log("No identity provider found. Access to chat will be blocked.");
+    return [];
+  }
+
+  const payload = await response.json();
+  return payload;
+}
+
 export const historyRead = async (convId: string): Promise<ChatMessage[]> => {
   const response = await fetch("/history/read", {
     method: "POST",
@@ -75,21 +95,19 @@ export const historyRead = async (convId: string): Promise<ChatMessage[]> => {
   })
     .then(async (res) => {
       if (!res.ok) {
-        // return [];
         return historyReadResponse.messages.map((msg: any) => ({
           id: msg.id,
           role: msg.role,
           content: msg.content,
           date: msg.createdAt,
           feedback: msg.feedback ?? undefined,
-          context: msg.context, // if available
-          contentType: msg.contentType, // if available
+          context: msg.context,
+          contentType: msg.contentType,
         }));
       }
       const payload = await res.json();
       const messages: ChatMessage[] = [];
 
-      // Ensure payload.messages is treated as an array
       if (Array.isArray(payload?.messages)) {
         payload.messages.forEach((msg: any) => {
           const message: ChatMessage = {
@@ -98,8 +116,8 @@ export const historyRead = async (convId: string): Promise<ChatMessage[]> => {
             content: msg.content,
             date: msg.createdAt,
             feedback: msg.feedback ?? undefined,
-            context: msg.context, // if available
-            contentType: msg.contentType, // if available
+            context: msg.context,
+            contentType: msg.contentType,
           };
           messages.push(message);
         });
@@ -110,7 +128,6 @@ export const historyRead = async (convId: string): Promise<ChatMessage[]> => {
       console.error("There was an issue fetching your data.");
       return [];
     });
-  console.log("historyReadResponse.messages::", historyReadResponse.messages);
   return response;
 };
 
@@ -153,7 +170,6 @@ export const historyList = async (
         }
       );
       return conversations;
-      // return null;
     });
   return response;
 };
@@ -212,8 +228,6 @@ export async function getLayoutConfig(): Promise<{
   };
 }
 
-// /api/conversation
-// /api/chat
 export async function callConversationApi(
   options: ConversationRequest,
   abortSignal: AbortSignal
@@ -226,6 +240,7 @@ export async function callConversationApi(
     body: JSON.stringify({
       messages: options.messages,
       conversation_id: options.id,
+      last_rag_response: options.last_rag_response
     }),
     signal: abortSignal,
   });
@@ -293,7 +308,7 @@ export const historyDelete = async (convId: string): Promise<Response> => {
 };
 
 export const historyDeleteAll = async (): Promise<Response> => {
-  const response = await fetch("api/history/delete_all", {
+  const response = await fetch("/history/delete_all", {
     method: "DELETE",
     body: JSON.stringify({}),
     headers: {
@@ -367,12 +382,10 @@ export const historyGenerate = async (
     body = JSON.stringify({
       conversation_id: convId,
       messages: options.messages,
-      // client_id:options.client_id
     });
   } else {
     body = JSON.stringify({
       messages: options.messages,
-      // client_id:options.client_id
     });
   }
   const response = await fetch("/history/generate", {

@@ -66,6 +66,7 @@ body {
   justify-content: center;
   align-items: center;
   margin-left: 1%;
+  gap: 10px;
 }
 
 .header-right-section {

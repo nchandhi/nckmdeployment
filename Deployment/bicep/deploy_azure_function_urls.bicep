@@ -29,7 +29,7 @@ var graphrag_function_url = 'TBD'
 
 output functionURLsOutput object = {
   charts_function_url:charts_function_url
-  filters_function_url:charts_function_url
+  filters_function_url:filters_function_url
   rag_function_url:rag_function_url
   graphrag_function_url:graphrag_function_url
 }
