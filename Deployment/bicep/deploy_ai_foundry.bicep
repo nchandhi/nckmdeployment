@@ -529,6 +529,19 @@ resource azureLocatioEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview
 }
 
 output keyvaultName string = keyvaultName
+output keyvaultId string = keyVault.id
+output storageName string = storageName
+output storageContainer string = 'data'
+
+output aiServicesTarget string = aiServices.properties.endpoint
+output aiServicesName string = aiServicesName
+output aiServicesId string = aiServices.id
+
+output aiSearchName string = aiSearchName
+output aiSearchId string = aiSearch.id
+output aiSearchTarget string = 'https://${aiSearch.name}.search.windows.net'
+output aiSearchService string = aiSearch.name
+
 // output aifoundryOutput object = {
 //   id: aiHub.id
 //   keyvault: keyVault.id

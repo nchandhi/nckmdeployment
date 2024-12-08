@@ -7,7 +7,6 @@ param sqlDbUser string
 @secure()
 param sqlDbPwd string
 
-
 var functionAppName = '${solutionName}-charts-fn'
 var storageaccountname = '${solutionName}chartsfnacc'
 var dockerImage = 'DOCKER|kmcontainerreg.azurecr.io/km-charts-function:latest'

@@ -79,7 +79,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 
 resource AZURE_COSMOSDB_ACCOUNT 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
-  name: 'AZURE_COSMOSDB_ACCOUNT'
+  name: 'AZURE-COSMOSDB-ACCOUNT'
   properties: {
     value: cosmos.name
   }
@@ -116,6 +116,10 @@ resource AZURE_COSMOSDB_ENABLE_FEEDBACK 'Microsoft.KeyVault/vaults/secrets@2021-
     value: 'True'
   }
 }
+
+output cosmosAccountName string = cosmos.name
+output cosmosDatabaseName string = databaseName
+output cosmosContainerName string = collectionName
 
 // output cosmosOutput object = {
 //   cosmosAccountName: cosmos.name

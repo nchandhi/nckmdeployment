@@ -77,72 +77,69 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
   dependsOn:[aifoundry,keyVault]
 }
 
-// module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
-//   name : 'deploy_azure_function_charts'
-//   params:{
-//     solutionName: solutionPrefix
-//     solutionLocation: solutionLocation
-//     resourceGroupName:resourceGroupName
-//     sqlServerName:sqlDBModule.outputs.sqlDbOutput.sqlServerName
-//     sqlDbName:sqlDBModule.outputs.sqlDbOutput.sqlDbName
-//     sqlDbUser:sqlDBModule.outputs.sqlDbOutput.sqlDbUser
-//     sqlDbPwd:sqlDBModule.outputs.sqlDbOutput.sqlDbPwd
-//     baseUrl:baseUrl
-//   }
-// }
+module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
+  name : 'deploy_azure_function_charts'
+  params:{
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    sqlServerName: sqlDBModule.outputs.sqlServerName
+    sqlDbName: sqlDBModule.outputs.sqlDbName
+    sqlDbUser: sqlDBModule.outputs.sqlDbUser
+    sqlDbPwd:keyVault.getSecret('SQLDB-PASSWORD')
+  }
+  dependsOn:[sqlDBModule,keyVault]
+}
 
-// module azureragFunctionsRag 'deploy_azure_function_rag.bicep' = {
-//   name : 'deploy_azure_function_rag'
-//   params:{
-//     solutionName: solutionPrefix
-//     solutionLocation: solutionLocation
-//     resourceGroupName:resourceGroupName
-//     azureOpenAIApiKey:azOpenAI.outputs.openAIOutput.openAPIKey
-//     azureOpenAIApiVersion:'2024-02-15-preview'
-//     azureOpenAIEndpoint:azOpenAI.outputs.openAIOutput.openAPIEndpoint
-//     azureSearchAdminKey:azSearchService.outputs.searchServiceOutput.searchServiceAdminKey
-//     azureSearchServiceEndpoint:azSearchService.outputs.searchServiceOutput.searchServiceEndpoint
-//     azureSearchIndex:'call_transcripts_index'
-//     sqlServerName:sqlDBModule.outputs.sqlDbOutput.sqlServerName
-//     sqlDbName:sqlDBModule.outputs.sqlDbOutput.sqlDbName
-//     sqlDbUser:sqlDBModule.outputs.sqlDbOutput.sqlDbUser
-//     sqlDbPwd:sqlDBModule.outputs.sqlDbOutput.sqlDbPwd
-//     baseUrl:baseUrl
-//   }
-// }
+module azureragFunctionsRag 'deploy_azure_function_rag.bicep' = {
+  name : 'deploy_azure_function_rag'
+  params:{
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    azureOpenAIApiKey:keyVault.getSecret('OPENAI-API-KEY')
+    azureOpenAIEndpoint:aifoundry.outputs.aiServicesTarget
+    azureSearchAdminKey:keyVault.getSecret('AZURE-SEARCH-ADMIN-KEY')
+    azureSearchServiceEndpoint:aifoundry.outputs.aiSearchTarget
+    azureOpenAIApiVersion:'2024-02-15-preview'
+    azureSearchIndex:'call_transcripts_index'
+    sqlServerName:sqlDBModule.outputs.sqlServerName
+    sqlDbName:sqlDBModule.outputs.sqlDbName
+    sqlDbUser:sqlDBModule.outputs.sqlDbUser
+    sqlDbPwd:keyVault.getSecret('SQLDB-PASSWORD')
+  }
+}
 
-// module azureFunctionURL 'deploy_azure_function_urls.bicep' = {
-//   name : 'deploy_azure_function_urls'
-//   params:{
-//     solutionName: solutionPrefix
-//     identity:managedIdentityModule.outputs.managedIdentityOutput.id
-//   }
-//   dependsOn:[azureFunctionsCharts,azureragFunctionsRag]
-// }
+module azureFunctionURL 'deploy_azure_function_urls.bicep' = {
+  name : 'deploy_azure_function_urls'
+  params:{
+    solutionName: solutionPrefix
+    identity:managedIdentityModule.outputs.managedIdentityOutput.id
+  }
+  dependsOn:[azureFunctionsCharts,azureragFunctionsRag]
+}
 
-// module appserviceModule 'deploy_app_service.bicep' = {
-//   name: 'deploy_app_service'
-//   params: {
-//     identity:managedIdentityModule.outputs.managedIdentityOutput.id
-//     solutionName: solutionPrefix
-//     solutionLocation: solutionLocation
-//     AzureOpenAIEndpoint:azOpenAI.outputs.openAIOutput.openAPIEndpoint
-//     AzureOpenAIModel:'gpt-4o-mini'
-//     AzureOpenAIKey:azOpenAI.outputs.openAIOutput.openAPIKey
-//     azureOpenAIApiVersion:'2024-02-15-preview'
-//     AZURE_OPENAI_RESOURCE:azOpenAI.outputs.openAIOutput.openAIAccountName
-//     CHARTS_URL:azureFunctionURL.outputs.functionURLsOutput.charts_function_url
-//     FILTERS_URL:azureFunctionURL.outputs.functionURLsOutput.filters_function_url
-//     USE_GRAPHRAG:'False'
-//     USE_CHAT_HISTORY_ENABLED:'True'
-//     GRAPHRAG_URL:azureFunctionURL.outputs.functionURLsOutput.graphrag_function_url
-//     RAG_URL:azureFunctionURL.outputs.functionURLsOutput.rag_function_url
-//     AZURE_COSMOSDB_ACCOUNT: cosmosDBModule.outputs.cosmosOutput.cosmosAccountName
-//     AZURE_COSMOSDB_ACCOUNT_KEY: cosmosDBModule.outputs.cosmosOutput.cosmosAccountKey
-//     AZURE_COSMOSDB_CONVERSATIONS_CONTAINER: cosmosDBModule.outputs.cosmosOutput.cosmosContainerName
-//     AZURE_COSMOSDB_DATABASE: cosmosDBModule.outputs.cosmosOutput.cosmosDatabaseName
-//     AZURE_COSMOSDB_ENABLE_FEEDBACK:'True'
-//   }
-//   scope: resourceGroup(resourceGroup().name)
-//   dependsOn:[azOpenAI,azAIMultiServiceAccount,azSearchService,sqlDBModule,azureFunctionURL]
-// }
+module appserviceModule 'deploy_app_service.bicep' = {
+  name: 'deploy_app_service'
+  params: {
+    identity:managedIdentityModule.outputs.managedIdentityOutput.id
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    AzureOpenAIEndpoint:aifoundry.outputs.aiServicesTarget
+    AzureOpenAIModel:'gpt-4o-mini'
+    AzureOpenAIKey:keyVault.getSecret('OPENAI-API-KEY')
+    azureOpenAIApiVersion:'2024-02-15-preview'
+    AZURE_OPENAI_RESOURCE:aifoundry.outputs.aiServicesName
+    CHARTS_URL:azureFunctionURL.outputs.functionURLsOutput.charts_function_url
+    FILTERS_URL:azureFunctionURL.outputs.functionURLsOutput.filters_function_url
+    USE_GRAPHRAG:'False'
+    USE_CHAT_HISTORY_ENABLED:'True'
+    GRAPHRAG_URL:azureFunctionURL.outputs.functionURLsOutput.graphrag_function_url
+    RAG_URL:azureFunctionURL.outputs.functionURLsOutput.rag_function_url
+    AZURE_COSMOSDB_ACCOUNT: cosmosDBModule.outputs.cosmosAccountName
+    AZURE_COSMOSDB_ACCOUNT_KEY: 'TBD'
+    AZURE_COSMOSDB_CONVERSATIONS_CONTAINER: cosmosDBModule.outputs.cosmosContainerName
+    AZURE_COSMOSDB_DATABASE: cosmosDBModule.outputs.cosmosDatabaseName
+    AZURE_COSMOSDB_ENABLE_FEEDBACK:'True'
+  }
+  scope: resourceGroup(resourceGroup().name)
+  dependsOn:[aifoundry,cosmosDBModule,sqlDBModule,azureFunctionURL]
+}
