@@ -39,14 +39,15 @@ module aifoundry 'deploy_ai_foundry.bicep' = {
   scope: resourceGroup(resourceGroup().name)
 }
 
-// module cosmosDBModule 'deploy_cosmos_db.bicep' = {
-//   name: 'deploy_cosmos_db'
-//   params: {
-//     solutionName: solutionPrefix
-//     solutionLocation: otherLocation
-//   }
-//   scope: resourceGroup(resourceGroup().name)
-// }
+module cosmosDBModule 'deploy_cosmos_db.bicep' = {
+  name: 'deploy_cosmos_db'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: otherLocation
+    keyVaultName: aifoundry.outputs.keyvaultName
+  }
+  scope: resourceGroup(resourceGroup().name)
+}
 
 //========== SQL DB Module ========== //
 module sqlDBModule 'deploy_sql_db.bicep' = {
@@ -59,16 +60,22 @@ module sqlDBModule 'deploy_sql_db.bicep' = {
   scope: resourceGroup(resourceGroup().name)
 }
 
-// module uploadFiles 'deploy_upload_files_script.bicep' = {
-//   name : 'deploy_upload_files_script'
-//   params:{
-//     solutionLocation: solutionLocation
-//     keyVaultName: aifoundry.outputs.keyvaultId
-//     baseUrl:baseUrl
-//     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
-//   }
-//   dependsOn:[aifoundry]
-// }
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: aifoundry.outputs.keyvaultName
+}
+
+module uploadFiles 'deploy_upload_files_script.bicep' = {
+  name : 'deploy_upload_files_script'
+  params:{
+    solutionLocation: solutionLocation
+    keyVaultName: aifoundry.outputs.keyvaultName
+    baseUrl: baseUrl
+    storageAccountName: keyVault.getSecret('ADLS-ACCOUNT-NAME')
+    containerName: keyVault.getSecret('ADLS-ACCOUNT-CONTAINER')
+    managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
+  }
+  dependsOn:[aifoundry,keyVault]
+}
 
 // module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
 //   name : 'deploy_azure_function_charts'

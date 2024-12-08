@@ -5,10 +5,10 @@ param baseUrl string
 param managedIdentityObjectId string
 // @secure()
 // param storageAccountKey string
-
-// param storageAccountName string
-
-// param containerName string
+@secure()
+param storageAccountName string
+@secure()
+param containerName string
 // param identity string
 // param baseUrl string
 
@@ -17,17 +17,17 @@ param managedIdentityObjectId string
 // param azureSearchAdminKey string
 // param azureSearchServiceEndpoint string
 
-resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
-  name: keyVaultName
-}
+// resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+//   name: keyVaultName
+// }
 
-var storageAccountName = keyVault.getSecret('ADLS-ACCOUNT-NAME')
-var containerName = keyVault.getSecret('ADLS-ACCOUNT-CONTAINER')
-// var storageAccountKey = keyVault.getSecret('')
-var azureOpenAIApiKey = keyVault.getSecret('AZURE-OPENAI-KEY')
-var azureOpenAIEndpoint = keyVault.getSecret('AZURE-OPENAI-ENDPOINT')
-var azureSearchAdminKey = keyVault.getSecret('AZURE-SEARCH-KEY')
-var azureSearchServiceEndpoint = keyVault.getSecret('AZURE-SEARCH-ENDPOINT')
+// param storageAccountName string = keyVault.getSecret('ADLS-ACCOUNT-NAME')
+// var containerName = keyVault.getSecret('ADLS-ACCOUNT-CONTAINER')
+// // var storageAccountKey = keyVault.getSecret('')
+// var azureOpenAIApiKey = keyVault.getSecret('AZURE-OPENAI-KEY')
+// var azureOpenAIEndpoint = keyVault.getSecret('AZURE-OPENAI-ENDPOINT')
+// var azureSearchAdminKey = keyVault.getSecret('AZURE-SEARCH-KEY')
+// var azureSearchServiceEndpoint = keyVault.getSecret('AZURE-SEARCH-ENDPOINT')
 
 resource copy_demo_Data 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind:'AzureCLI'
@@ -42,7 +42,7 @@ resource copy_demo_Data 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: {
     azCliVersion: '2.50.0'
     primaryScriptUri: '${baseUrl}Deployment/scripts/copy_kb_files.sh' // deploy-azure-synapse-pipelines.sh
-    arguments: '${storageAccountName} ${containerName} ${baseUrl} ${azureOpenAIApiKey} ${azureOpenAIEndpoint} ${azureSearchAdminKey} ${azureSearchServiceEndpoint}' // Specify any arguments for the script
+    arguments: '${storageAccountName} ${containerName} ${baseUrl}' // Specify any arguments for the script
     timeout: 'PT1H' // Specify the desired timeout duration
     retentionInterval: 'PT1H' // Specify the desired retention interval
     cleanupPreference:'OnSuccess'

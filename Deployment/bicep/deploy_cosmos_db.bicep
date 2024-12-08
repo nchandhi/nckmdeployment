@@ -3,6 +3,7 @@
 @description('Solution Name')
 param solutionName string
 param solutionLocation string
+param keyVaultName string
 
 // @description('Name')
 // param accountName string = '${ solutionName }-cosmos'
@@ -13,7 +14,7 @@ var accountName = '${ solutionName }-cosmos'
 var databaseName = 'db_conversation_history'
 var collectionName = 'conversations'
 
-param containers array = [
+var containers = [
   {
     name: collectionName
     id: collectionName
@@ -72,8 +73,53 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15
   ]
 }
 
-output cosmosOutput object = {
-  cosmosAccountName: cosmos.name
-  cosmosDatabaseName: databaseName
-  cosmosContainerName: collectionName
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: keyVaultName
 }
+
+
+resource AZURE_COSMOSDB_ACCOUNT 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE_COSMOSDB_ACCOUNT'
+  properties: {
+    value: cosmos.name
+  }
+}
+
+resource AZURE_COSMOSDB_ACCOUNT_KEY 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE_COSMOSDB_ACCOUNT_KEY'
+  properties: {
+    value: 'TBD'
+  }
+}
+
+resource AZURE_COSMOSDB_DATABASE 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE_COSMOSDB_DATABASE'
+  properties: {
+    value: databaseName
+  }
+}
+
+resource AZURE_COSMOSDB_CONVERSATIONS_CONTAINER 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE_COSMOSDB_CONVERSATIONS_CONTAINER'
+  properties: {
+    value: collectionName
+  }
+}
+
+resource AZURE_COSMOSDB_ENABLE_FEEDBACK 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE_COSMOSDB_ENABLE_FEEDBACK'
+  properties: {
+    value: 'True'
+  }
+}
+
+// output cosmosOutput object = {
+//   cosmosAccountName: cosmos.name
+//   cosmosDatabaseName: databaseName
+//   cosmosContainerName: collectionName
+// }

@@ -5,10 +5,10 @@ storageAccount="$1"
 fileSystem="$2"
 # accountKey="$3"
 baseUrl="$3"
-azureOpenAIApiKey="$4"
-azureOpenAIEndpoint="$5"
-azureSearchAdminKey="$6"
-azureSearchServiceEndpoint="$7"
+# azureOpenAIApiKey="$4"
+# azureOpenAIEndpoint="$5"
+# azureSearchAdminKey="$6"
+# azureSearchServiceEndpoint="$7"
 
 zipFileName1="transcriptsdata.zip"
 extractedFolder1="transcriptsdata"
@@ -22,7 +22,7 @@ zipUrl1=${baseUrl}"Deployment/data/transcriptsdata.zip"
 # extractedFolder3="ragtest"
 # zipUrl3=${baseUrl}"Deployment/data/ragtest.zip"
 
-graphragfileSystem="graphrag"
+# graphragfileSystem="graphrag"
 
 # Download the zip file
 curl --output "$zipFileName1" "$zipUrl1"
