@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "505908750266618835"
+      "templateHash": "9334018118814832817"
     }
   },
   "parameters": {
@@ -777,7 +777,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "12808612750454654031"
+              "templateHash": "1791485764162182828"
             }
           },
           "parameters": {
@@ -902,7 +902,7 @@
             {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE_COSMOSDB_ACCOUNT_KEY')]",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE-COSMOSDB-ACCOUNT-KEY')]",
               "properties": {
                 "value": "TBD"
               }
@@ -910,7 +910,7 @@
             {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE_COSMOSDB_DATABASE')]",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE-COSMOSDB-DATABASE')]",
               "properties": {
                 "value": "[variables('databaseName')]"
               }
@@ -918,7 +918,7 @@
             {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE_COSMOSDB_CONVERSATIONS_CONTAINER')]",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE-COSMOSDB-CONVERSATIONS-CONTAINER')]",
               "properties": {
                 "value": "[variables('collectionName')]"
               }
@@ -926,7 +926,7 @@
             {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE_COSMOSDB_ENABLE_FEEDBACK')]",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE-COSMOSDB-ENABLE-FEEDBACK')]",
               "properties": {
                 "value": "True"
               }

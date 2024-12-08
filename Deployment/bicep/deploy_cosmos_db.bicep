@@ -77,7 +77,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   name: keyVaultName
 }
 
-
 resource AZURE_COSMOSDB_ACCOUNT 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
   name: 'AZURE_COSMOSDB_ACCOUNT'
@@ -88,7 +87,7 @@ resource AZURE_COSMOSDB_ACCOUNT 'Microsoft.KeyVault/vaults/secrets@2021-11-01-pr
 
 resource AZURE_COSMOSDB_ACCOUNT_KEY 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
-  name: 'AZURE_COSMOSDB_ACCOUNT_KEY'
+  name: 'AZURE-COSMOSDB-ACCOUNT-KEY'
   properties: {
     value: 'TBD'
   }
@@ -96,7 +95,7 @@ resource AZURE_COSMOSDB_ACCOUNT_KEY 'Microsoft.KeyVault/vaults/secrets@2021-11-0
 
 resource AZURE_COSMOSDB_DATABASE 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
-  name: 'AZURE_COSMOSDB_DATABASE'
+  name: 'AZURE-COSMOSDB-DATABASE'
   properties: {
     value: databaseName
   }
@@ -104,7 +103,7 @@ resource AZURE_COSMOSDB_DATABASE 'Microsoft.KeyVault/vaults/secrets@2021-11-01-p
 
 resource AZURE_COSMOSDB_CONVERSATIONS_CONTAINER 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
-  name: 'AZURE_COSMOSDB_CONVERSATIONS_CONTAINER'
+  name: 'AZURE-COSMOSDB-CONVERSATIONS-CONTAINER'
   properties: {
     value: collectionName
   }
@@ -112,7 +111,7 @@ resource AZURE_COSMOSDB_CONVERSATIONS_CONTAINER 'Microsoft.KeyVault/vaults/secre
 
 resource AZURE_COSMOSDB_ENABLE_FEEDBACK 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
-  name: 'AZURE_COSMOSDB_ENABLE_FEEDBACK'
+  name: 'AZURE-COSMOSDB-ENABLE-FEEDBACK'
   properties: {
     value: 'True'
   }
