@@ -39,11 +39,13 @@ param AzureOpenAIEndpoint string = ''
 param AzureOpenAIKey string
 
 param azureOpenAIApiVersion string
+param AZURE_OPENAI_RESOURCE string = ''
 param CHARTS_URL string = ''
 param FILTERS_URL string = ''
 param USE_GRAPHRAG string = ''
 param GRAPHRAG_URL string = ''
 param RAG_URL string = ''
+param USE_CHAT_HISTORY_ENABLED string = ''
 
 @description('Azure Cosmos DB Account')
 param AZURE_COSMOSDB_ACCOUNT string = ''
@@ -162,7 +164,7 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
           value: azureOpenAIApiVersion
         }
         {
-          name: 'AZURE_OPENAI_MODEL'
+          name: 'AZURE_OPENAI_DEPLOYMENT_NAME'
           value: AzureOpenAIModel
         }
         {
@@ -170,8 +172,20 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
           value: AzureOpenAIEndpoint
         }
         {
-          name: 'AZURE_OPENAI_KEY'
+          name: 'AZURE_OPENAI_API_KEY'
           value: AzureOpenAIKey
+        }
+        {
+          name: 'AZURE_OPENAI_RESOURCE'
+          value: AZURE_OPENAI_RESOURCE
+        }
+        {
+          name: 'AZURE_OPENAI_PREVIEW_API_VERSION'
+          value: azureOpenAIApiVersion
+        }
+        {
+          name: 'USE_CHAT_HISTORY_ENABLED'
+          value: USE_CHAT_HISTORY_ENABLED
         }
         {name: 'USE_GRAPHRAG', value: USE_GRAPHRAG}
         {name: 'CHART_DASHBOARD_URL', value: CHARTS_URL}

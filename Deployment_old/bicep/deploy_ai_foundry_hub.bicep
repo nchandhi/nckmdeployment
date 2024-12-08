@@ -3,9 +3,6 @@
 @description('Azure region of the deployment')
 param location string
 
-@description('Tags to add to the resources')
-param tags object
-
 @description('AI hub name')
 param aiHubName string
 
@@ -36,7 +33,6 @@ param aiServicesTarget string
 resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview' = {
   name: aiHubName
   location: location
-  tags: tags
   identity: {
     type: 'SystemAssigned'
   }

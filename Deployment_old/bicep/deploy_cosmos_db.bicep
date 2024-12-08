@@ -4,14 +4,10 @@
 param solutionName string
 param solutionLocation string
 
-// @description('Name')
-// param accountName string = '${ solutionName }-cosmos'
-// param databaseName string = 'db_conversation_history'
-// param collectionName string = 'conversations'
-
-var accountName = '${ solutionName }-cosmos'
-var databaseName = 'db_conversation_history'
-var collectionName = 'conversations'
+@description('Name')
+param accountName string = '${ solutionName }-cosmos'
+param databaseName string = 'db_conversation_history'
+param collectionName string = 'conversations'
 
 param containers array = [
   {

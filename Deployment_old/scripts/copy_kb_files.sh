@@ -3,12 +3,12 @@
 # Variables
 storageAccount="$1"
 fileSystem="$2"
-# accountKey="$3"
-baseUrl="$3"
-azureOpenAIApiKey="$4"
-azureOpenAIEndpoint="$5"
-azureSearchAdminKey="$6"
-azureSearchServiceEndpoint="$7"
+accountKey="$3"
+baseUrl="$4"
+azureOpenAIApiKey="$5"
+azureOpenAIEndpoint="$6"
+azureSearchAdminKey="$7"
+azureSearchServiceEndpoint="$8"
 
 zipFileName1="transcriptsdata.zip"
 extractedFolder1="transcriptsdata"

@@ -1,7 +1,6 @@
 @description('Specifies the location for resources.')
 param solutionName string 
 param solutionLocation string
-param resourceGroupName string
 @secure()
 param azureOpenAIApiKey string
 param azureOpenAIApiVersion string
@@ -15,73 +14,69 @@ param sqlDbName string
 param sqlDbUser string
 @secure()
 param sqlDbPwd string
-param baseUrl string
 
-var registryName = 'kmcontainerreg'
-var appserviceplanname = '${solutionName}-ragapp-serviceplan'
 var functionAppName = '${solutionName}-rag-fn'
 var storageaccountname = '${solutionName}ragfnacc'
-var imageName = 'km-rag-function:latest'
-var rgname = 'rg-km-official'
+var dockerImage = 'DOCKER|kmcontainerreg.azurecr.io/km-rag-function:latest'
+var environmentName = '${solutionName}-rag-fn-env'
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: appserviceplanname
-  location: solutionLocation
-  sku: {
-    name: 'EP2'
-    tier: 'ElasticPremium'
-    family: 'EP'
-  }
-  kind: 'elastic'
-  properties: {
-    maximumElasticWorkerCount: 20
-    reserved: true
-  }
-}
+// var sqlServerName = 'nc2202-sql-server.database.windows.net'
+// var sqlDbName = 'nc2202-sql-db'
+// var sqlDbUser = 'sqladmin'
+// var sqlDbPwd = 'TestPassword_1234'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageaccountname
-  location: solutionLocation
-  kind: 'StorageV2'
+  location: resourceGroup().location
   sku: {
     name: 'Standard_LRS'
   }
-  // properties: {
-  //   supportsHttpsTrafficOnly: true
-  //   defaultToOAuthAuthentication: true
-  //   allowBlobPublicAccess: false
-  // }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+  }
 }
 
+resource managedenv 'Microsoft.App/managedEnvironments@2024-03-01' = {
+  name: environmentName
+  location: solutionLocation
+  properties: {
+    zoneRedundant: false
+    kedaConfiguration: {}
+    daprConfiguration: {}
+    customDomainConfiguration: {}
+    workloadProfiles: [
+      {
+        workloadProfileType: 'Consumption'
+        name: 'Consumption'
+      }
+    ]
+    peerAuthentication: {
+      mtls: {
+        enabled: false
+      }
+    }
+    peerTrafficConfiguration: {
+      encryption: {
+        enabled: false
+      }
+    }
+  }
+}
 
-resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
+resource azurefn 'Microsoft.Web/sites@2023-12-01' = {
   name: functionAppName
   location: solutionLocation
-  kind: 'functionapp,linux'
+  kind: 'functionapp,linux,container,azurecontainerapps'
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
-    serverFarmId: appServicePlan.id
-    reserved: true
     siteConfig: {
       appSettings: [
         {
-          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
-          value: 'false'
-        }
-        {
-          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageaccountname};EndpointSuffix=core.windows.net;AccountKey=${storageAccount.listKeys().keys[0].value}'
-        }
-        {
-          name: 'WEBSITE_CONTENTSHARE'
-          value: toLower(functionAppName)
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'WEBSITES_PORT'
-          value: '80'
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount};EndpointSuffix=core.windows.net'
         }
         {
           name: 'PYTHON_ENABLE_INIT_INDEXING'
@@ -136,7 +131,27 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: azureSearchIndex
         }
       ]
-      linuxFxVersion: 'DOCKER|kmcontainerreg.azurecr.io/km-rag-function:latest'
+      linuxFxVersion: dockerImage
+      functionAppScaleLimit: 10
+      minimumElasticInstanceCount: 0
     }
+    managedEnvironmentId: managedenv.id
+    workloadProfileName: 'Consumption'
+    resourceConfig: {
+      cpu: 1
+      memory: '2Gi'
+    }
+    storageAccountRequired: false
   }
 }
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(subscription().id, resourceGroup().id, azurefn.id, 'StorageBlobDataContributor')
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe') // Storage Blob Data Contributor
+    principalId: azurefn.identity.principalId
+  }
+}
+
+

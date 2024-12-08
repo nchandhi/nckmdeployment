@@ -1,7 +1,6 @@
 using './deploy_ai_foundry_hub.bicep'
 
-param location = 'eastus'
-param tags = {}
+param location = 'westus'
 param aiHubName = 'nctestbicephub'
 param aiHubFriendlyName = aiHubName
 param aiHubDescription = 'Test'
