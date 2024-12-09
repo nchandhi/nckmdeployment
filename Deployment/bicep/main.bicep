@@ -109,9 +109,9 @@ module azureragFunctionsRag 'deploy_azure_function_rag.bicep' = {
   params:{
     solutionName: solutionPrefix
     solutionLocation: solutionLocation
-    azureOpenAIApiKey:keyVault.getSecret('OPENAI-API-KEY')
+    azureOpenAIApiKey:keyVault.getSecret('AZURE-OPENAI-KEY')
     azureOpenAIEndpoint:aifoundry.outputs.aiServicesTarget
-    azureSearchAdminKey:keyVault.getSecret('AZURE-SEARCH-ADMIN-KEY')
+    azureSearchAdminKey:keyVault.getSecret('AZURE-SEARCH-KEY')
     azureSearchServiceEndpoint:aifoundry.outputs.aiSearchTarget
     azureOpenAIApiVersion:'2024-02-15-preview'
     azureSearchIndex:'call_transcripts_index'
@@ -141,7 +141,7 @@ module appserviceModule 'deploy_app_service.bicep' = {
     solutionLocation: solutionLocation
     AzureOpenAIEndpoint:aifoundry.outputs.aiServicesTarget
     AzureOpenAIModel:'gpt-4o-mini'
-    AzureOpenAIKey:keyVault.getSecret('OPENAI-API-KEY')
+    AzureOpenAIKey:keyVault.getSecret('AZURE-OPENAI-KEY')
     azureOpenAIApiVersion:'2024-02-15-preview'
     AZURE_OPENAI_RESOURCE:aifoundry.outputs.aiServicesName
     CHARTS_URL:azureFunctionURL.outputs.functionURLsOutput.charts_function_url

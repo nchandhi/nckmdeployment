@@ -273,7 +273,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         }
       }
     }
-    isHnsEnabled: false
+    isHnsEnabled: true
     isNfsV3Enabled: false
     keyPolicy: {
       keyExpirationPeriodInDays: 7
@@ -282,7 +282,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     minimumTlsVersion: 'TLS1_2'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Deny'
+      defaultAction: 'Allow'
     }
     supportsHttpsTrafficOnly: true
   }

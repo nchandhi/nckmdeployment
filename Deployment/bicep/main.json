@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "2912636497178078988"
+      "templateHash": "2936890289842284245"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "3279642721229770049"
+              "templateHash": "17042784195265335487"
             }
           },
           "parameters": {
@@ -461,7 +461,7 @@
                     }
                   }
                 },
-                "isHnsEnabled": false,
+                "isHnsEnabled": true,
                 "isNfsV3Enabled": false,
                 "keyPolicy": {
                   "keyExpirationPeriodInDays": 7
@@ -470,7 +470,7 @@
                 "minimumTlsVersion": "TLS1_2",
                 "networkAcls": {
                   "bypass": "AzureServices",
-                  "defaultAction": "Deny"
+                  "defaultAction": "Allow"
                 },
                 "supportsHttpsTrafficOnly": true
               }
@@ -1576,7 +1576,7 @@
               "keyVault": {
                 "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.KeyVault/vaults', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.keyvaultName.value)]"
               },
-              "secretName": "OPENAI-API-KEY"
+              "secretName": "AZURE-OPENAI-KEY"
             }
           },
           "azureOpenAIEndpoint": {
@@ -1587,7 +1587,7 @@
               "keyVault": {
                 "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.KeyVault/vaults', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.keyvaultName.value)]"
               },
-              "secretName": "AZURE-SEARCH-ADMIN-KEY"
+              "secretName": "AZURE-SEARCH-KEY"
             }
           },
           "azureSearchServiceEndpoint": {
@@ -1927,7 +1927,7 @@
               "keyVault": {
                 "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.KeyVault/vaults', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.keyvaultName.value)]"
               },
-              "secretName": "OPENAI-API-KEY"
+              "secretName": "AZURE-OPENAI-KEY"
             }
           },
           "azureOpenAIApiVersion": {
