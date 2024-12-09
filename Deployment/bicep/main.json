@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "654098637661589393"
+      "templateHash": "966155789031899422"
     }
   },
   "parameters": {
@@ -1203,6 +1203,14 @@
           "containerName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.storageContainer.value]"
           },
+          "storageAccountKey": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.KeyVault/vaults', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.keyvaultName.value)]"
+              },
+              "secretName": "ADLS-ACCOUNT-KEY"
+            }
+          },
           "managedIdentityObjectId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity'), '2022-09-01').outputs.managedIdentityOutput.value.objectId]"
           }
@@ -1214,7 +1222,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13399461391274040100"
+              "templateHash": "6772819418076882328"
             }
           },
           "parameters": {
@@ -1232,6 +1240,9 @@
             },
             "managedIdentityObjectId": {
               "type": "string"
+            },
+            "storageAccountKey": {
+              "type": "securestring"
             },
             "storageAccountName": {
               "type": "string"
@@ -1256,7 +1267,7 @@
               "properties": {
                 "azCliVersion": "2.50.0",
                 "primaryScriptUri": "[format('{0}Deployment/scripts/copy_kb_files.sh', parameters('baseUrl'))]",
-                "arguments": "[format('{0} {1} {2}', parameters('storageAccountName'), parameters('containerName'), parameters('baseUrl'))]",
+                "arguments": "[format('{0} {1} {2} {3}', parameters('storageAccountName'), parameters('containerName'), parameters('storageAccountKey'), parameters('baseUrl'))]",
                 "timeout": "PT1H",
                 "retentionInterval": "PT1H",
                 "cleanupPreference": "OnSuccess"
