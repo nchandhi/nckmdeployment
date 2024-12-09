@@ -78,6 +78,17 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
   dependsOn:[aifoundry,keyVault]
 }
 
+module createIndex 'deploy_index_scripts.bicep' = {
+  name : 'deploy_index_scripts'
+  params:{
+    solutionLocation: solutionLocation
+    identity:managedIdentityModule.outputs.managedIdentityOutput.id
+    baseUrl:baseUrl
+    keyVaultName:aifoundry.outputs.keyvaultName
+  }
+  dependsOn:[aifoundry,keyVault]
+}
+
 module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
   name : 'deploy_azure_function_charts'
   params:{

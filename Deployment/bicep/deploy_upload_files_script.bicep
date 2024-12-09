@@ -5,9 +5,7 @@ param baseUrl string
 param managedIdentityObjectId string
 // @secure()
 // param storageAccountKey string
-@secure()
 param storageAccountName string
-@secure()
 param containerName string
 // param identity string
 // param baseUrl string
