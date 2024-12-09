@@ -12,9 +12,10 @@ baseUrl="$4"
 
 GITHUB_FOLDER_URL="https://github.com/nchandhi/nckmdeployment/tree/main/Deployment/data_new"
 RAW_URL="https://raw.githubusercontent.com/nchandhi/nckmdeployment/main/Deployment/data_new/"
-LOCAL_TEMP_FOLDER="audiofiles"
+LOCAL_TEMP_FOLDER_NAME="audiofiles"
+LOCAL_TEMP_FOLDER="/mnt/azscripts/azscriptinput/audiofiles"
 
-mkdir -p $LOCAL_TEMP_FOLDER
+mkdir $LOCAL_TEMP_FOLDER
 
 # Scrape file names from GitHub folder
 FILES=$(curl -s "$GITHUB_FOLDER_URL" | grep -oP '(?<=href=").+?/blob/main/Deployment/data_new/[^"]+' | awk -F'/' '{print $NF}')
@@ -22,7 +23,7 @@ FILES=$(curl -s "$GITHUB_FOLDER_URL" | grep -oP '(?<=href=").+?/blob/main/Deploy
 # Download each file
 for FILE in $FILES; 
 do
-  curl -s -o "$LOCAL_TEMP_FOLDER/$FILE" "$RAW_URL$FILE"
+  curl --output "$LOCAL_TEMP_FOLDER/$FILE" "$RAW_URL$FILE"
 done
 
 zipFileName1="transcriptsdata.zip"
@@ -72,7 +73,7 @@ echo "Script Started"
 
 az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder1" --account-key "$accountKey" --recursive
 az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
-az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$LOCAL_TEMP_FOLDER" --account-key "$accountKey" --recursive
+az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$LOCAL_TEMP_FOLDER_NAME" --account-key "$accountKey" --recursive
 # az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
 # az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder3" --account-key "$accountKey" --recursive
 

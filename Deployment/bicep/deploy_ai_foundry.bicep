@@ -411,6 +411,26 @@ resource aiHubProject 'Microsoft.MachineLearningServices/workspaces@2024-01-01-p
   }
 }
 
+var serverlessModelName = 'Phi-3-medium-4k-instruct'
+var phi3serverlessName = '${solutionName}-${serverlessModelName}'
+resource phi3serverless 'Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-10-01' = {
+  parent: aiHubProject
+  location: location
+  name: phi3serverlessName
+  properties: {
+    authMode: 'Key'
+    contentSafety: {
+      contentSafetyStatus: 'Enabled'
+    }
+    modelSettings: {
+      modelId: 'azureml://registries/azureml/models/${serverlessModelName}'
+    }
+  }
+  sku: {
+    name: 'Consumption'
+    tier: 'Free'
+  }
+}
 
 resource tenantIdEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
@@ -444,6 +464,21 @@ resource tenantIdEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = 
 //   }
 // }
 
+resource azureOpenAIInferenceEndpoint 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE-OPENAI-INFERENCE-ENDPOINT'
+  properties: {
+    value: phi3serverless.properties.inferenceEndpoint.uri
+  }
+}
+
+resource azureOpenAIInferenceKey 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE-OPENAI-INFERENCE-KEY'
+  properties: {
+    value: listKeys(phi3serverless.id, '2024-10-01').primaryKey
+  }
+}
 
 resource azureOpenAIApiKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
@@ -557,6 +592,8 @@ output keyvaultId string = keyVault.id
 output aiServicesTarget string = aiServices.properties.endpoint
 output aiServicesName string = aiServicesName
 output aiServicesId string = aiServices.id
+
+output aiInfereceEndpoint string = phi3serverless.properties.inferenceEndpoint.uri
 
 output aiSearchName string = aiSearchName
 output aiSearchId string = aiSearch.id
