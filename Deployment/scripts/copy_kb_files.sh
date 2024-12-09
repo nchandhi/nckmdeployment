@@ -14,6 +14,10 @@ zipFileName1="transcriptsdata.zip"
 extractedFolder1="transcriptsdata"
 zipUrl1=${baseUrl}"Deployment/data/transcriptsdata.zip"
 
+zipFileName2="audiodata.zip"
+extractedFolder2="audiodata"
+zipUrl2=${baseUrl}"Deployment/data/audiodata.zip"
+
 # zipFileName2="transcriptstxtdata.zip"
 # extractedFolder2="input"
 # zipUrl2=${baseUrl}"Deployment/data/transcriptstxtdata.zip"
@@ -26,11 +30,13 @@ zipUrl1=${baseUrl}"Deployment/data/transcriptsdata.zip"
 
 # Download the zip file
 curl --output "$zipFileName1" "$zipUrl1"
+curl --output "$zipFileName2" "$zipUrl2"
 # curl --output "$zipFileName2" "$zipUrl2"
 # curl --output "$zipFileName3" "$zipUrl3"
 
 # Extract the zip file
 unzip /mnt/azscripts/azscriptinput/"$zipFileName1" -d /mnt/azscripts/azscriptinput/"$extractedFolder1"
+unzip /mnt/azscripts/azscriptinput/"$zipFileName2" -d /mnt/azscripts/azscriptinput/"$extractedFolder2"
 # unzip /mnt/azscripts/azscriptinput/"$zipFileName2" -d /mnt/azscripts/azscriptinput/"$extractedFolder2"
 # unzip /mnt/azscripts/azscriptinput/"$zipFileName3" -d /mnt/azscripts/azscriptinput/"$extractedFolder3"
 
@@ -47,6 +53,7 @@ echo "Script Started"
 az login --identity
 
 az storage blob upload-batch --account-name "$storageAccount" --destination data/"$extractedFolder1" --source /mnt/azscripts/azscriptinput/"$extractedFolder1" --auth-mode login --pattern '*'
+az storage blob upload-batch --account-name "$storageAccount" --destination data/"$extractedFolder2" --source /mnt/azscripts/azscriptinput/"$extractedFolder2" --auth-mode login --pattern '*'
 
 # az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder1" --account-key "$accountKey" --recursive
 # az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
