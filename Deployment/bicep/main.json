@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "4697934947304622122"
+      "templateHash": "18132568989024707983"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "304620036871237380"
+              "templateHash": "3911806074261100851"
             }
           },
           "parameters": {
@@ -699,14 +699,6 @@
               "type": "string",
               "value": "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
             },
-            "storageName": {
-              "type": "string",
-              "value": "[variables('storageName')]"
-            },
-            "storageContainer": {
-              "type": "string",
-              "value": "data"
-            },
             "aiServicesTarget": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName')), '2021-10-01').endpoint]"
@@ -773,7 +765,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "11354134207429699407"
+              "templateHash": "6339093974920963034"
             }
           },
           "parameters": {
@@ -910,7 +902,17 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('saName'))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "storageName": {
+              "type": "string",
+              "value": "[parameters('saName')]"
+            },
+            "storageContainer": {
+              "type": "string",
+              "value": "data"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1310,10 +1312,10 @@
             "value": "[variables('baseUrl')]"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.storageName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_storage_account'), '2022-09-01').outputs.storageName.value]"
           },
           "containerName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry'), '2022-09-01').outputs.storageContainer.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_storage_account'), '2022-09-01').outputs.storageContainer.value]"
           },
           "storageAccountKey": {
             "reference": {

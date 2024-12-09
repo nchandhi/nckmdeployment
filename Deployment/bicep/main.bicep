@@ -84,8 +84,8 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
     solutionLocation: solutionLocation
     keyVaultName: aifoundry.outputs.keyvaultName
     baseUrl: baseUrl
-    storageAccountName: aifoundry.outputs.storageName
-    containerName: aifoundry.outputs.storageContainer
+    storageAccountName: storageAccount.outputs.storageName
+    containerName: storageAccount.outputs.storageContainer
     storageAccountKey:keyVault.getSecret('ADLS-ACCOUNT-KEY')
     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.id
   }

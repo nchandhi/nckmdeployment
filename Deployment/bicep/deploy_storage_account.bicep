@@ -139,6 +139,9 @@ resource adlsAccountKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-previ
   }
 }
 
+output storageName string = saName
+output storageContainer string = 'data'
+
 // output storageAccountOutput object = {
 //   id: storageAccounts_resource.id
 //   name: saName

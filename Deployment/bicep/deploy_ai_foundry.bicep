@@ -551,8 +551,8 @@ resource azureLocatioEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview
 
 output keyvaultName string = keyvaultName
 output keyvaultId string = keyVault.id
-output storageName string = storageName
-output storageContainer string = 'data'
+// output storageName string = storageName
+// output storageContainer string = 'data'
 
 output aiServicesTarget string = aiServices.properties.endpoint
 output aiServicesName string = aiServicesName
