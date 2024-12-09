@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "1078632232935505078"
+      "templateHash": "4697934947304622122"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5199429957229778364"
+              "templateHash": "304620036871237380"
             }
           },
           "parameters": {
@@ -537,40 +537,6 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', variables('keyvaultName'), 'ADLS-ACCOUNT-NAME')]",
-              "properties": {
-                "value": "[variables('storageName')]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', variables('keyvaultName'), 'ADLS-ACCOUNT-CONTAINER')]",
-              "properties": {
-                "value": "data"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2021-11-01-preview",
-              "name": "[format('{0}/{1}', variables('keyvaultName'), 'ADLS-ACCOUNT-KEY')]",
-              "properties": {
-                "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageNameCleaned')), '2022-09-01').keys[0].value]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageNameCleaned'))]"
               ]
             },
             {
