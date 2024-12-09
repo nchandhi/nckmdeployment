@@ -100,7 +100,7 @@ module createIndex 'deploy_index_scripts.bicep' = {
     baseUrl:baseUrl
     keyVaultName:aifoundry.outputs.keyvaultName
   }
-  dependsOn:[aifoundry,keyVault]
+  dependsOn:[aifoundry,keyVault,sqlDBModule,uploadFiles]
 }
 
 module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
@@ -134,7 +134,7 @@ module azureragFunctionsRag 'deploy_azure_function_rag.bicep' = {
     sqlDbPwd:keyVault.getSecret('SQLDB-PASSWORD')
     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
   }
-  dependsOn:[sqlDBModule,keyVault]
+  dependsOn:[aifoundry,sqlDBModule,keyVault]
 }
 
 module azureFunctionURL 'deploy_azure_function_urls.bicep' = {

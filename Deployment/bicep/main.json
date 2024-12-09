@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "1497754376478774506"
+      "templateHash": "4385230522384454978"
     }
   },
   "parameters": {
@@ -948,7 +948,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "14118217946384310278"
+              "templateHash": "339424560228863560"
             }
           },
           "parameters": {
@@ -1037,7 +1037,7 @@
                 "databaseAccountOfferType": "Standard",
                 "enableAutomaticFailover": false,
                 "enableMultipleWriteLocations": false,
-                "disableLocalAuth": true,
+                "disableLocalAuth": false,
                 "apiProperties": "[if(equals(parameters('kind'), 'MongoDB'), createObject('serverVersion', '4.0'), createObject())]",
                 "capabilities": [
                   {
@@ -1473,7 +1473,9 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_ai_foundry')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_managed_identity')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Resources/deployments', 'deploy_sql_db')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_upload_files_script')]"
       ]
     },
     {
