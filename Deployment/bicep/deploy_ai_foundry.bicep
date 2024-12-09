@@ -126,16 +126,37 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   location: location
   properties: {
     createMode: 'default'
-    enabledForDeployment: false
-    enabledForDiskEncryption: false
+    accessPolicies: [
+      {        
+        objectId: managedIdentityObjectId        
+        permissions: {
+          certificates: [
+            'all'
+          ]
+          keys: [
+            'all'
+          ]
+          secrets: [
+            'all'
+          ]
+          storage: [
+            'all'
+          ]
+        }
+        tenantId: subscription().tenantId
+      }
+    ]
+    enabledForDeployment: true
+    enabledForDiskEncryption: true
     enabledForTemplateDeployment: true
-    enableSoftDelete: true
+    enableSoftDelete: false
     enableRbacAuthorization: true
     enablePurgeProtection: true
-    networkAcls: {
-      bypass: 'AzureServices'
-      defaultAction: 'Deny'
-    }
+    publicNetworkAccess: 'enabled'
+    // networkAcls: {
+    //   bypass: 'AzureServices'
+    //   defaultAction: 'Deny'
+    // }
     sku: {
       family: 'A'
       name: 'standard'

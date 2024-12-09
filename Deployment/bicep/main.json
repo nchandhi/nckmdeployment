@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "12998651037094930092"
+      "templateHash": "654098637661589393"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "7124306944109136038"
+              "templateHash": "3279642721229770049"
             }
           },
           "parameters": {
@@ -314,16 +314,33 @@
               "location": "[variables('location')]",
               "properties": {
                 "createMode": "default",
-                "enabledForDeployment": false,
-                "enabledForDiskEncryption": false,
+                "accessPolicies": [
+                  {
+                    "objectId": "[parameters('managedIdentityObjectId')]",
+                    "permissions": {
+                      "certificates": [
+                        "all"
+                      ],
+                      "keys": [
+                        "all"
+                      ],
+                      "secrets": [
+                        "all"
+                      ],
+                      "storage": [
+                        "all"
+                      ]
+                    },
+                    "tenantId": "[subscription().tenantId]"
+                  }
+                ],
+                "enabledForDeployment": true,
+                "enabledForDiskEncryption": true,
                 "enabledForTemplateDeployment": true,
-                "enableSoftDelete": true,
+                "enableSoftDelete": false,
                 "enableRbacAuthorization": true,
                 "enablePurgeProtection": true,
-                "networkAcls": {
-                  "bypass": "AzureServices",
-                  "defaultAction": "Deny"
-                },
+                "publicNetworkAccess": "enabled",
                 "sku": {
                   "family": "A",
                   "name": "standard"
