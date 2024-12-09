@@ -120,9 +120,8 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
                 'Average Handling Time' as name, 
                 AVG(DATEDIFF(MINUTE, StartTime, EndTime))  as value, 'mins' as unit_of_measurement from [dbo].[processed_data] {where_clause}
                 union all 
-                select 'SATISFIED' as id, 'Satisfied' as chart_name, 'card' as chart_type,
-                'Satisfied' as name, 
-                (count(satisfied) * 100 / sum(count(satisfied)) over ()) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
+                select 'SATISFIED' as id, 'Satisfied' as chart_name, 'card' as chart_type, 'Satisfied' as name, 
+                round((CAST(SUM(CASE WHEN satisfied = 'yes' THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) * 100), 2) as value, '%' as unit_of_measurement from [dbo].[processed_data] 
                 {where_clause}
                 union all 
                 select 'SENTIMENT' as id, 'Topics Overview' as chart_name, 'donutchart' as chart_type, 
@@ -194,9 +193,13 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
             (
                 select TRIM(key_phrase) as key_phrase, 1 as n,
                 CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
-                from [dbo].[processed_data_key_phrases]
+                from 
+				( select key_phrase, k.sentiment, mined_topic from [dbo].[processed_data_key_phrases] as k
+				   inner join [dbo].[processed_data] as p on k.ConversationId = p.ConversationId 
+				   {where_clause}
+				) t2
             ) t
-            {where_clause}
+    
             group by key_phrase
             order by call_frequency desc
         ) t1''')

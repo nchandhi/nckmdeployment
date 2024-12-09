@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11171181187292314237"
+      "templateHash": "4809699434405208869"
     }
   },
   "parameters": {
@@ -1000,7 +1000,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "339424560228863560"
+              "templateHash": "6528561682505001396"
             }
           },
           "parameters": {
@@ -1127,8 +1127,11 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', parameters('keyVaultName'), 'AZURE-COSMOSDB-ACCOUNT-KEY')]",
               "properties": {
-                "value": "TBD"
-              }
+                "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2022-08-15').primaryMasterKey]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
+              ]
             },
             {
               "type": "Microsoft.KeyVault/vaults/secrets",

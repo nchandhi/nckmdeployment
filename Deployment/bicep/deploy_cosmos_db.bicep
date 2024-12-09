@@ -89,7 +89,7 @@ resource AZURE_COSMOSDB_ACCOUNT_KEY 'Microsoft.KeyVault/vaults/secrets@2021-11-0
   parent: keyVault
   name: 'AZURE-COSMOSDB-ACCOUNT-KEY'
   properties: {
-    value: 'TBD'
+    value: cosmos.listKeys().primaryMasterKey
   }
 }
 
