@@ -27,7 +27,7 @@ param managedIdentityObjectId string
 // @description('Storage SKU')
 // param storageSkuName string = 'Standard_LRS'
 
-var storageName = '${solutionName}storage'
+var storageName = '${solutionName}hubstorage'
 var storageSkuName = 'Standard_LRS'
 var aiServicesName = '${solutionName}-aiservices'
 var applicationInsightsName = '${solutionName}-appinsights'
@@ -273,7 +273,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         }
       }
     }
-    isHnsEnabled: true
+    isHnsEnabled: false
     isNfsV3Enabled: false
     keyPolicy: {
       keyExpirationPeriodInDays: 7
@@ -288,30 +288,30 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
-resource storageAccounts_default 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
-  parent: storage
-  name: 'default'
-  properties: {
-    cors: {
-      corsRules: []
-    }
-    deleteRetentionPolicy: {
-      allowPermanentDelete: false
-      enabled: false
-    }
-  }
-}
+// resource storageAccounts_default 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+//   parent: storage
+//   name: 'default'
+//   properties: {
+//     cors: {
+//       corsRules: []
+//     }
+//     deleteRetentionPolicy: {
+//       allowPermanentDelete: false
+//       enabled: false
+//     }
+//   }
+// }
 
 
-resource storageAccounts_default_data 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: storageAccounts_default
-  name: 'data'
-  properties: {
-    defaultEncryptionScope: '$account-encryption-key'
-    denyEncryptionScopeOverride: false
-    publicAccess: 'None'
-  }
-}
+// resource storageAccounts_default_data 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+//   parent: storageAccounts_default
+//   name: 'data'
+//   properties: {
+//     defaultEncryptionScope: '$account-encryption-key'
+//     denyEncryptionScopeOverride: false
+//     publicAccess: 'None'
+//   }
+// }
 
 // resource storageAccounts_default_input 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
 //   parent: storageAccounts_default
@@ -420,29 +420,29 @@ resource tenantIdEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = 
   }
 }
 
-resource adlsAccountNameEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  parent: keyVault
-  name: 'ADLS-ACCOUNT-NAME'
-  properties: {
-    value: storageName
-  }
-}
+// resource adlsAccountNameEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+//   parent: keyVault
+//   name: 'ADLS-ACCOUNT-NAME'
+//   properties: {
+//     value: storageName
+//   }
+// }
 
-resource adlsAccountContainerEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  parent: keyVault
-  name: 'ADLS-ACCOUNT-CONTAINER'
-  properties: {
-    value: 'data'
-  }
-}
+// resource adlsAccountContainerEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+//   parent: keyVault
+//   name: 'ADLS-ACCOUNT-CONTAINER'
+//   properties: {
+//     value: 'data'
+//   }
+// }
 
-resource adlsAccountKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  parent: keyVault
-  name: 'ADLS-ACCOUNT-KEY'
-  properties: {
-    value: storage.listKeys().keys[0].value
-  }
-}
+// resource adlsAccountKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+//   parent: keyVault
+//   name: 'ADLS-ACCOUNT-KEY'
+//   properties: {
+//     value: storage.listKeys().keys[0].value
+//   }
+// }
 
 
 resource azureOpenAIApiKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {

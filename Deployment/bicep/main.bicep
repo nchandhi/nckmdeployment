@@ -39,6 +39,19 @@ module aifoundry 'deploy_ai_foundry.bicep' = {
   scope: resourceGroup(resourceGroup().name)
 }
 
+
+// ========== Storage Account Module ========== //
+module storageAccount 'deploy_storage_account.bicep' = {
+  name: 'deploy_storage_account'
+  params: {
+    solutionName: solutionPrefix
+    solutionLocation: solutionLocation
+    keyVaultName: aifoundry.outputs.keyvaultName
+    managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
+  }
+  scope: resourceGroup(resourceGroup().name)
+}
+
 module cosmosDBModule 'deploy_cosmos_db.bicep' = {
   name: 'deploy_cosmos_db'
   params: {
@@ -76,7 +89,7 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
     storageAccountKey:keyVault.getSecret('ADLS-ACCOUNT-KEY')
     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.id
   }
-  dependsOn:[aifoundry,keyVault]
+  dependsOn:[storageAccount,keyVault]
 }
 
 module createIndex 'deploy_index_scripts.bicep' = {
