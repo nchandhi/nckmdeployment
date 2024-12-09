@@ -62,6 +62,7 @@ module sqlDBModule 'deploy_sql_db.bicep' = {
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   name: aifoundry.outputs.keyvaultName
+  scope: resourceGroup(resourceGroup().name)
 }
 
 module uploadFiles 'deploy_upload_files_script.bicep' = {
@@ -70,8 +71,8 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
     solutionLocation: solutionLocation
     keyVaultName: aifoundry.outputs.keyvaultName
     baseUrl: baseUrl
-    storageAccountName: keyVault.getSecret('ADLS-ACCOUNT-NAME')
-    containerName: keyVault.getSecret('ADLS-ACCOUNT-CONTAINER')
+    storageAccountName: aifoundry.outputs.storageName
+    containerName: aifoundry.outputs.storageContainer
     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
   }
   dependsOn:[aifoundry,keyVault]
@@ -86,6 +87,7 @@ module azureFunctionsCharts 'deploy_azure_function_charts.bicep' = {
     sqlDbName: sqlDBModule.outputs.sqlDbName
     sqlDbUser: sqlDBModule.outputs.sqlDbUser
     sqlDbPwd:keyVault.getSecret('SQLDB-PASSWORD')
+    managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
   }
   dependsOn:[sqlDBModule,keyVault]
 }
@@ -105,7 +107,9 @@ module azureragFunctionsRag 'deploy_azure_function_rag.bicep' = {
     sqlDbName:sqlDBModule.outputs.sqlDbName
     sqlDbUser:sqlDBModule.outputs.sqlDbUser
     sqlDbPwd:keyVault.getSecret('SQLDB-PASSWORD')
+    managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.objectId
   }
+  dependsOn:[sqlDBModule,keyVault]
 }
 
 module azureFunctionURL 'deploy_azure_function_urls.bicep' = {

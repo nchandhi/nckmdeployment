@@ -128,7 +128,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     createMode: 'default'
     enabledForDeployment: false
     enabledForDiskEncryption: false
-    enabledForTemplateDeployment: false
+    enabledForTemplateDeployment: true
     enableSoftDelete: true
     enableRbacAuthorization: true
     enablePurgeProtection: true

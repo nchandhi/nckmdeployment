@@ -6,6 +6,7 @@ param sqlDbName string
 param sqlDbUser string
 @secure()
 param sqlDbPwd string
+param managedIdentityObjectId string
 
 var functionAppName = '${solutionName}-charts-fn'
 var storageaccountname = '${solutionName}chartsfnacc'
