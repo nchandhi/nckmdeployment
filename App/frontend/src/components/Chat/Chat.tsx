@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
 import { Button, Textarea } from "@fluentui/react-components";
 import "./Chat.css";
-import SparkleIcon from "../../Assets/Sparkle.svg";
+import { SparkleRegular } from "@fluentui/react-icons";
+// import SparkleIcon from "../../Assets/Sparkle.svg";
 import { DefaultButton, Spinner, SpinnerSize } from "@fluentui/react";
 import { useAppContext } from "../../state/useAppContext";
 import { actionConstants } from "../../state/ActionConstants";
@@ -386,7 +387,8 @@ const Chat: React.FC<ChatProps> = ({
         {!Boolean(state.chatHistory?.isFetchingConvMessages) &&
           messages.length === 0 && (
             <div className="initial-msg">
-              <img src={SparkleIcon} alt="Sparkle" />
+              {/* <img src={SparkleIcon} alt="Sparkle" /> */}
+              <SparkleRegular/>
               <span>Start Chatting</span>
               <span>
                 You can ask questions around agent performance, issue

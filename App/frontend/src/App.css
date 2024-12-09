@@ -85,6 +85,39 @@ body {
   height: var(--header-btn-icon-size);
 }
 
+/* .answerDisclaimerContainer {
+  margin-top: 3px;
+} */
+
+.answerDisclaimer {
+  font-size: var(--answer-disclaimer-font, 12px);
+  color: #a0a0a0;
+}
+
+
+/* .userInfoContainer {
+  flex: 1 1 5%;
+  border-bottom: 1px solid #D9D9D9;
+  justify-content: 'flex-start';
+  align-items: 'center';
+} */
+
+.userNameContainer {
+  /* flex: 1;
+  text-align: 'right'; 
+  justify-content: 'flex-end'; */
+  padding-right: .5rem;
+}
+
+.avatarContainer {
+  height: 100%; 
+  width: 3rem; 
+  border-left: 3px solid #FFFFFF;
+  align-items: center; 
+  justify-content: center;
+  padding: 12px;
+}
+
 /* Large screens (≥992px) */
 @media (min-width: 992px) {
   .header-title {

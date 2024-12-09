@@ -18,6 +18,7 @@ import tiktoken
 
 # load_dotenv()
 key_vault_name = 'kv_to-be-replaced'
+# key_vault_name = 'nckm76-kv'
 
 index_name = "call_transcripts_index"
 
@@ -278,6 +279,7 @@ database = get_secrets_from_kv(key_vault_name,"SQLDB-DATABASE")
 username = get_secrets_from_kv(key_vault_name,"SQLDB-USERNAME")
 password = get_secrets_from_kv(key_vault_name,"SQLDB-PASSWORD")
 
+print(server, database, username, password)
 conn = pymssql.connect(server, username, password, database)
 cursor = conn.cursor()
 print("Connected to the database")

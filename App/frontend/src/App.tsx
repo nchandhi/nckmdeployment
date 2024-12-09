@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-
 import Chart from "./components/Chart/Chart";
 import Chat from "./components/Chat/Chat";
 import {
@@ -8,6 +7,8 @@ import {
   FluentProvider,
   Subtitle2Stronger,
   webLightTheme,
+  Avatar,
+  Tag
 } from "@fluentui/react-components";
 import { SparkleRegular } from "@fluentui/react-icons";
 import "./App.css";
@@ -69,6 +70,7 @@ const Dashboard: React.FC = () => {
   const [offset, setOffset] = useState<number>(0);
   const OFFSET_INCREMENT = 25;
   const [hasMoreRecords, setHasMoreRecords] = useState<boolean>(true);
+  const [name, setName] = useState<string>('')
 
   useEffect(() => {
     try {
@@ -96,9 +98,18 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    getUserInfoList();
-  }, []);
+  // useEffect(() => {
+  //   getUserInfoList();
+  // }, []);
+
+  // useEffect(() => {
+  //   getUserInfo().then((res) => {
+  //     const name: string = res[0].user_claims.find((claim: any) => claim.typ === 'name')?.val ?? ''
+  //     setName(name)
+  //   }).catch((err) => {
+  //     console.error('Error fetching user info: ', err)
+  //   })
+  // }, [])
 
   const updateLayoutWidths = (newState: Record<string, boolean>) => {
     const noOfWidgetsOpen = Object.values(newState).filter((val) => val).length;
@@ -270,6 +281,8 @@ const Dashboard: React.FC = () => {
         <div className="header-left-section">
           <AppLogo />
           <Subtitle2Stronger>Woodgrove <Body1 style={{ gap: "10px" }}>| Call Analysis</Body1></Subtitle2Stronger>
+          <Tag size="extra-small" shape="circular">AI-generated content may be incorrect </Tag>
+        
         </div>
         <div className="header-right-section">
           <Button
@@ -287,7 +300,15 @@ const Dashboard: React.FC = () => {
           >
             {`${panelShowStates?.[panels.CHAT] ? "Hide" : "Show"} Chat`}
           </Button>
+          <div>
+            <Avatar size={32} style={{ width: '45px', height: '45px' }}
+              name={name}
+            />
+            <Body1>{name}</Body1>
+          </div>
+         
         </div>
+      
       </div>
       <div className="main-container">
         {/* LEFT PANEL: DASHBOARD */}
@@ -335,6 +356,9 @@ const Dashboard: React.FC = () => {
             useAppContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && <ChatHistoryPanel />} */}
             </div>
           )}
+
+
+
       </div>
     </FluentProvider>
   );

@@ -15,6 +15,7 @@ from backend.auth.auth_utils import get_authenticated_user_details
 from backend.history.cosmosdbservice import CosmosConversationClient
 import openai
 import json
+import re
 load_dotenv()
 
 # Configure logging
@@ -23,50 +24,6 @@ logger = logging.getLogger(__name__)
 
 app = Quart(__name__)
 app = cors(app, allow_origin=["http://localhost:3000", "http://127.0.0.1:5000"])
-
-# Mock Authentication Middleware
-# @app.before_request
-# async def mock_authentication():
-#     """
-#     Injects a mock user into the request context for local testing.
-#     This simulates Azure Easy Auth headers.
-#     """
-#     g.user = {
-#         "name": "Test User",
-#         "id": "12345",  # Mock User ID
-#         "email": "testuser@example.com",
-#         "roles": ["Admin", "User"],  # Mock roles if needed
-#     }
-
-# # Decorator to protect routes (optional)
-# def requires_auth(func):
-#     @wraps(func)
-#     async def wrapper(*args, **kwargs):
-#         if not hasattr(g, "user") or not g.user:
-#             return {"error": "Unauthorized"}, 401
-#         return await func(*args, **kwargs)
-#     return wrapper
-
-# @app.route('/')
-# async def home():
-#     # Access the mocked user
-#     if g.user:
-#         return {
-#             "message": f"Hello, {g.user['name']}!",
-#             "email": g.user["email"],
-#             "id": g.user["id"],
-#         }
-#     else:
-#         return {"error": "No user found!"}, 404
-
-# @app.route('/protected')
-# @requires_auth
-# async def protected():
-#     return {
-#         "message": f"Welcome, {g.user['name']}! You are authorized to access this route.",
-#         "roles": g.user["roles"],
-#     }
-
 
 # Serve index.html from the React build folder
 @app.route("/")
@@ -158,42 +115,6 @@ def init_cosmosdb_client():
 
     return cosmos_conversation_client
 
-
-# class MockCosmosDBClient:
-#     async def close(self):
-#         print("Closing CosmosDB client connection...")
-
-# class MockCosmosConversationClient:
-#     def __init__(self):
-#         self.cosmosdb_client = MockCosmosDBClient()
-
-#     async def get_conversations(self, user_id, offset, limit):
-#         # Mock data for multiple users
-#         mock_conversations = {
-#             "12345": [
-#                 {"conversation_id": "1", "summary": "Test Conversation 1"},
-#                 {"conversation_id": "2", "summary": "Test Conversation 2"},
-#                 {"conversation_id": "3", "summary": "Test Conversation 3"},
-#                 {"conversation_id": "4", "summary": "Test Conversation 4"}
-#             ],
-#             "67890": [
-#                 {"conversation_id": "5", "summary": "Test Conversation 5"},
-#                 {"conversation_id": "6", "summary": "Test Conversation 6"}
-#             ],
-#         }
-
-#         # Get conversations for the specific user
-#         conversations = mock_conversations.get(user_id, [])
-
-#         # Apply offset and limit
-#         start_index = int(offset)
-#         end_index = start_index + int(limit)
-#         return conversations[start_index:end_index]
-
-# def init_cosmosdb_client():
-#     return MockCosmosConversationClient()
-
-
 # Initialize Azure OpenAI Client
 def init_openai_client():
     azure_openai_client = None
@@ -251,7 +172,7 @@ async def fetch_chart_data():
 @app.route("/api/fetchChartDataWithFilters", methods=["POST"])
 async def fetch_chart_data_with_filters():
     body_data = await request.get_json()
-    print(body_data)
+    # print(body_data)
     try:
         response = requests.post(CHART_DASHBOARD_URL, json=body_data)
         chart_data = response.json()
@@ -276,83 +197,6 @@ async def fetch_filter_data():
         return jsonify({"error": "Failed to fetch filter data"}), 500
 
 
-# async def complete_chat_request(request_body):
-#     try:
-#         # Determine the endpoint and query separator based on USE_GRAPHRAG
-#         if USE_GRAPHRAG:
-#             endpoint = GRAPHRAG_URL
-#             model_name = "graphrag-model"
-#             query_separator = "&"
-#         else:
-#             endpoint = RAG_URL
-#             model_name = "rag-model"
-#             query_separator = "?"
-
-#         print(f"Selected Endpoint: {endpoint}")
-
-#         # Validate the chosen endpoint
-#         if not endpoint:
-#             return jsonify({"error": "Endpoint URL is not set in the environment"}), 500
-
-#         # Extract query from request
-#         query = request_body.get("messages")[-1].get("content")
-#         print(f"Query: {query}")
-
-#         # Construct the request URL with the correct separator
-#         query_url = f"{endpoint}{query_separator}query={query}"
-#         print(f"Request URL: {query_url}")
-
-#         # Send request to the chosen endpoint
-#         response = requests.get(query_url, timeout=30)
-#         history_metadata = request_body.get("history_metadata", {})
-#         print(f"Raw response content: {response.content}")
-
-#         # Check the response status code
-#         if response.status_code != 200:
-#             error_message = response.text or "Unknown error"
-#             print(f"Error response text: {error_message}")
-#             return (
-#                 jsonify({"error": f"Error from endpoint: {error_message}"}),
-#                 response.status_code,
-#             )
-
-#         # Determine if the response is JSON or plain text
-#         content_type = response.headers.get("Content-Type", "").lower()
-#         if "application/json" in content_type:
-#             # Parse JSON response
-#             response_data = response.json()
-#             assistant_content = response_data.get("response", response.text)
-#         else:
-#             # Handle plain text response
-#             assistant_content = response.text.strip().replace("\n", "<br>")
-
-#         # Prepare and return response
-#         return jsonify(
-#             {
-#                 "id": str(uuid.uuid4()),
-#                 "model": model_name,
-#                 "created": int(time.time()),
-#                 "object": "chat.completion",
-#                 "choices": [
-#                     {"messages": [{"role": "assistant", "content": assistant_content}]}
-#                 ],
-#                 "history_metadata": history_metadata,
-#             }
-#         )
-
-#     except Exception as e:
-#         print(f"Error in complete_chat_request: {str(e)}")
-#         return jsonify({"error": "An error occurred during processing."}), 500
-
-
-# @app.route("/api/chat", methods=["POST"])
-# async def conversation():
-#     if not request.is_json:
-#         return jsonify({"error": "Request must be JSON"}), 415
-#     request_json = await request.get_json()
-
-#     # Call complete_chat_request with the request JSON
-#     return await complete_chat_request(request_json)
 
 def process_rag_response(rag_response, query):
     """
@@ -438,6 +282,15 @@ async def complete_chat_request(request_body, last_rag_response=None):
                         return jsonify({"error": f"RAG/GraphRAG endpoint error: {error_message}"}), response.status
 
                     assistant_content = await response.text()
+                    # assistant_content = re.sub(r'\. ', '.\n', assistant_content)  # Add line break after each sentence
+                    # assistant_content = '\n' + assistant_content
+                    # Dynamically format the content with line breaks for readability
+                    assistant_content = '\n'.join(
+                        line.strip() for line in assistant_content.split('. ') if line.strip()
+                    )
+
+                    # Add an additional newline at the end for better clarity (optional)
+                    assistant_content += '\n'
                     return jsonify({
                         "id": str(uuid.uuid4()),
                         "model": "rag-model",

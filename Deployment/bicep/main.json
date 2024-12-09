@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "18132568989024707983"
+      "templateHash": "1497754376478774506"
     }
   },
   "parameters": {
@@ -1151,7 +1151,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "11731623306798867279"
+              "templateHash": "6997300029110879816"
             }
           },
           "parameters": {
@@ -1244,7 +1244,7 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', parameters('keyVaultName'), 'SQLDB-SERVER')]",
               "properties": {
-                "value": "[variables('serverName')]"
+                "value": "[format('{0}.database.windows.net', variables('serverName'))]"
               }
             },
             {

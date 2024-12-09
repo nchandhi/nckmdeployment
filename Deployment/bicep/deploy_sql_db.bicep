@@ -87,7 +87,7 @@ resource sqldbServerEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview'
   parent: keyVault
   name: 'SQLDB-SERVER'
   properties: {
-    value: serverName
+    value: '${serverName}.database.windows.net'
   }
 }
 
