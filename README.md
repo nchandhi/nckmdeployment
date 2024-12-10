@@ -173,6 +173,8 @@ If you'd like to customize the accelerator, here are some ways you might do that
 
 - [Microsoft Fabric documentation - Microsoft Fabric | Microsoft Learn](https://learn.microsoft.com/en-us/fabric/)
 - [Azure OpenAI Service - Documentation, quickstarts, API reference - Azure AI services | Microsoft Learn](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/use-your-data)
+- [Azure AI Content Understanding documentation](https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/)
+- [Azure AI Foundry documentation](https://learn.microsoft.com/en-us/azure/ai-studio/)
 - [Speech service documentation - Tutorials, API Reference - Azure AI services - Azure AI services | Microsoft Learn](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/)
   
 ### More info
@@ -188,6 +190,7 @@ An updated version of the Conversation Knowledge Mining (CKM) solution accelerat
 Customer truth
 </h2>
 Customer stories coming soon.
+
 
 <br/>
 <br/>
