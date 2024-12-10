@@ -18,6 +18,7 @@ import tiktoken
 
 # load_dotenv()
 key_vault_name = 'kv_to-be-replaced'
+key_vault_name = 'nckm64-kv'
 
 index_name = "call_transcripts_index"
 
@@ -645,7 +646,7 @@ create_processed_data_sql = """CREATE TABLE km_processed_data (
                 complaint varchar(255), 
                 topic varchar(255)
             );"""
-# cursor.execute(create_processed_data_sql)
+cursor.execute(create_processed_data_sql)
 conn.commit()
 # sql_stmt = 'SELECT * FROM processed_data'
 sql_stmt = '''select ConversationId, StartTime, EndTime, Content, summary, satisfied, sentiment, 
