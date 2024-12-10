@@ -182,7 +182,7 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         )
         result2 = nested_json2.to_dict(orient='records')
 
-        where_clause = ''
+        # where_clause = ''
         sql_stmt = (f'''select key_phrase as text, 'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type, call_frequency as size,
         case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
         when avg_sentiment >= 2 THEN 'positive' end as average_sentiment

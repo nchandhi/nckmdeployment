@@ -164,7 +164,7 @@ module appserviceModule 'deploy_app_service.bicep' = {
     GRAPHRAG_URL:azureFunctionURL.outputs.functionURLsOutput.graphrag_function_url
     RAG_URL:azureFunctionURL.outputs.functionURLsOutput.rag_function_url
     AZURE_COSMOSDB_ACCOUNT: cosmosDBModule.outputs.cosmosAccountName
-    AZURE_COSMOSDB_ACCOUNT_KEY: 'TBD'
+    AZURE_COSMOSDB_ACCOUNT_KEY: keyVault.getSecret('AZURE-COSMOSDB-ACCOUNT-KEY')
     AZURE_COSMOSDB_CONVERSATIONS_CONTAINER: cosmosDBModule.outputs.cosmosContainerName
     AZURE_COSMOSDB_DATABASE: cosmosDBModule.outputs.cosmosDatabaseName
     AZURE_COSMOSDB_ENABLE_FEEDBACK:'True'
