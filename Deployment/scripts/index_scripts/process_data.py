@@ -18,7 +18,6 @@ import tiktoken
 
 # load_dotenv()
 key_vault_name = 'kv_to-be-replaced'
-key_vault_name = 'nckm64-kv'
 
 index_name = "call_transcripts_index"
 
@@ -194,8 +193,6 @@ def get_details(input_text):
             Identify the single primary complaint of the conversation in 3 words or less, key: complaint .
             Answer in JSON machine-readable format, using the keys from above. 
             Pretty print the JSON and make sure that it is properly closed at the end and do not generate any other content.'''
-
-            # Identify the single primary complaint of the conversation in 3 words or less, key: complaint. 
 
     # Phi-3 model client
     # response = client.complete(

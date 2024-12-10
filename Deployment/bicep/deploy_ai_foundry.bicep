@@ -46,7 +46,7 @@ var aiModelDeployments = [
     model: 'gpt-4o-mini'
     sku: {
       name: 'Standard'
-      capacity: 20
+      capacity: 100
     }
     raiPolicyName: 'Microsoft.Default'
   }
