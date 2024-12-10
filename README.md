@@ -87,7 +87,10 @@ Simple deploy
 1. **Deploy Azure resources**  
    Click the following deployment button to create the required resources for this accelerator directly in your Azure Subscription.
 
-   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2FCustomer-Service-Conversational-Insights-with-Azure-OpenAI-Services%2Fmain%2FDeployment%2Fbicep%2Fmain.json)
+   <!--[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2FCustomer-Service-Conversational-Insights-with-Azure-OpenAI-Services%2Fmain%2FDeployment%2Fbicep%2Fmain.json) -->
+
+   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnchandhi%2Fnckmdeployment%2Fmain%2FDeployment%2Fbicep%2Fmain.json)
+
 
    1.  Most fields will have a default name set already. You will need to update the following Azure OpenAI settings:
 
@@ -112,21 +115,16 @@ Simple deploy
     2.   Click on Azure Cloud Shell in the top right of navigation Menu (add image)
     3.   Run the run the following commands:  
          1.   ```az login``` ***Follow instructions in Azure Cloud Shell for login instructions
-         2.   ```rm -rf ./Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services```
-         3.   ```git clone https://github.com/microsoft/Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services```
-         4.   ```cd ./Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services/Deployment/scripts/fabric_scripts```
+         <!--2.   ```rm -rf ./Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services```-->
+         2. ```rm -rf ./nckmdeployment```
+         <!--3.   ```git clone https://github.com/microsoft/Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services```-->
+         3.   ```git clone https://github.com/nchandhi/nckmdeployment```
+         <!--4.   ```cd ./Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services/Deployment/scripts/fabric_scripts```-->
+         4.   ```cd ./nckmdeployment/Deployment/scripts/fabric_scripts```
          5.   ```sh ./run_fabric_items_scripts.sh keyvault_param workspaceid_param solutionprefix_param```
               1.   keyvault_param - the name of the keyvault that was created in Step 1
               2.   workspaceid_param - the workspaceid created in Step 2
               3.   solutionprefix_param - prefix used to append to lakehouse upon creation
-    4.  Get Fabric Lakehouse connection details:
-    5.   Once deployment is complete, navigate to Fabric Workspace
-    6.   Find Lakehouse in workspace (ex.lakehouse_*solutionprefix_param*)
-    7.   Click on the ```...``` next to the SQL Analytics Endpoint
-    8.   Click on ```Copy SQL connection string```
-    9.   Click Copy button in popup window.
-    10.  Wait 10-15 minutes to allow the data pipelines to finish processing then proceed to next step.
-
 
 
 ### Process audio files
