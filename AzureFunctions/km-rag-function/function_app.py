@@ -93,7 +93,7 @@ class ChatWithDataPlugin:
 
         sql_prompt = f'''A valid T-SQL query to find {query} for tables and columns provided below:
         1. Table: processed_data
-        Columns: ConversationId,EndTime,StartTime,Content,summary,satisfied,sentiment,topic,key_phrases,complaint,mined_topic
+        Columns: ConversationId,EndTime,StartTime,Content,summary,satisfied,sentiment,topic,keyphrases,complaint
         2. Table: processed_data_key_phrases
         Columns: ConversationId,key_phrase,sentiment
         Only return the generated sql query. do not return anything else.''' 

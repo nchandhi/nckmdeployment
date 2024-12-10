@@ -633,5 +633,32 @@ for idx, row in df.iterrows():
         
 conn.commit()
 
+create_processed_data_sql = """CREATE TABLE km_processed_data (
+                ConversationId varchar(255) NOT NULL PRIMARY KEY,
+                EndTime varchar(255),
+                StartTime varchar(255),
+                Content varchar(max),
+                summary varchar(max),
+                satisfied varchar(255),
+                sentiment varchar(255),
+                keyphrases nvarchar(max),
+                complaint varchar(255), 
+                topic varchar(255)
+            );"""
+# cursor.execute(create_processed_data_sql)
+conn.commit()
+sql_stmt = 'SELECT * FROM processed_data'
+cursor.execute(sql_stmt)
+
+rows = cursor.fetchall()
+column_names = [i[0] for i in cursor.description]
+df = pd.DataFrame(rows, columns=column_names)
+df.rename(columns={'mined_topic': 'topic'}, inplace=True)
+# print(df.columns)
+for idx, row in df.iterrows():
+    # row['ConversationId'] = str(uuid.uuid4())
+    cursor.execute(f"INSERT INTO km_processed_data (ConversationId, EndTime, StartTime, Content, summary, satisfied, sentiment, keyphrases, complaint, topic) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (row['ConversationId'], row['EndTime'], row['StartTime'], row['Content'], row['summary'], row['satisfied'], row['sentiment'], row['key_phrases'], row['complaint'], row['topic']))
+conn.commit()
+
 cursor.close()
 conn.close()
