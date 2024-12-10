@@ -153,20 +153,30 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         # json_data1 = json.dumps(result, indent=4)
         # print(json_data)
 
-        sql_stmt = (f'''select mined_topic as name, 'TOPICS' as id, 'Trending Topics' as chart_name, 'table' as chart_type, call_frequency,
-        case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
-        when avg_sentiment >= 2 THEN 'positive' end as average_sentiment
-        from
-        (
-            select mined_topic, AVG(sentiment_int) as avg_sentiment, sum(n) as call_frequency
-            from 
-            (
-                select TRIM(mined_topic) as mined_topic, 1 as n,
-                CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
-                from [dbo].[processed_data] {where_clause} 
-            ) t        
-            group by mined_topic
-        ) t1''')
+        # sql_stmt = (f'''select mined_topic as name, 'TOPICS' as id, 'Trending Topics' as chart_name, 'table' as chart_type, call_frequency,
+        # case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
+        # when avg_sentiment >= 2 THEN 'positive' end as average_sentiment
+        # from
+        # (
+        #     select mined_topic, AVG(sentiment_int) as avg_sentiment, sum(n) as call_frequency
+        #     from 
+        #     (
+        #         select TRIM(mined_topic) as mined_topic, 1 as n,
+        #         CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
+        #         from [dbo].[processed_data] {where_clause} 
+        #     ) t        
+        #     group by mined_topic
+        # ) t1''')
+
+        sql_stmt = f'''SELECT TOP 1 WITH TIES
+                        mined_topic as name, 'TOPICS' as id, 'Trending Topics' as chart_name, 'table' as chart_type,
+                        lower(sentiment) as average_sentiment,
+                        COUNT(*) AS call_frequency
+                    FROM [dbo].[processed_data]
+                    {where_clause}
+                    GROUP BY mined_topic, sentiment
+                    ORDER BY ROW_NUMBER() OVER (PARTITION BY mined_topic ORDER BY COUNT(*) DESC)
+                    '''
 
         cursor.execute(sql_stmt)
 
@@ -183,26 +193,47 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         result2 = nested_json2.to_dict(orient='records')
 
         # where_clause = ''
-        sql_stmt = (f'''select key_phrase as text, 'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type, call_frequency as size,
-        case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
-        when avg_sentiment >= 2 THEN 'positive' end as average_sentiment
-        from
-        (
-            select top(100) key_phrase, AVG(sentiment_int) as avg_sentiment, sum(n) as call_frequency 
-            from 
-            (
-                select TRIM(key_phrase) as key_phrase, 1 as n,
-                CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
-                from 
-				( select key_phrase, k.sentiment, mined_topic from [dbo].[processed_data_key_phrases] as k
-				   inner join [dbo].[processed_data] as p on k.ConversationId = p.ConversationId 
-				   {where_clause}
-				) t2
-            ) t
+        
+        # sql_stmt = (f'''select key_phrase as text, 'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type, call_frequency as size,
+        # case when avg_sentiment < 1 THEN 'negative' when avg_sentiment between 1 and 2 THEN 'neutral' 
+        # when avg_sentiment >= 2 THEN 'positive' end as average_sentiment
+        # from
+        # (
+        #     select top(100) key_phrase, AVG(sentiment_int) as avg_sentiment, sum(n) as call_frequency 
+        #     from 
+        #     (
+        #         select TRIM(key_phrase) as key_phrase, 1 as n,
+        #         CASE sentiment WHEN 'positive' THEN 3 WHEN 'neutral' THEN 2 WHEN 'negative' THEN 1 end as sentiment_int
+        #         from 
+		# 		( select key_phrase, k.sentiment, mined_topic from [dbo].[processed_data_key_phrases] as k
+		# 		   inner join [dbo].[processed_data] as p on k.ConversationId = p.ConversationId 
+		# 		   {where_clause}
+		# 		) t2
+        #     ) t
     
-            group by key_phrase
+        #     group by key_phrase
+        #     order by call_frequency desc
+        # ) t1''')
+
+        where_clause = where_clause.replace('sentiment', 'k.sentiment')
+        sql_stmt =  f'''select top 30 key_phrase as text, 
+            'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type,
+            call_frequency as size, lower(average_sentiment) as average_sentiment from 
+            (
+                SELECT TOP 1 WITH TIES
+                key_phrase,
+                sentiment as average_sentiment,
+                COUNT(*) AS call_frequency from
+                (
+                    select key_phrase, k.sentiment, mined_topic from [dbo].[processed_data_key_phrases] as k
+                    inner join [dbo].[processed_data] as p on k.ConversationId = p.ConversationId 
+                    {where_clause}
+                ) t
+                GROUP BY key_phrase, sentiment
+                ORDER BY ROW_NUMBER() OVER (PARTITION BY key_phrase ORDER BY COUNT(*) DESC)
+            ) t2
             order by call_frequency desc
-        ) t1''')
+            '''
 
         cursor.execute(sql_stmt)
 
