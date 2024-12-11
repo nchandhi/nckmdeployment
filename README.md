@@ -68,7 +68,7 @@ The sample data used in this repository is synthetic and generated using Azure O
     resources and resource groups.
 
 ### Solution accelerator architecture
-![image](./Documents/Images/ReadMe/ckm-v2-sa.png)
+![image](./Documents/Images/ReadMe/ckm-sol-arch.png)
 
 <h2><img src="./Documents/Images/ReadMe/oneClickDeploy.png" width="64">
 <br/>
