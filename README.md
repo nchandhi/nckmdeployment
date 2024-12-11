@@ -46,9 +46,11 @@ This solution accelerator enables customers with large amounts of conversational
 
 ### Use case / scenario
 
-An analyst handling large volumes of conversational data daily wants a way to visualize and pinpoint key insights. They need to use natural language to clarify patterns, enabling them to make more informed observations and decisions.
+An analyst managing large volumes of conversational data needs a solution to visualize key insights and uncover patterns using natural language. An interactive dashboard enables them to explore rich, actionable insights for faster, and more informed decision-making.
  
-The analyst uses their dashboard to access rich, contextual insights that can be easily interpreted and applied for faster, informed decision-making. 
+This solution empowers analysts with tools to ask questions and receive real-time, contextualized responses. It streamlines problem-solving, enhances collaboration, and fosters innovation by making data-driven insights accessible and shareable.
+
+The sample data used in this repository is synthetic and generated using Azure Open AI service. The data is intended for use as sample data only.
 
 ### Business value
 - **Conversation analysis​:** Generative AI analyzes call transcripts, summarizes content, identifies and aggregates key phrases for data visualization​
@@ -76,6 +78,10 @@ The analyst uses their dashboard to access rich, contextual insights that can be
 <br/>
 Simple deploy
 </h2>
+
+### **Prerequisites**
+
+To use this solution accelerator, you will need access to an [Azure subscription](https://azure.microsoft.com/free/) with permission to create resource groups and resources. 
 
 
 ### **How to install/deploy**
