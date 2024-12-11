@@ -18,6 +18,7 @@ import tiktoken
 
 # load_dotenv()
 key_vault_name = 'kv_to-be-replaced'
+key_vault_name = 'nckm21-kv'
 
 index_name = "call_transcripts_index"
 
@@ -359,18 +360,13 @@ for path in paths:
                 "chunk_id" : document_id + '_' + str(chunk_num).zfill(2),
                 "content": chunk,       
             }
-
         counter += 1
-
         try:
-            
             v_contentVector = get_embeddings(str(d["content"]),openai_api_base,openai_api_version,openai_api_key)
-
         except:
             time.sleep(30)
             # print(d["content"])
             try: 
-
                 v_contentVector = get_embeddings(str(d["content"]),openai_api_base,openai_api_version,openai_api_key)
             except: 
                 v_contentVector = []
@@ -426,7 +422,7 @@ def call_gpt4(topics_str1, client):
         Your task is to analyze the given text corpus and identify distinct topics present within the data.
         {topics_str1}
         1. Identify the key topics in the text using topic modeling techniques. 
-        2. Choose the right number of topics based on data. Try to keep it as low number of topics as possible.
+        2. Choose the right number of topics based on data. Try to keep it up to 15 topics.
         3. Assign a clear and concise label to each topic based on its content.
         4. Provide a brief description of each topic along with its label.
 
