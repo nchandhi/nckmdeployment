@@ -27,7 +27,9 @@ User story
 
 ### Overview
 
-This solution accelerator enables customers with large amounts of conversational data to improve decision-making by leveraging intelligence to uncover insights, relationships, and patterns from customer interactions. It empowers users to gain valuable knowledge and drive targeted business impact.
+This solution accelerator enables customers with large amounts of conversational data to improve decision-making by leveraging intelligence to uncover insights, relationships, and patterns from customer interactions. It empowers users to gain valuable knowledge and drive targeted business impact. 
+
+This solution accelerator leverages Azure AI Foundry, Azure OpenAI, Microsoft Fabric, and Azure Search to transform large volumes of conversational data into actionable insights through topic modeling, key phrase extraction, speech-to-text transcription, and interactive chat experiences.
 
 **Version history:** An updated version of the Conversation Knowledge Mining solution accelerator was published on xx/xx/xxxx. If you deployed the accelerator prior to that date, please see “Version history” in the [Supporting documentation](#supporting-documentation) section.
 
@@ -42,44 +44,27 @@ This solution accelerator enables customers with large amounts of conversational
 - **Analytics dashboard​:** The dashboard is implemented using ​react to maximize portability and 
 
 \
-![image](./Documents/Images/ReadMe/ckm-v2-ui.png)
+![image](./Documents/Images/ReadMe/ckm-ui.png)
 
 ### Use case / scenario
 
-A contact center manager reviews contact center performance to ensure resources are being used efficiently. To identify areas for improvement, they need to understand the correlation between conversational and operational data. ​
+An analyst managing large volumes of conversational data needs a solution to visualize key insights and uncover patterns using natural language. An interactive dashboard enables them to explore rich, actionable insights for faster, and more informed decision-making.
+ 
+This solution empowers analysts with tools to ask questions and receive real-time, contextualized responses. It streamlines problem-solving, enhances collaboration, and fosters innovation by making data-driven insights accessible and shareable.
 
-The contact center manager uses their dashboard to identify how LLM-generated conversational analytics and insights are impacting operations to make an informed decision about how to improve their center’s performance.​
-
-### Target end users
-
-Company personnel (employees, executives) looking to gain conversational insights in correlation with operational Contact Center metrics would leverage this accelerator to find what they need quickly.
-
-### Business value
-- **Conversation analysis​:** Generative AI analyzes call transcripts, summarizes content, identifies and aggregates key phrases for data visualization​
-- **Automated customer satisfaction​:** Generative AI determines the post-call satisfaction rating of a customer’s experience with their agent
-- **Operational clarity​:** Relevant metrics such as call volume and handling time are pulled from the same call logs for operational data visualization​
-- **Targeted decision enablement:** Enable agents and managers to achieve glanceable insight recognition, corollary information analysis, and accelerated decision making​
-
-### Products used/licenses required
-
--   Azure Speech Service
-
--   Azure OpenAI
-
--   Microsoft Fabric Capacity
-  
--   Azure AI Services***
-
--   The user deploying the template must have permission to create
-    resources and resource groups.
+The sample data used in this repository is synthetic and generated using Azure Open AI service. The data is intended for use as sample data only.
 
 ### Solution accelerator architecture
-![image](./Documents/Images/ReadMe/ckm-v2-sa.png)
+![image](./Documents/Images/ReadMe/ckm-sol-arch.png)
 
 <h2><img src="./Documents/Images/ReadMe/oneClickDeploy.png" width="64">
 <br/>
 Simple deploy
 </h2>
+
+### **Prerequisites**
+
+To use this solution accelerator, you will need access to an [Azure subscription](https://azure.microsoft.com/free/) with permission to create resource groups and resources. 
 
 
 ### **How to install/deploy**
@@ -164,9 +149,6 @@ If you'd like to customize the accelerator, here are some ways you might do that
 - Ingest your own [JSON conversation files](ConversationalDataFormat.md) by uploading them into the `conversation_input` lakehouse folder and run the data pipeline
 - Ingest your own [audio conversation files](ConversationalDataFormat.md) by uploading them into the `audio_input` lakehouse folder and run the data pipeline
 
-### Troubleshooting
--   [Troubleshooting documentation](Troubleshooting.md)
-
 ### Additional resources
 
 - [Microsoft Fabric documentation - Microsoft Fabric | Microsoft Learn](https://learn.microsoft.com/en-us/fabric/)
@@ -174,11 +156,7 @@ If you'd like to customize the accelerator, here are some ways you might do that
 - [Azure AI Content Understanding documentation](https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/)
 - [Azure AI Foundry documentation](https://learn.microsoft.com/en-us/azure/ai-studio/)
 - [Speech service documentation - Tutorials, API Reference - Azure AI services - Azure AI services | Microsoft Learn](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/)
-  
-### More info
--   [Solution
-    architecture](SolutionArchitecture.md)
--  [Future extensibility documentation](Extensibility.md)
+
 
 ### Version history
 An updated version of the Conversation Knowledge Mining (CKM) solution accelerator was published on 08/15/2024. If you deployed the accelerator prior to that date, please note that CKM v2 cannot be deployed over CKM v1. Please also note that the CKM v2 .json conversation file format has been revised to include additional metadata, therefore CKM v1 files are no longer compatible. For resources related to CKM v1, please visit our archive ([link-to-archive](https://github.com/microsoft/Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services/tree/ckm-v1)).
@@ -189,6 +167,12 @@ Customer truth
 </h2>
 Customer stories coming soon.
 
+<h2>
+</br>
+Responsible AI Transparency FAQ 
+</h2>
+
+Please refer to [Transarency FAQ](./TRANSPARENCY_FAQ.md) for responsible AI transparency details of this solution accelerator.
 
 <br/>
 <br/>
