@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "11655485491512269332"
+      "templateHash": "2067031612850155795"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "9421099336880950495"
+              "templateHash": "7836615546521528706"
             }
           },
           "parameters": {
@@ -166,6 +166,8 @@
             "storageName": "[format('{0}hubstorage', parameters('solutionName'))]",
             "storageSkuName": "Standard_LRS",
             "aiServicesName": "[format('{0}-aiservices', parameters('solutionName'))]",
+            "aiServicesName_cu": "[format('{0}-aiservices_cu', parameters('solutionName'))]",
+            "location_cu": "westus",
             "applicationInsightsName": "[format('{0}-appinsights', parameters('solutionName'))]",
             "containerRegistryName": "[format('{0}acr', parameters('solutionName'))]",
             "keyvaultName": "[format('{0}-kv', parameters('solutionName'))]",
@@ -359,6 +361,21 @@
               "apiVersion": "2021-10-01",
               "name": "[variables('aiServicesName')]",
               "location": "[variables('location')]",
+              "sku": {
+                "name": "S0"
+              },
+              "kind": "AIServices",
+              "properties": {
+                "apiProperties": {
+                  "statisticsEnabled": false
+                }
+              }
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2021-10-01",
+              "name": "[variables('aiServicesName_cu')]",
+              "location": "[variables('location_cu')]",
               "sku": {
                 "name": "S0"
               },

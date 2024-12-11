@@ -30,6 +30,8 @@ param managedIdentityObjectId string
 var storageName = '${solutionName}hubstorage'
 var storageSkuName = 'Standard_LRS'
 var aiServicesName = '${solutionName}-aiservices'
+var aiServicesName_cu = '${solutionName}-aiservices_cu'
+var location_cu = 'westus'
 var applicationInsightsName = '${solutionName}-appinsights'
 var containerRegistryName = '${solutionName}acr'
 var keyvaultName = '${solutionName}-kv'
@@ -186,6 +188,20 @@ var storageNameCleaned = replace(storageName, '-', '')
 resource aiServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: aiServicesName
   location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'AIServices'
+  properties: {
+    apiProperties: {
+      statisticsEnabled: false
+    }
+  }
+}
+
+resource aiServices_CU 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
+  name: aiServicesName_cu
+  location: location_cu
   sku: {
     name: 'S0'
   }
