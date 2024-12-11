@@ -52,12 +52,6 @@ This solution empowers analysts with tools to ask questions and receive real-tim
 
 The sample data used in this repository is synthetic and generated using Azure Open AI service. The data is intended for use as sample data only.
 
-### Business value
-- **Conversation analysis​:** Generative AI analyzes call transcripts, summarizes content, identifies and aggregates key phrases for data visualization​
-- **Automated customer satisfaction​:** Generative AI determines the post-call satisfaction rating of a customer’s experience with their agent
-- **Operational clarity​:** Relevant metrics such as call volume and handling time are pulled from the same call logs for operational data visualization​
-- **Targeted decision enablement:** Enable agents and managers to achieve glanceable insight recognition, corollary information analysis, and accelerated decision making​
-
 ### Products used/licenses required
 
 -   Azure Speech Service
