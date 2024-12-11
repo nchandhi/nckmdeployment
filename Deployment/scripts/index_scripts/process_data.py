@@ -18,7 +18,6 @@ import tiktoken
 
 # load_dotenv()
 key_vault_name = 'kv_to-be-replaced'
-key_vault_name = 'nckm21-kv'
 
 index_name = "call_transcripts_index"
 
