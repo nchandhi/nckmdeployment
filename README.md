@@ -54,19 +54,6 @@ This solution empowers analysts with tools to ask questions and receive real-tim
 
 The sample data used in this repository is synthetic and generated using Azure Open AI service. The data is intended for use as sample data only.
 
-### Products used/licenses required
-
--   Azure Speech Service
-
--   Azure OpenAI
-
--   Microsoft Fabric Capacity
-  
--   Azure AI Services***
-
--   The user deploying the template must have permission to create
-    resources and resource groups.
-
 ### Solution accelerator architecture
 ![image](./Documents/Images/ReadMe/ckm-sol-arch.png)
 
@@ -161,9 +148,6 @@ Supporting documentation
 If you'd like to customize the accelerator, here are some ways you might do that:
 - Ingest your own [JSON conversation files](ConversationalDataFormat.md) by uploading them into the `conversation_input` lakehouse folder and run the data pipeline
 - Ingest your own [audio conversation files](ConversationalDataFormat.md) by uploading them into the `audio_input` lakehouse folder and run the data pipeline
-
-### Troubleshooting
--   [Troubleshooting documentation](Troubleshooting.md)
 
 ### Additional resources
 
