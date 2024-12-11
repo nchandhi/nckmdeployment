@@ -44,7 +44,7 @@ This solution accelerator leverages Azure AI Foundry, Azure OpenAI, Microsoft Fa
 - **Analytics dashboard​:** The dashboard is implemented using ​react to maximize portability and 
 
 \
-![image](./Documents/Images/ReadMe/ckm-v2-ui.png)
+![image](./Documents/Images/ReadMe/ckm-ui.png)
 
 ### Use case / scenario
 
