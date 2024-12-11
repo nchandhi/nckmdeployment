@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "15105689993289033152"
+      "templateHash": "17421429499875932899"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "3499108115041420092"
+              "templateHash": "5148664968926500757"
             }
           },
           "parameters": {
@@ -182,7 +182,7 @@
                 "model": "gpt-4o-mini",
                 "sku": {
                   "name": "Standard",
-                  "capacity": 20
+                  "capacity": 100
                 },
                 "raiPolicyName": "Microsoft.Default"
               },
@@ -230,7 +230,9 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.MachineLearningServices/workspaces', variables('aiHubName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]"
+                "[resourceId('Microsoft.Search/searchServices', variables('aiSearchName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]",
+                "aiServicesDeployments"
               ]
             },
             {

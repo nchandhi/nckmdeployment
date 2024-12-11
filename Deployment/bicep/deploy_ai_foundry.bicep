@@ -372,6 +372,9 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
         ResourceId: aiServices.id
       }
     }
+    dependsOn: [
+      aiServicesDeployments,aiSearch
+    ]
   }
   
   resource aiSearchConnection 'connections@2024-07-01-preview' = {
