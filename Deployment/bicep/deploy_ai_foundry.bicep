@@ -50,15 +50,15 @@ var aiModelDeployments = [
     }
     raiPolicyName: 'Microsoft.Default'
   }
-  {
-    name: 'gpt-4o'
-    model: 'gpt-4o'
-    sku: {
-      name: 'Standard'
-      capacity: 20
-    }
-    raiPolicyName: 'Microsoft.Default'
-  }
+  // {
+  //   name: 'gpt-4o'
+  //   model: 'gpt-4o'
+  //   sku: {
+  //     name: 'Standard'
+  //     capacity: 20
+  //   }
+  //   raiPolicyName: 'Microsoft.Default'
+  // }
   {
     name: 'text-embedding-ada-002'
     model: 'text-embedding-ada-002'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "17421429499875932899"
+      "templateHash": "11655485491512269332"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5148664968926500757"
+              "templateHash": "9421099336880950495"
             }
           },
           "parameters": {
@@ -183,15 +183,6 @@
                 "sku": {
                   "name": "Standard",
                   "capacity": 100
-                },
-                "raiPolicyName": "Microsoft.Default"
-              },
-              {
-                "name": "gpt-4o",
-                "model": "gpt-4o",
-                "sku": {
-                  "name": "Standard",
-                  "capacity": 20
                 },
                 "raiPolicyName": "Microsoft.Default"
               },
