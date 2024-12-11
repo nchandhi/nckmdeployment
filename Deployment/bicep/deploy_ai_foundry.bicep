@@ -30,6 +30,8 @@ param managedIdentityObjectId string
 var storageName = '${solutionName}hubstorage'
 var storageSkuName = 'Standard_LRS'
 var aiServicesName = '${solutionName}-aiservices'
+var aiServicesName_cu = '${solutionName}-aiservices_cu'
+var location_cu = 'westus'
 var applicationInsightsName = '${solutionName}-appinsights'
 var containerRegistryName = '${solutionName}acr'
 var keyvaultName = '${solutionName}-kv'
@@ -46,19 +48,19 @@ var aiModelDeployments = [
     model: 'gpt-4o-mini'
     sku: {
       name: 'Standard'
-      capacity: 20
+      capacity: 100
     }
     raiPolicyName: 'Microsoft.Default'
   }
-  {
-    name: 'gpt-4o'
-    model: 'gpt-4o'
-    sku: {
-      name: 'Standard'
-      capacity: 20
-    }
-    raiPolicyName: 'Microsoft.Default'
-  }
+  // {
+  //   name: 'gpt-4o'
+  //   model: 'gpt-4o'
+  //   sku: {
+  //     name: 'Standard'
+  //     capacity: 20
+  //   }
+  //   raiPolicyName: 'Microsoft.Default'
+  // }
   {
     name: 'text-embedding-ada-002'
     model: 'text-embedding-ada-002'
@@ -186,6 +188,20 @@ var storageNameCleaned = replace(storageName, '-', '')
 resource aiServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: aiServicesName
   location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'AIServices'
+  properties: {
+    apiProperties: {
+      statisticsEnabled: false
+    }
+  }
+}
+
+resource aiServices_CU 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
+  name: aiServicesName_cu
+  location: location_cu
   sku: {
     name: 'S0'
   }
@@ -372,6 +388,9 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
         ResourceId: aiServices.id
       }
     }
+    dependsOn: [
+      aiServicesDeployments,aiSearch
+    ]
   }
   
   resource aiSearchConnection 'connections@2024-07-01-preview' = {
