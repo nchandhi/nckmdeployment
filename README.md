@@ -46,13 +46,9 @@ This solution accelerator enables customers with large amounts of conversational
 
 ### Use case / scenario
 
-A contact center manager reviews contact center performance to ensure resources are being used efficiently. To identify areas for improvement, they need to understand the correlation between conversational and operational data. ​
-
-The contact center manager uses their dashboard to identify how LLM-generated conversational analytics and insights are impacting operations to make an informed decision about how to improve their center’s performance.​
-
-### Target end users
-
-Company personnel (employees, executives) looking to gain conversational insights in correlation with operational Contact Center metrics would leverage this accelerator to find what they need quickly.
+An analyst handling large volumes of conversational data daily wants a way to visualize and pinpoint key insights. They need to use natural language to clarify patterns, enabling them to make more informed observations and decisions.
+ 
+The analyst uses their dashboard to access rich, contextual insights that can be easily interpreted and applied for faster, informed decision-making. 
 
 ### Business value
 - **Conversation analysis​:** Generative AI analyzes call transcripts, summarizes content, identifies and aggregates key phrases for data visualization​
