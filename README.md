@@ -27,7 +27,9 @@ User story
 
 ### Overview
 
-This solution accelerator enables customers with large amounts of conversational data to improve decision-making by leveraging intelligence to uncover insights, relationships, and patterns from customer interactions. It empowers users to gain valuable knowledge and drive targeted business impact.
+This solution accelerator enables customers with large amounts of conversational data to improve decision-making by leveraging intelligence to uncover insights, relationships, and patterns from customer interactions. It empowers users to gain valuable knowledge and drive targeted business impact. 
+
+This solution accelerator leverages Azure AI Foundry, Azure OpenAI, Microsoft Fabric, and Azure Search to transform large volumes of conversational data into actionable insights through topic modeling, key phrase extraction, speech-to-text transcription, and interactive chat experiences.
 
 **Version history:** An updated version of the Conversation Knowledge Mining solution accelerator was published on xx/xx/xxxx. If you deployed the accelerator prior to that date, please see “Version history” in the [Supporting documentation](#supporting-documentation) section.
 
@@ -185,6 +187,12 @@ Customer truth
 </h2>
 Customer stories coming soon.
 
+<h2>
+</br>
+Responsible AI Transparency FAQ 
+</h2>
+
+Please refer to [Transarency FAQ](./TRANSPARENCY_FAQ.md) for responsible AI transparency details of this solution accelerator.
 
 <br/>
 <br/>
