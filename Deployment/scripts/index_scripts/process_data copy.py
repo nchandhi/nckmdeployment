@@ -22,8 +22,8 @@ key_vault_name = 'kv_to-be-replaced'
 index_name = "call_transcripts_index"
 
 file_system_client_name = "data"
-directory = 'calltranscripts' 
-# csv_file_name = 'transcriptsdata/call_transcripts_metadata/transcripts_metadata.csv'
+directory = 'transcriptsdata/call_transcripts/' 
+csv_file_name = 'transcriptsdata/call_transcripts_metadata/transcripts_metadata.csv'
 
 def get_secrets_from_kv(kv_name, secret_name):
     
@@ -37,7 +37,7 @@ def get_secrets_from_kv(kv_name, secret_name):
   # Retrieve the secret value  
   return(secret_client.get_secret(secret_name).value)
 
-search_endpoint = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-ENDPOINT")
+search_endpoint =  get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-ENDPOINT")
 search_key = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
 
 # Use for Phi-3 model endpoint
@@ -56,7 +56,6 @@ client = AzureOpenAI(
         api_key=openai_api_key,  
         api_version=openai_api_version,  
     )  
-
 
 # Create the search index
 from azure.core.credentials import AzureKeyCredential 
@@ -86,6 +85,7 @@ fields = [
     SearchableField(name="chunk_id", type=SearchFieldDataType.String),
     SearchableField(name="content", type=SearchFieldDataType.String),
     SearchableField(name="sourceurl", type=SearchFieldDataType.String),
+    SearchableField(name="client_id", type=SearchFieldDataType.String,filterable=True),
     SearchField(name="contentVector", type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 searchable=True, vector_search_dimensions=1536, vector_search_profile_name="myHnswProfile"),
 ]
@@ -108,7 +108,7 @@ vector_search = VectorSearch(
 semantic_config = SemanticConfiguration(
     name="my-semantic-config",
     prioritized_fields=SemanticPrioritizedFields(
-        keywords_fields=[SemanticField(field_name="chunk_id")],
+        keywords_fields=[SemanticField(field_name="client_id")],
         content_fields=[SemanticField(field_name="content")]
     )
 )
@@ -122,7 +122,8 @@ index = SearchIndex(name=index_name, fields=fields,
 result = index_client.create_or_update_index(index)
 print(f' {result.name} created')
 
-# Function: Get Embeddings 
+
+# Function: Get Embeddings - need to uncomment 
 def get_embeddings(text: str,openai_api_base,openai_api_version,openai_api_key):
     model_id = "text-embedding-ada-002"
     client = AzureOpenAI(
@@ -193,8 +194,6 @@ def get_details(input_text):
             Answer in JSON machine-readable format, using the keys from above. 
             Pretty print the JSON and make sure that it is properly closed at the end and do not generate any other content.'''
 
-            # Identify the single primary complaint of the conversation in 3 words or less, key: complaint. 
-
     # Phi-3 model client
     # response = client.complete(
     #     messages=[
@@ -240,14 +239,14 @@ from azure.storage.filedatalake import (
     FileSystemClient
 )
 
-account_name = get_secrets_from_kv(key_vault_name, "ADLS-ACCOUNT-NAME")
+account_name =  get_secrets_from_kv(key_vault_name, "ADLS-ACCOUNT-NAME")
 
 
 account_url = f"https://{account_name}.dfs.core.windows.net"
 
+# need to check this! 
 credential = DefaultAzureCredential()
 service_client = DataLakeServiceClient(account_url, credential=credential,api_version='2023-01-03') 
-
 
 file_system_client = service_client.get_file_system_client(file_system_client_name)  
 directory_name = directory
@@ -277,7 +276,7 @@ database = get_secrets_from_kv(key_vault_name,"SQLDB-DATABASE")
 username = get_secrets_from_kv(key_vault_name,"SQLDB-USERNAME")
 password = get_secrets_from_kv(key_vault_name,"SQLDB-PASSWORD")
 
-# print(server, database, username, password)
+print(server, database, username, password)
 conn = pymssql.connect(server, username, password, database)
 cursor = conn.cursor()
 print("Connected to the database")
@@ -312,12 +311,11 @@ cursor.execute(create_processed_data_sql)
 conn.commit()
 
 # Read the CSV file into a Pandas DataFrame
-# file_path = csv_file_name
-# print(file_path)
-# file_client = file_system_client.get_file_client(file_path)
-# csv_file = file_client.download_file()
-# df_metadata = pd.read_csv(csv_file, encoding='utf-8')
-# print(df_metadata)  
+file_path = csv_file_name
+print(file_path)
+file_client = file_system_client.get_file_client(file_path)
+csv_file = file_client.download_file()
+df_metadata = pd.read_csv(csv_file, encoding='utf-8')
 
 docs = []
 counter = 0
@@ -345,40 +343,34 @@ for path in paths:
         cursor.execute(f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment) VALUES (%s,%s,%s)", (data['ConversationId'], key_phrase, result['sentiment']))
     
     filename = path.name.split('/')[-1]
-    document_id = data['ConversationId'] #filename.split('convo_', 1)[1].split('_')[0]
-    
-    
+    document_id = filename.replace('.json','').replace('convo_','')
     # print(document_id)
-    # df_file_metadata = df_metadata[df_metadata['ConversationId']==str(document_id)].iloc[0]
-    # print(df_file_metadata)
+    df_file_metadata = df_metadata[df_metadata['ConversationId']==str(document_id)].iloc[0]
+   
     chunks = chunk_data(text)
     chunk_num = 0
     for chunk in chunks:
         chunk_num += 1
         d = {
                 "chunk_id" : document_id + '_' + str(chunk_num).zfill(2),
-                "content": chunk,       
+                "client_id": str(df_file_metadata['ClientId']),
+                "content": 'ClientId is ' + str(df_file_metadata['ClientId']) + ' . '  + chunk,       
             }
 
         counter += 1
 
         try:
-            
-            v_contentVector = get_embeddings(str(d["content"]),openai_api_base,openai_api_version,openai_api_key)
-
+            v_contentVector = get_embeddings(d["content"],openai_api_base,openai_api_version,openai_api_key)
         except:
             time.sleep(30)
-            # print(d["content"])
-            try: 
+            v_contentVector = get_embeddings(d["content"],openai_api_base,openai_api_version,openai_api_key)
 
-                v_contentVector = get_embeddings(str(d["content"]),openai_api_base,openai_api_version,openai_api_key)
-            except: 
-                v_contentVector = []
 
         docs.append(
             {
                     "id": base64.urlsafe_b64encode(bytes(d["chunk_id"], encoding='utf-8')).decode('utf-8'),
                     "chunk_id": d["chunk_id"],
+                    "client_id": d["client_id"],
                     "content": d["content"],
                     "sourceurl": path.name.split('/')[-1],
                     "contentVector": v_contentVector
@@ -668,5 +660,6 @@ for idx, row in df.iterrows():
     # row['ConversationId'] = str(uuid.uuid4())
     cursor.execute(f"INSERT INTO km_processed_data (ConversationId, StartTime, EndTime, Content, summary, satisfied, sentiment, keyphrases, complaint, topic) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (row['ConversationId'], row['StartTime'], row['EndTime'], row['Content'], row['summary'], row['satisfied'], row['sentiment'], row['keyphrases'], row['complaint'], row['topic']))
 conn.commit()
+
 cursor.close()
 conn.close()

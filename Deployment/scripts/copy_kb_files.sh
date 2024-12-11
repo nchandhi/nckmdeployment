@@ -10,9 +10,9 @@ baseUrl="$4"
 # azureSearchAdminKey="$6"
 # azureSearchServiceEndpoint="$7"
 
-zipFileName1="transcriptsdata.zip"
-extractedFolder1="transcriptsdata"
-zipUrl1=${baseUrl}"Deployment/data/transcriptsdata.zip"
+zipFileName1="calltranscripts.zip"
+extractedFolder1="calltranscripts"
+zipUrl1=${baseUrl}"Deployment/data/calltranscripts.zip"
 
 zipFileName2="audiofiles_1.zip"
 extractedFolder2="audiofiles_1"
