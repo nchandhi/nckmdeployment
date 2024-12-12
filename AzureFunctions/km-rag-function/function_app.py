@@ -69,7 +69,7 @@ class ChatWithDataPlugin:
         return answer
 
     
-    @kernel_function(name="ChatWithSQLDatabase", description="Given a query about customer calls, get details from the database")
+    @kernel_function(name="ChatWithSQLDatabase", description="Given a query, get details from the database")
     def get_SQL_Response(
         self,
         input: Annotated[str, "the question"]
@@ -130,7 +130,7 @@ class ChatWithDataPlugin:
         #return sql_query
 
     
-    @kernel_function(name="ChatWithCallTranscripts", description="given a query about calls summary or actions or notes, get answer from search index")
+    @kernel_function(name="ChatWithCallTranscripts", description="given a query, get answers from search index")
     def get_answers_from_calltranscripts(
         self,
         question: Annotated[str, "the question"]
@@ -152,7 +152,7 @@ class ChatWithDataPlugin:
 
         query = question
         system_message = '''You are an assistant who provides an analyst with helpful information about data. 
-        You have access to the call transcripts. 
+        You have access to the call transcripts, call data, topics, sentiments, and key phrases.
         You can use this information to answer questions'''
 
         completion = client.chat.completions.create(

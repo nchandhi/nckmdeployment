@@ -359,18 +359,13 @@ for path in paths:
                 "chunk_id" : document_id + '_' + str(chunk_num).zfill(2),
                 "content": chunk,       
             }
-
         counter += 1
-
         try:
-            
             v_contentVector = get_embeddings(str(d["content"]),openai_api_base,openai_api_version,openai_api_key)
-
         except:
             time.sleep(30)
             # print(d["content"])
             try: 
-
                 v_contentVector = get_embeddings(str(d["content"]),openai_api_base,openai_api_version,openai_api_key)
             except: 
                 v_contentVector = []
@@ -426,9 +421,10 @@ def call_gpt4(topics_str1, client):
         Your task is to analyze the given text corpus and identify distinct topics present within the data.
         {topics_str1}
         1. Identify the key topics in the text using topic modeling techniques. 
-        2. Choose the right number of topics based on data. Try to keep it as low number of topics as possible.
+        2. Choose the right number of topics based on data. Try to keep it up to 8 topics.
         3. Assign a clear and concise label to each topic based on its content.
         4. Provide a brief description of each topic along with its label.
+        5. Add parental controls, billing issues like topics to the list of topics if the data includes calls related to them.
 
         If the input data is insufficient for reliable topic modeling, indicate that more data is needed rather than making assumptions. 
         Ensure that the topics and labels are accurate, relevant, and easy to understand.
@@ -525,7 +521,8 @@ def reduce_data_until_fits(topics_str, max_tokens, client):
     combined_data = ", ".join(reduced_data)
     return reduce_data_until_fits(combined_data, max_tokens, client)
 
-res = reduce_data_until_fits(topics_str, max_tokens, client)
+# res = reduce_data_until_fits(topics_str, max_tokens, client)
+res = call_gpt4(topics_str, client)
 # res = json.loads(res.replace("```json",'').replace("```",''))
 topics_object = res #json.loads(res)
 reduced_data = []
@@ -554,6 +551,7 @@ def get_mined_topic_mapping(input_text, list_of_topics):
     # Construct the prompt  
     prompt = f'''You are a data analysis assistant to help find topic from a given text {input_text} 
              and a list of predefined topics {list_of_topics}.  
+             Always find the topic from the predefined list. Do not add new topics.
             Only return topic and nothing else.'''
 
     # Phi-3 model client
