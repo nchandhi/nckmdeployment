@@ -520,7 +520,8 @@ def reduce_data_until_fits(topics_str, max_tokens, client):
     combined_data = ", ".join(reduced_data)
     return reduce_data_until_fits(combined_data, max_tokens, client)
 
-res = reduce_data_until_fits(topics_str, max_tokens, client)
+# res = reduce_data_until_fits(topics_str, max_tokens, client)
+res = call_gpt4(topics_str, client)
 # res = json.loads(res.replace("```json",'').replace("```",''))
 topics_object = res #json.loads(res)
 reduced_data = []
