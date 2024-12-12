@@ -551,6 +551,7 @@ def get_mined_topic_mapping(input_text, list_of_topics):
     # Construct the prompt  
     prompt = f'''You are a data analysis assistant to help find topic from a given text {input_text} 
              and a list of predefined topics {list_of_topics}.  
+             Always find the topic from the predefined list. Do not add new topics.
             Only return topic and nothing else.'''
 
     # Phi-3 model client
