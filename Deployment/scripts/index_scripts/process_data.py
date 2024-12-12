@@ -421,9 +421,10 @@ def call_gpt4(topics_str1, client):
         Your task is to analyze the given text corpus and identify distinct topics present within the data.
         {topics_str1}
         1. Identify the key topics in the text using topic modeling techniques. 
-        2. Choose the right number of topics based on data. Try to keep it up to 15 topics.
+        2. Choose the right number of topics based on data. Try to keep it up to 8 topics.
         3. Assign a clear and concise label to each topic based on its content.
         4. Provide a brief description of each topic along with its label.
+        5. Add parental controls, billing issues like topics to the list of topics if the data includes calls related to them.
 
         If the input data is insufficient for reliable topic modeling, indicate that more data is needed rather than making assumptions. 
         Ensure that the topics and labels are accurate, relevant, and easy to understand.
