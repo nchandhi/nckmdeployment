@@ -239,3 +239,23 @@ resource ApplicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   kind: 'web'
 }
 
+resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' existing = {
+  name: AZURE_COSMOSDB_ACCOUNT
+}
+
+resource contributorRoleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' existing = {
+  name: '${AZURE_COSMOSDB_ACCOUNT}/00000000-0000-0000-0000-000000000002'
+}
+
+resource role 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-05-15' = {
+  parent: cosmos
+  name: guid(contributorRoleDefinition.id, cosmos.id)
+  properties: {
+    principalId: Website.identity.principalId
+    roleDefinitionId: contributorRoleDefinition.id
+    scope: cosmos.id
+  }
+  dependsOn: [Website]
+}
+
+
