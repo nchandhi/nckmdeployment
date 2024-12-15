@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "2067031612850155795"
+      "templateHash": "3045518934317411326"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "7836615546521528706"
+              "templateHash": "12588136385777033322"
             }
           },
           "parameters": {
@@ -629,6 +629,30 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2021-11-01-preview",
+              "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-CU-ENDPOINT')]",
+              "properties": {
+                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_cu')), '2021-10-01').endpoint]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_cu'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2021-11-01-preview",
+              "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-CU-KEY')]",
+              "properties": {
+                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_cu')), '2021-10-01').key1]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_cu'))]",
                 "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
               ]
             },

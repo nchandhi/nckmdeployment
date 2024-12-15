@@ -523,6 +523,22 @@ resource azureOpenAIEndpointEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-
   }
 }
 
+resource azureOpenAICUEndpointEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE-OPENAI-CU-ENDPOINT'
+  properties: {
+    value: aiServices_CU.properties.endpoint
+  }
+}
+
+resource azureOpenAICUApiKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE-OPENAI-CU-KEY'
+  properties: {
+    value: aiServices_CU.listKeys().key1
+  }
+}
+
 resource azureSearchAdminKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
   name: 'AZURE-SEARCH-KEY'

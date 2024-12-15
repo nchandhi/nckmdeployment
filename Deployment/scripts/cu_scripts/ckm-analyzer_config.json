@@ -23,7 +23,7 @@
       "Duration": {
         "type": "string",
         "method": "generate",
-        "description": "Find out how long the conversation lasted in milliseconds"
+        "description": "Find out how long the conversation lasted in seconds"
       },
       "summary": {
         "type": "string",
