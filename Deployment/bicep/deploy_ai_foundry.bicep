@@ -539,6 +539,14 @@ resource azureOpenAICUApiKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-
   }
 }
 
+resource azureOpenAICUApiVersionEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: keyVault
+  name: 'AZURE-OPENAI-CU-VERSION'
+  properties: {
+    value: '?api-version=2024-12-01-preview'
+  }
+}
+
 resource azureSearchAdminKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
   name: 'AZURE-SEARCH-KEY'

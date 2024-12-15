@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "3045518934317411326"
+      "templateHash": "5071449884442679413"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "12588136385777033322"
+              "templateHash": "13573373178891801042"
             }
           },
           "parameters": {
@@ -653,6 +653,17 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_cu'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2021-11-01-preview",
+              "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-CU-VERSION')]",
+              "properties": {
+                "value": "?api-version=2024-12-01-preview"
+              },
+              "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
               ]
             },
