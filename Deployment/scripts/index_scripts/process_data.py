@@ -684,24 +684,26 @@ create_processed_data_sql = """CREATE TABLE processed_data_key_phrases (
                 ConversationId varchar(255),
                 key_phrase varchar(500), 
                 sentiment varchar(255),
-                topic varchar(255)
+                topic varchar(255), 
+                StartTime1 varchar(255),
             );"""
 cursor.execute(create_processed_data_sql)
 conn.commit()
 
-sql_stmt = 'SELECT ConversationId,key_Phrases,sentiment, mined_topic as topic FROM processed_data'
+sql_stmt = '''select ConversationId, key_phrases, sentiment, mined_topic as topic, StartTime as StartTime1 from processed_data'''
 cursor.execute(sql_stmt)
 rows = cursor.fetchall()
 
-# Generate the SQL query for insertion
-insert_query = f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment,topic) VALUES (%s, %s, %s, %s)"
+column_names = [i[0] for i in cursor.description]
+df = pd.DataFrame(rows, columns=column_names)
+columns_lst = df.columns
 
-# # Perform the bulk insert
-# cursor.executemany(insert_query, rows)
-
-chunk_size = 1000
-for i in range(0, len(rows), chunk_size):
-    cursor.executemany(insert_query, rows[i:i + chunk_size])
+for idx, row in df.iterrows(): 
+    key_phrases = row['key_phrases'].split(',')
+    for key_phrase in key_phrases:
+        key_phrase = key_phrase.strip()
+        cursor.execute(f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment, topic, StartTime1) VALUES (%s,%s,%s,%s,%s)", (row['ConversationId'], key_phrase, row['sentiment'], row['topic'], row['StartTime1']))
+        # print(row['ConversationId'], key_phrase, row['sentiment'],row['topic'], row['StartTime1'])
 
 conn.commit()
 
