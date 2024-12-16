@@ -549,10 +549,14 @@ mined_topics =  ", ".join(mined_topics_list)
 # Function to get the mined topic mapping for a given input text and list of topics
 def get_mined_topic_mapping(input_text, list_of_topics):
     # Construct the prompt  
-    prompt = f'''You are a data analysis assistant to help find topic from a given text {input_text} 
-             and a list of predefined topics {list_of_topics}.  
-             Always find the topic from the predefined list. Do not add new topics.
-            Only return topic and nothing else.'''
+    # prompt = f'''You are a data analysis assistant to help find topic from a given text {input_text} 
+    #          and a list of predefined topics {list_of_topics}.  
+    #          Always find the topic from the predefined list. Do not make any assumptions or add new topics.
+    #         Only return topic and nothing else.'''
+
+    prompt = f'''You are a data analysis assistant to help find the closest topic for a given text {input_text} 
+                from a list of topics - {list_of_topics}.
+                ALLWAYS only return a topic from list - {list_of_topics}. Do not add any other text.'''
 
     # Phi-3 model client
     # response = client.complete(
@@ -586,9 +590,9 @@ df_processed_data = pd.DataFrame(rows, columns=column_names)
 counter = 0
 # call get_mined_topic_mapping function for each row in the dataframe and update the mined_topic column in the database table
 for index, row in df_processed_data.iterrows():
-    mined_topic_str = get_mined_topic_mapping(row['topic'], mined_topics)
+    mined_topic_str = get_mined_topic_mapping(row['topic'], str(mined_topics_list))
     # update the dataframe
-    df_processed_data.at[index, 'mined_topic'] = mined_topic_str
+    # df_processed_data.at[index, 'mined_topic'] = mined_topic_str
     
     cursor.execute(f"UPDATE processed_data SET mined_topic = %s WHERE ConversationId = %s", (mined_topic_str, row['ConversationId']))
     # print(f"Updated mined_topic for ConversationId: {row['ConversationId']}")
@@ -637,6 +641,11 @@ for idx, row in df.iterrows():
         
 conn.commit()
 
+
+# update processed data to be used in RAG
+cursor.execute('DROP TABLE IF EXISTS km_processed_data')
+conn.commit()
+
 create_processed_data_sql = """CREATE TABLE km_processed_data (
                 ConversationId varchar(255) NOT NULL PRIMARY KEY,
                 StartTime varchar(255),
@@ -666,5 +675,35 @@ for idx, row in df.iterrows():
     # row['ConversationId'] = str(uuid.uuid4())
     cursor.execute(f"INSERT INTO km_processed_data (ConversationId, StartTime, EndTime, Content, summary, satisfied, sentiment, keyphrases, complaint, topic) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (row['ConversationId'], row['StartTime'], row['EndTime'], row['Content'], row['summary'], row['satisfied'], row['sentiment'], row['keyphrases'], row['complaint'], row['topic']))
 conn.commit()
+
+# update keyphrase table after the data update
+cursor.execute('DROP TABLE IF EXISTS processed_data_key_phrases')
+conn.commit()
+
+create_processed_data_sql = """CREATE TABLE processed_data_key_phrases (
+                ConversationId varchar(255),
+                key_phrase varchar(500), 
+                sentiment varchar(255),
+                topic varchar(255)
+            );"""
+cursor.execute(create_processed_data_sql)
+conn.commit()
+
+sql_stmt = 'SELECT ConversationId,key_Phrases,sentiment, mined_topic as topic FROM processed_data'
+cursor.execute(sql_stmt)
+rows = cursor.fetchall()
+
+# Generate the SQL query for insertion
+insert_query = f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment,topic) VALUES (%s, %s, %s, %s)"
+
+# # Perform the bulk insert
+# cursor.executemany(insert_query, rows)
+
+chunk_size = 1000
+for i in range(0, len(rows), chunk_size):
+    cursor.executemany(insert_query, rows[i:i + chunk_size])
+
+conn.commit()
+
 cursor.close()
 conn.close()

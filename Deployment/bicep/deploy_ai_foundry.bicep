@@ -47,7 +47,7 @@ var aiModelDeployments = [
     name: 'gpt-4o-mini'
     model: 'gpt-4o-mini'
     sku: {
-      name: 'Standard'
+      name: 'GlobalStandard'
       capacity: 100
     }
     raiPolicyName: 'Microsoft.Default'
@@ -66,7 +66,7 @@ var aiModelDeployments = [
     model: 'text-embedding-ada-002'
     sku: {
       name: 'Standard'
-      capacity: 20
+      capacity: 80
     }
     raiPolicyName: 'Microsoft.Default'
   }

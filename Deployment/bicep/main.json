@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "7090803788827822677"
+      "templateHash": "8274316359168279919"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "13573373178891801042"
+              "templateHash": "5111401197276273420"
             }
           },
           "parameters": {
@@ -183,7 +183,7 @@
                 "name": "gpt-4o-mini",
                 "model": "gpt-4o-mini",
                 "sku": {
-                  "name": "Standard",
+                  "name": "GlobalStandard",
                   "capacity": 100
                 },
                 "raiPolicyName": "Microsoft.Default"
@@ -193,7 +193,7 @@
                 "model": "text-embedding-ada-002",
                 "sku": {
                   "name": "Standard",
-                  "capacity": 20
+                  "capacity": 80
                 },
                 "raiPolicyName": "Microsoft.Default"
               }
