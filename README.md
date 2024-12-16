@@ -18,15 +18,10 @@ This solution accelerator leverages Azure AI Foundry, Azure OpenAI, Microsoft Fa
 
 ### Technical key features
 
-- **Data processing:**
-  - **Content Understanding:** Azure AI Content Understanding helps transform unstructured multimodal data into insights
-  - **Topic Modeling:** Azure OpenAI is used to generates topics by analyzing the conversations while uncovering core patterns and insights
-  - **Microsoft Fabric:** Microsoft Fabric processes both audio and conversation files at scale, leveraging its benefits for efficient and scalable data handling
-- **Summarization and key phrase extraction​:** Azure OpenAI is used to summarize long conversations into concise paragraphs and extract relevant key phrases
-- **Speech transcription and diarization**​: Azure Speech is used to transcribe audio files, including speaker diarization for post-call analytics. Diarization is the process of recognizing and separating individual speakers into mono-channel audio data​
-- **Analytics dashboard​:** The dashboard is implemented using ​react to maximize portability and 
+![image](./Documents/Images/ReadMe/techkeyfeatures.png)
 
-\
+Below is an image of the solution accelerator.
+
 ![image](./Documents/Images/ReadMe/ckm-ui.png)
 
 ### Use case / scenario

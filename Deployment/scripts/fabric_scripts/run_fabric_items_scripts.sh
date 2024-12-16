@@ -43,7 +43,9 @@ sed -i "s/kv_to-be-replaced/${keyvaultName}/g" "create_fabric_items.py"
 sed -i "s/solutionName_to-be-replaced/${solutionName}/g" "create_fabric_items.py"
 sed -i "s/workspaceId_to-be-replaced/${fabricWorkspaceId}/g" "create_fabric_items.py"
 
-sed -i "s/kv_to-be-replaced/${keyvaultName}/g" "notebooks/01_process_data.ipynb"
+# sed -i "s/kv_to-be-replaced/${keyvaultName}/g" "notebooks/01_process_data.ipynb"
+sed -i "s/kv_to-be-replaced/${keyvaultName}/g" "notebooks/cu/create_cu_template.ipynb"
+sed -i "s/kv_to-be-replaced/${keyvaultName}/g" "notebooks/cu/process_cu_data.ipynb"
 
 pip install -r requirements.txt --quiet
 

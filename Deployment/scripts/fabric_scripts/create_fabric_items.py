@@ -5,6 +5,7 @@ import requests
 import pandas as pd
 import os
 from glob import iglob
+import zipfile
 import time
 
 
@@ -22,7 +23,8 @@ workspaceId = "workspaceId_to-be-replaced"
 solutionname = "solutionName_to-be-replaced"
 create_workspace = False
 
-pipeline_notebook_name = 'pipeline_notebook'
+# pipeline_notebook_name = 'pipeline_notebook'
+pipeline_notebook_name = 'cu_pipeline_notebook'
 pipeline_name = 'data_pipeline'
 lakehouse_name = 'lakehouse_' + solutionname
 
@@ -80,9 +82,27 @@ directory_client = file_system_client.get_directory_client(f"{data_path}/{folder
 local_path = 'data/**/*'
 file_names = [f for f in iglob(local_path, recursive=True) if os.path.isfile(f)]
 for file_name in file_names:
-  file_client = directory_client.get_file_client(file_name)
-  with open(file=file_name, mode="rb") as data:
-    file_client.upload_data(data, overwrite=True)
+    # Check if the file is a zip file
+    if file_name.endswith('.zip'):
+        # Extract files from the zip folder
+        with zipfile.ZipFile(file_name, 'r') as zip_ref:
+            extract_dir = f"{file_name}_extracted"
+            zip_ref.extractall(extract_dir)
+        
+        # Upload extracted files
+        extracted_files = [os.path.join(root, file) for root, _, files in os.walk(extract_dir) for file in files]
+        for extracted_file in extracted_files:
+            file_client = directory_client.get_file_client(extracted_file)
+            with open(file=extracted_file, mode="rb") as data:
+                file_client.upload_data(data, overwrite=True)
+    else:
+        # Handle regular files
+        file_client = directory_client.get_file_client(file_name)
+        with open(file=file_name, mode="rb") as data:
+            file_client.upload_data(data, overwrite=True)
+    
+    #only process on zip file
+    break
 
 # #get environments
 # try:
@@ -94,14 +114,15 @@ for file_name in file_names:
 #   env_res_id = ''
 
 #create notebook items
-notebook_names =['pipeline_notebook','01_process_data','02_create_calendar_data']
+# notebook_names =['pipeline_notebook','01_process_data','02_create_calendar_data']
+notebook_names = ['cu_pipeline_notebook', 'create_cu_template', 'process_cu_data']
 # notebook_names =['process_data_new']
 
 # add sleep timer
 time.sleep(120)  # 1 minute
 
 for notebook_name in notebook_names:
-    with open('notebooks/'+ notebook_name +'.ipynb', 'r') as f:
+    with open('notebooks/cu/'+ notebook_name +'.ipynb', 'r') as f:
         notebook_json = json.load(f)
 
     print("lakehouse_res")
