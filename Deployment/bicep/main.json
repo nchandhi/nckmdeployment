@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "10080220759987785236"
+      "templateHash": "2589659362721862312"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5111401197276273420"
+              "templateHash": "5875727216458895068"
             }
           },
           "parameters": {
@@ -199,9 +199,7 @@
               }
             ],
             "containerRegistryNameCleaned": "[replace(variables('containerRegistryName'), '-', '')]",
-            "storageNameCleaned": "[replace(variables('storageName'), '-', '')]",
-            "serverlessModelName": "Phi-3-medium-4k-instruct",
-            "phi3serverlessName": "[format('{0}-{1}', parameters('solutionName'), variables('serverlessModelName'))]"
+            "storageNameCleaned": "[replace(variables('storageName'), '-', '')]"
           },
           "resources": [
             {
@@ -541,28 +539,6 @@
               ]
             },
             {
-              "type": "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints",
-              "apiVersion": "2024-10-01",
-              "name": "[format('{0}/{1}', variables('aiProjectName'), variables('phi3serverlessName'))]",
-              "location": "[variables('location')]",
-              "properties": {
-                "authMode": "Key",
-                "contentSafety": {
-                  "contentSafetyStatus": "Enabled"
-                },
-                "modelSettings": {
-                  "modelId": "[format('azureml://registries/azureml/models/{0}', variables('serverlessModelName'))]"
-                }
-              },
-              "sku": {
-                "name": "Consumption",
-                "tier": "Free"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.MachineLearningServices/workspaces', variables('aiProjectName'))]"
-              ]
-            },
-            {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'TENANT-ID')]",
@@ -578,11 +554,10 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-INFERENCE-ENDPOINT')]",
               "properties": {
-                "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName')), '2024-10-01').inferenceEndpoint.uri]"
+                "value": "TBD"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]",
-                "[resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName'))]"
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
               ]
             },
             {
@@ -590,11 +565,10 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-INFERENCE-KEY')]",
               "properties": {
-                "value": "[listKeys(resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName')), '2024-10-01').primaryKey]"
+                "value": "TBD"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]",
-                "[resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName'))]"
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
               ]
             },
             {
@@ -806,7 +780,7 @@
             },
             "aiInfereceEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName')), '2024-10-01').inferenceEndpoint.uri]"
+              "value": "TBD"
             },
             "aiSearchName": {
               "type": "string",
