@@ -69,7 +69,7 @@ from azure.storage.filedatalake import (
 
 account_name = "onelake" #always onelake
 data_path = f"{lakehouse_name}.Lakehouse/Files/"
-folder_path = "/cu_analyzer_file"
+folder_path = "/"
 
 account_url = f"https://{account_name}.dfs.fabric.microsoft.com"
 service_client = DataLakeServiceClient(account_url, credential=credential)
@@ -107,6 +107,19 @@ for file_name in file_names:
             with open(file=file_name, mode="rb") as data:
                 # print('data', data)
                 file_client.upload_data(data, overwrite=True)
+
+# upload content understanding json file
+local_path = os.path.join("..", "cu_scripts", "*.json")
+print(f"Looking for files in: {local_path}")
+file_names = [f for f in iglob(local_path) if os.path.isfile(f)]
+
+for file_name in file_names:
+  base_name = os.path.basename(file_name)
+  file_client = directory_client.get_file_client(base_name)
+  with open(file=file_name, mode="rb") as data:
+    file_client.upload_data(data, overwrite=True)
+
+
 
 
 # local_path = 'data/**/*'
