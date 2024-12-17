@@ -156,14 +156,14 @@ for file_name in file_names:
 #     #only process on zip file
 #     break
 
-# #get environments
-# try:
-#   fabric_env_url = f"https://api.fabric.microsoft.com/v1/workspaces/{workspaceId}/environments/"
-#   env_res = requests.get(fabric_env_url, headers=fabric_headers)
-#   env_res_id = env_res.json()['value'][0]['id']
-#   # print(env_res.json())
-# except:
-#   env_res_id = ''
+#get environments
+try:
+  fabric_env_url = f"https://api.fabric.microsoft.com/v1/workspaces/{workspaceId}/environments/"
+  env_res = requests.get(fabric_env_url, headers=fabric_headers)
+  env_res_id = env_res.json()['value'][0]['id']
+  # print(env_res.json())
+except:
+  env_res_id = ''
 
 #create notebook items
 # notebook_names =['pipeline_notebook','01_process_data','02_create_calendar_data']
@@ -188,12 +188,12 @@ for notebook_name in notebook_names:
     except:
         pass
     
-    # if env_res_id != '':
-    #     try:
-    #         notebook_json['metadata']['dependencies']['environment']['environmentId'] = env_res_id
-    #         notebook_json['metadata']['dependencies']['environment']['workspaceId'] = lakehouse_res.json()['workspaceId']
-    #     except:
-    #         pass
+    if env_res_id != '':
+        try:
+            notebook_json['metadata']['dependencies']['environment']['environmentId'] = env_res_id
+            notebook_json['metadata']['dependencies']['environment']['workspaceId'] = lakehouse_res.json()['workspaceId']
+        except:
+            pass
 
 
     notebook_base64 = base64.b64encode(json.dumps(notebook_json).encode('utf-8'))
