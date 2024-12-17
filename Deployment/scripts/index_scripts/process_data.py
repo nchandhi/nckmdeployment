@@ -27,16 +27,16 @@ directory = 'calltranscripts'
 # csv_file_name = 'transcriptsdata/call_transcripts_metadata/transcripts_metadata.csv'
 
 def get_secrets_from_kv(kv_name, secret_name):
-    
-  # Set the name of the Azure Key Vault  
-  key_vault_name = kv_name 
-  credential = DefaultAzureCredential()
 
-  # Create a secret client object using the credential and Key Vault name  
-  secret_client =  SecretClient(vault_url=f"https://{key_vault_name}.vault.azure.net/", credential=credential)  
-    
-  # Retrieve the secret value  
-  return(secret_client.get_secrets_from_kv(secret_name).value)
+    # Set the name of the Azure Key Vault  
+    key_vault_name = kv_name 
+    credential = DefaultAzureCredential()
+
+    # Create a secret client object using the credential and Key Vault name  
+    secret_client =  SecretClient(vault_url=f"https://{key_vault_name}.vault.azure.net/", credential=credential)  
+
+    # Retrieve the secret value  
+    return(secret_client.get_secret(secret_name).value)
 
 search_endpoint = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-ENDPOINT")
 search_key =  get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")

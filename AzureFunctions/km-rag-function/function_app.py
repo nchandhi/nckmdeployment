@@ -143,7 +143,7 @@ class ChatWithDataPlugin:
 
         search_endpoint = os.environ.get("AZURE_AI_SEARCH_ENDPOINT") 
         search_key = os.environ.get("AZURE_AI_SEARCH_API_KEY")
-        index_name = os.environ.get("AZURE_SEARCH_INDEX")
+        index_name = os.environ.get("AZURE_AI_SEARCH_INDEX")
 
         client = openai.AzureOpenAI(
             azure_endpoint= endpoint, #f"{endpoint}/openai/deployments/{deployment}/extensions", 
@@ -156,62 +156,64 @@ class ChatWithDataPlugin:
         You have access to the call transcripts, call data, topics, sentiments, and key phrases.
         You can use this information to answer questions.
         If you cannot answer the question, always return - I cannot answer this question from the data available. Please rephrase or add more details.'''
-
-        completion = client.chat.completions.create(
-            model = deployment,
-            messages = [
-                {
-                    "role": "system",
-                    "content": system_message
-                },
-                {
-                    "role": "user",
-                    "content": query
-                }
-            ],
-            seed = 42,
-            temperature = 0,
-            max_tokens = 800,
-            extra_body = {
-                "data_sources": [
+        answer = ''
+        try:
+            completion = client.chat.completions.create(
+                model = deployment,
+                messages = [
                     {
-                        "type": "azure_search",
-                        "parameters": {
-                            "endpoint": search_endpoint,
-                            "index_name": index_name,
-                            "semantic_configuration": "default",
-                            "query_type": "vector_simple_hybrid", #"vector_semantic_hybrid"
-                            "fields_mapping": {
-                                "content_fields_separator": "\n",
-                                "content_fields": ["content"],
-                                "filepath_field": "chunk_id",
-                                "title_field": "", #null,
-                                "url_field": "sourceurl",
-                                "vector_fields": ["contentVector"]
-                            },
-                            "semantic_configuration": 'my-semantic-config',
-                            "in_scope": "true",
-                            "role_information": system_message,
-                            # "vector_filter_mode": "preFilter", #VectorFilterMode.PRE_FILTER,
-                            # "filter": f"client_id eq '{ClientId}'", #"", #null,
-                            "strictness": 3,
-                            "top_n_documents": 5,
-                            "authentication": {
-                                "type": "api_key",
-                                "key": search_key
-                            },
-                            "embedding_dependency": {
-                                "type": "deployment_name",
-                                "deployment_name": "text-embedding-ada-002"
-                            },
-
-                        }
+                        "role": "system",
+                        "content": system_message
+                    },
+                    {
+                        "role": "user",
+                        "content": query
                     }
-                ]
-            }
-        )
+                ],
+                seed = 42,
+                temperature = 0,
+                max_tokens = 800,
+                extra_body = {
+                    "data_sources": [
+                        {
+                            "type": "azure_search",
+                            "parameters": {
+                                "endpoint": search_endpoint,
+                                "index_name": index_name,
+                                "semantic_configuration": "default",
+                                "query_type": "vector_simple_hybrid", #"vector_semantic_hybrid"
+                                "fields_mapping": {
+                                    "content_fields_separator": "\n",
+                                    "content_fields": ["content"],
+                                    "filepath_field": "chunk_id",
+                                    "title_field": "", #null,
+                                    "url_field": "sourceurl",
+                                    "vector_fields": ["contentVector"]
+                                },
+                                "semantic_configuration": 'my-semantic-config',
+                                "in_scope": "true",
+                                "role_information": system_message,
+                                # "vector_filter_mode": "preFilter", #VectorFilterMode.PRE_FILTER,
+                                # "filter": f"client_id eq '{ClientId}'", #"", #null,
+                                "strictness": 3,
+                                "top_n_documents": 5,
+                                "authentication": {
+                                    "type": "api_key",
+                                    "key": search_key
+                                },
+                                "embedding_dependency": {
+                                    "type": "deployment_name",
+                                    "deployment_name": "text-embedding-ada-002"
+                                },
 
-        answer = completion.choices[0].message.content
+                            }
+                        }
+                    ]
+                }
+            )
+            answer = completion.choices[0].message.content
+        except:
+            answer = 'Details could not be retrieved. Please try again later.'
         return answer
 
 # Get data from Azure Open AI
