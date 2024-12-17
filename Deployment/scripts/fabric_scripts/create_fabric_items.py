@@ -68,8 +68,8 @@ from azure.storage.filedatalake import (
 )
 
 account_name = "onelake" #always onelake
-data_path = f"{lakehouse_name}.Lakehouse/Files"
-folder_path = "/"
+data_path = f"{lakehouse_name}.Lakehouse/Files/"
+folder_path = "/cu_analyzer_file"
 
 account_url = f"https://{account_name}.dfs.fabric.microsoft.com"
 service_client = DataLakeServiceClient(account_url, credential=credential)
@@ -79,7 +79,9 @@ file_system_client = service_client.get_file_system_client(workspace_name)
 
 directory_client = file_system_client.get_directory_client(f"{data_path}/{folder_path}")
 
-local_path = 'data/**/*'
+# local_path = 'data/**/*'
+# local_path = local_path = os.path.join("..", "..", "cu_scripts", "*.json")
+local_path = "../../cu_scripts/config.json"
 file_names = [f for f in iglob(local_path, recursive=True) if os.path.isfile(f)]
 for file_name in file_names:
     # Check if the file is a zip file
