@@ -32,10 +32,12 @@ var storageSkuName = 'Standard_LRS'
 var aiServicesName = '${solutionName}-aiservices'
 var aiServicesName_cu = '${solutionName}-aiservices_cu'
 var location_cu = 'westus'
+var aiServicesName_m = '${solutionName}-aiservices_m'
+var location_m = solutionLocation
 var applicationInsightsName = '${solutionName}-appinsights'
 var containerRegistryName = '${solutionName}acr'
 var keyvaultName = '${solutionName}-kv'
-var location = solutionLocation
+var location = 'eastus2' //solutionLocation
 var aiHubName = '${solutionName}-aihub'
 var aiHubFriendlyName = aiHubName
 var aiHubDescription = 'Test'
@@ -125,7 +127,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyvaultName
-  location: location
+  location: solutionLocation
   properties: {
     createMode: 'default'
     accessPolicies: [
@@ -199,6 +201,20 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   }
 }
 
+resource aiServices_m 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
+  name: aiServicesName_m
+  location: location_m
+  sku: {
+    name: 'S0'
+  }
+  kind: 'AIServices'
+  properties: {
+    apiProperties: {
+      statisticsEnabled: false
+    }
+  }
+}
+
 resource aiServices_CU 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
   name: aiServicesName_cu
   location: location_cu
@@ -215,7 +231,7 @@ resource aiServices_CU 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
 
 @batchSize(1)
 resource aiServicesDeployments 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for aiModeldeployment in aiModelDeployments: {
-  parent: aiServices
+  parent: aiServices_m
   name: aiModeldeployment.name
   properties: {
     model: {
@@ -430,26 +446,26 @@ resource aiHubProject 'Microsoft.MachineLearningServices/workspaces@2024-01-01-p
   }
 }
 
-// var serverlessModelName = 'Phi-3-medium-4k-instruct'
-// var phi3serverlessName = '${solutionName}-${serverlessModelName}'
-// resource phi3serverless 'Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-10-01' = {
-//   parent: aiHubProject
-//   location: location
-//   name: phi3serverlessName
-//   properties: {
-//     authMode: 'Key'
-//     contentSafety: {
-//       contentSafetyStatus: 'Enabled'
-//     }
-//     modelSettings: {
-//       modelId: 'azureml://registries/azureml/models/${serverlessModelName}'
-//     }
-//   }
-//   sku: {
-//     name: 'Consumption'
-//     tier: 'Free'
-//   }
-// }
+var serverlessModelName = 'Phi-3-medium-4k-instruct'
+var phi3serverlessName = '${solutionName}-${serverlessModelName}'
+resource phi3serverless 'Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-10-01' = {
+  parent: aiHubProject
+  location: location
+  name: phi3serverlessName
+  properties: {
+    authMode: 'Key'
+    contentSafety: {
+      contentSafetyStatus: 'Enabled'
+    }
+    modelSettings: {
+      modelId: 'azureml://registries/azureml/models/${serverlessModelName}'
+    }
+  }
+  sku: {
+    name: 'Consumption'
+    tier: 'Free'
+  }
+}
 
 resource tenantIdEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: keyVault
@@ -487,7 +503,7 @@ resource azureOpenAIInferenceEndpoint 'Microsoft.KeyVault/vaults/secrets@2021-11
   parent: keyVault
   name: 'AZURE-OPENAI-INFERENCE-ENDPOINT'
   properties: {
-    value: 'TBD' //phi3serverless.properties.inferenceEndpoint.uri
+    value: phi3serverless.properties.inferenceEndpoint.uri
   }
 }
 
@@ -495,7 +511,7 @@ resource azureOpenAIInferenceKey 'Microsoft.KeyVault/vaults/secrets@2021-11-01-p
   parent: keyVault
   name: 'AZURE-OPENAI-INFERENCE-KEY'
   properties: {
-    value: 'TBD' //listKeys(phi3serverless.id, '2024-10-01').primaryKey
+    value: listKeys(phi3serverless.id, '2024-10-01').primaryKey
   }
 }
 
@@ -503,7 +519,7 @@ resource azureOpenAIApiKeyEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-pr
   parent: keyVault
   name: 'AZURE-OPENAI-KEY'
   properties: {
-    value: aiServices.listKeys().key1
+    value: aiServices_m.listKeys().key1
   }
 }
 
@@ -519,7 +535,7 @@ resource azureOpenAIEndpointEntry 'Microsoft.KeyVault/vaults/secrets@2021-11-01-
   parent: keyVault
   name: 'AZURE-OPENAI-ENDPOINT'
   properties: {
-    value: aiServices.properties.endpoint
+    value: aiServices_m.properties.endpoint
   }
 }
 
@@ -632,11 +648,11 @@ output keyvaultId string = keyVault.id
 // output storageName string = storageName
 // output storageContainer string = 'data'
 
-output aiServicesTarget string = aiServices.properties.endpoint
-output aiServicesName string = aiServicesName
-output aiServicesId string = aiServices.id
+output aiServicesTarget string = aiServices_m.properties.endpoint
+output aiServicesName string = aiServicesName_m
+output aiServicesId string = aiServices_m.id
 
-output aiInfereceEndpoint string = 'TBD' //phi3serverless.properties.inferenceEndpoint.uri
+output aiInfereceEndpoint string = phi3serverless.properties.inferenceEndpoint.uri
 
 output aiSearchName string = aiSearchName
 output aiSearchId string = aiSearch.id

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.28.1.47646",
-      "templateHash": "2589659362721862312"
+      "templateHash": "2789949210385492010"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "5875727216458895068"
+              "templateHash": "8704728231929727428"
             }
           },
           "parameters": {
@@ -168,10 +168,12 @@
             "aiServicesName": "[format('{0}-aiservices', parameters('solutionName'))]",
             "aiServicesName_cu": "[format('{0}-aiservices_cu', parameters('solutionName'))]",
             "location_cu": "westus",
+            "aiServicesName_m": "[format('{0}-aiservices_m', parameters('solutionName'))]",
+            "location_m": "[parameters('solutionLocation')]",
             "applicationInsightsName": "[format('{0}-appinsights', parameters('solutionName'))]",
             "containerRegistryName": "[format('{0}acr', parameters('solutionName'))]",
             "keyvaultName": "[format('{0}-kv', parameters('solutionName'))]",
-            "location": "[parameters('solutionLocation')]",
+            "location": "eastus2",
             "aiHubName": "[format('{0}-aihub', parameters('solutionName'))]",
             "aiHubFriendlyName": "[variables('aiHubName')]",
             "aiHubDescription": "Test",
@@ -199,7 +201,9 @@
               }
             ],
             "containerRegistryNameCleaned": "[replace(variables('containerRegistryName'), '-', '')]",
-            "storageNameCleaned": "[replace(variables('storageName'), '-', '')]"
+            "storageNameCleaned": "[replace(variables('storageName'), '-', '')]",
+            "serverlessModelName": "Phi-3-medium-4k-instruct",
+            "phi3serverlessName": "[format('{0}-{1}', parameters('solutionName'), variables('serverlessModelName'))]"
           },
           "resources": [
             {
@@ -306,7 +310,7 @@
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2022-07-01",
               "name": "[variables('keyvaultName')]",
-              "location": "[variables('location')]",
+              "location": "[parameters('solutionLocation')]",
               "properties": {
                 "createMode": "default",
                 "accessPolicies": [
@@ -372,6 +376,21 @@
             {
               "type": "Microsoft.CognitiveServices/accounts",
               "apiVersion": "2021-10-01",
+              "name": "[variables('aiServicesName_m')]",
+              "location": "[variables('location_m')]",
+              "sku": {
+                "name": "S0"
+              },
+              "kind": "AIServices",
+              "properties": {
+                "apiProperties": {
+                  "statisticsEnabled": false
+                }
+              }
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2021-10-01",
               "name": "[variables('aiServicesName_cu')]",
               "location": "[variables('location_cu')]",
               "sku": {
@@ -393,7 +412,7 @@
               },
               "type": "Microsoft.CognitiveServices/accounts/deployments",
               "apiVersion": "2023-05-01",
-              "name": "[format('{0}/{1}', variables('aiServicesName'), variables('aiModelDeployments')[copyIndex()].name)]",
+              "name": "[format('{0}/{1}', variables('aiServicesName_m'), variables('aiModelDeployments')[copyIndex()].name)]",
               "properties": {
                 "model": {
                   "format": "OpenAI",
@@ -406,7 +425,7 @@
                 "capacity": "[variables('aiModelDeployments')[copyIndex()].sku.capacity]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m'))]"
               ]
             },
             {
@@ -539,6 +558,28 @@
               ]
             },
             {
+              "type": "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints",
+              "apiVersion": "2024-10-01",
+              "name": "[format('{0}/{1}', variables('aiProjectName'), variables('phi3serverlessName'))]",
+              "location": "[variables('location')]",
+              "properties": {
+                "authMode": "Key",
+                "contentSafety": {
+                  "contentSafetyStatus": "Enabled"
+                },
+                "modelSettings": {
+                  "modelId": "[format('azureml://registries/azureml/models/{0}', variables('serverlessModelName'))]"
+                }
+              },
+              "sku": {
+                "name": "Consumption",
+                "tier": "Free"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.MachineLearningServices/workspaces', variables('aiProjectName'))]"
+              ]
+            },
+            {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'TENANT-ID')]",
@@ -554,10 +595,11 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-INFERENCE-ENDPOINT')]",
               "properties": {
-                "value": "TBD"
+                "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName')), '2024-10-01').inferenceEndpoint.uri]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]",
+                "[resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName'))]"
               ]
             },
             {
@@ -565,10 +607,11 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-INFERENCE-KEY')]",
               "properties": {
-                "value": "TBD"
+                "value": "[listKeys(resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName')), '2024-10-01').primaryKey]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]",
+                "[resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName'))]"
               ]
             },
             {
@@ -576,10 +619,10 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-KEY')]",
               "properties": {
-                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName')), '2021-10-01').key1]"
+                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m')), '2021-10-01').key1]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m'))]",
                 "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
               ]
             },
@@ -599,10 +642,10 @@
               "apiVersion": "2021-11-01-preview",
               "name": "[format('{0}/{1}', variables('keyvaultName'), 'AZURE-OPENAI-ENDPOINT')]",
               "properties": {
-                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName')), '2021-10-01').endpoint]"
+                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m')), '2021-10-01').endpoint]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m'))]",
                 "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultName'))]"
               ]
             },
@@ -768,19 +811,19 @@
             },
             "aiServicesTarget": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName')), '2021-10-01').endpoint]"
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m')), '2021-10-01').endpoint]"
             },
             "aiServicesName": {
               "type": "string",
-              "value": "[variables('aiServicesName')]"
+              "value": "[variables('aiServicesName_m')]"
             },
             "aiServicesId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName'))]"
+              "value": "[resourceId('Microsoft.CognitiveServices/accounts', variables('aiServicesName_m'))]"
             },
             "aiInfereceEndpoint": {
               "type": "string",
-              "value": "TBD"
+              "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/serverlessEndpoints', variables('aiProjectName'), variables('phi3serverlessName')), '2024-10-01').inferenceEndpoint.uri]"
             },
             "aiSearchName": {
               "type": "string",
@@ -2173,7 +2216,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.28.1.47646",
-              "templateHash": "6032233494428589412"
+              "templateHash": "12757504858641999956"
             }
           },
           "parameters": {
@@ -2416,7 +2459,7 @@
                     },
                     {
                       "name": "AZURE_COSMOSDB_ACCOUNT_KEY",
-                      "value": "[parameters('AZURE_COSMOSDB_ACCOUNT_KEY')]"
+                      "value": ""
                     },
                     {
                       "name": "AZURE_COSMOSDB_CONVERSATIONS_CONTAINER",

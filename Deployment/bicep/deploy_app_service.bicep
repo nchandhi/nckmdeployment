@@ -197,7 +197,7 @@ resource Website 'Microsoft.Web/sites@2020-06-01' = {
           value: AZURE_COSMOSDB_ACCOUNT
         }
         {name: 'AZURE_COSMOSDB_ACCOUNT_KEY'
-          value: AZURE_COSMOSDB_ACCOUNT_KEY
+          value: '' //AZURE_COSMOSDB_ACCOUNT_KEY
         }
         {name: 'AZURE_COSMOSDB_CONVERSATIONS_CONTAINER'
           value: AZURE_COSMOSDB_CONVERSATIONS_CONTAINER
