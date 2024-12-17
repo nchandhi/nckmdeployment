@@ -79,7 +79,7 @@ file_system_client = service_client.get_file_system_client(workspace_name)
 
 directory_client = file_system_client.get_directory_client(f"{data_path}/{folder_path}")
 
-
+print('uploading files')
 # upload audio files
 data_folder_path = os.path.join("..", "..", "data")
 file_names = zip_files = list(iglob(os.path.join(data_folder_path, "audio*.zip")))
@@ -108,16 +108,21 @@ for file_name in file_names:
                 # print('data', data)
                 file_client.upload_data(data, overwrite=True)
 
+
 # upload content understanding json file
+folder_path = '/cu_analyzer_file'
 local_path = os.path.join("..", "cu_scripts", "*.json")
-print(f"Looking for files in: {local_path}")
+
 file_names = [f for f in iglob(local_path) if os.path.isfile(f)]
 
 for file_name in file_names:
   base_name = os.path.basename(file_name)
-  file_client = directory_client.get_file_client(base_name)
+  path = f"{folder_path}/{base_name}"
+
+  file_client = directory_client.get_file_client(path)
   with open(file=file_name, mode="rb") as data:
     file_client.upload_data(data, overwrite=True)
+
 
 
 
