@@ -707,7 +707,7 @@ for idx, row in df.iterrows():
     key_phrases = row['key_phrases'].split(',')
     for key_phrase in key_phrases:
         key_phrase = key_phrase.strip()
-        cursor.execute(f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment, topic, StartTime) VALUES (%s,%s,%s,%s,%s)", (row['ConversationId'], key_phrase, row['sentiment'], row['topic'], row['StartTime1']))
+        cursor.execute(f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment, topic, StartTime) VALUES (%s,%s,%s,%s,%s)", (row['ConversationId'], key_phrase, row['sentiment'], row['topic'], row['StartTime']))
         print(row['ConversationId'], key_phrase, row['sentiment'],row['topic'], row['StartTime1'])
 
 # sql_stmt = 'SELECT ConversationId,key_Phrases,sentiment, mined_topic as topic FROM processed_data'
