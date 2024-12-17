@@ -96,6 +96,7 @@ class ChatWithDataPlugin:
         Columns: ConversationId,EndTime,StartTime,Content,summary,satisfied,sentiment,topic,keyphrases,complaint
         2. Table: processed_data_key_phrases
         Columns: ConversationId,key_phrase,sentiment
+        Use ConversationId as the primary key in tables for queries but not for any other operations.
         Only return the generated sql query. do not return anything else.''' 
         try:
 

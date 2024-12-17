@@ -21,6 +21,7 @@ key_vault_name = 'kv_to-be-replaced'
 
 index_name = "call_transcripts_index"
 
+
 file_system_client_name = "data"
 directory = 'calltranscripts' 
 # csv_file_name = 'transcriptsdata/call_transcripts_metadata/transcripts_metadata.csv'
@@ -35,10 +36,10 @@ def get_secrets_from_kv(kv_name, secret_name):
   secret_client =  SecretClient(vault_url=f"https://{key_vault_name}.vault.azure.net/", credential=credential)  
     
   # Retrieve the secret value  
-  return(secret_client.get_secret(secret_name).value)
+  return(secret_client.get_secrets_from_kv(secret_name).value)
 
 search_endpoint = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-ENDPOINT")
-search_key = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
+search_key =  get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
 
 # Use for Phi-3 model endpoint
 # aistudio_api_key  =  get_secrets_from_kv(key_vault_name,"AZURE-AISTUDIO-API-KEY")
@@ -46,8 +47,8 @@ search_key = get_secrets_from_kv(key_vault_name,"AZURE-SEARCH-KEY")
 # client = ChatCompletionsClient(endpoint=aistudio_api_base, credential=AzureKeyCredential(aistudio_api_key))
 
 # Use for GPT-4 model endpoint and embeddings model endpoint
-openai_api_key  = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-KEY")
-openai_api_base = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-ENDPOINT")
+openai_api_key  =  get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-KEY")
+openai_api_base =  get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-ENDPOINT")
 openai_api_version = get_secrets_from_kv(key_vault_name,"AZURE-OPENAI-PREVIEW-API-VERSION") 
 deployment = "gpt-4o-mini"
 
@@ -240,14 +241,12 @@ from azure.storage.filedatalake import (
     FileSystemClient
 )
 
-account_name = get_secrets_from_kv(key_vault_name, "ADLS-ACCOUNT-NAME")
-
+account_name =  get_secrets_from_kv(key_vault_name, "ADLS-ACCOUNT-NAME")
 
 account_url = f"https://{account_name}.dfs.core.windows.net"
 
 credential = DefaultAzureCredential()
 service_client = DataLakeServiceClient(account_url, credential=credential,api_version='2023-01-03') 
-
 
 file_system_client = service_client.get_file_system_client(file_system_client_name)  
 directory_name = directory
@@ -272,12 +271,12 @@ from datetime import datetime
 
 from azure.keyvault.secrets import SecretClient  
 from azure.identity import DefaultAzureCredential 
-server = get_secrets_from_kv(key_vault_name,"SQLDB-SERVER")
+server =  get_secrets_from_kv(key_vault_name,"SQLDB-SERVER")
 database = get_secrets_from_kv(key_vault_name,"SQLDB-DATABASE")
-username = get_secrets_from_kv(key_vault_name,"SQLDB-USERNAME")
-password = get_secrets_from_kv(key_vault_name,"SQLDB-PASSWORD")
+username =  get_secrets_from_kv(key_vault_name,"SQLDB-USERNAME")
+password =  get_secrets_from_kv(key_vault_name,"SQLDB-PASSWORD")
 
-# print(server, database, username, password)
+# # print(server, database, username, password)
 conn = pymssql.connect(server, username, password, database)
 cursor = conn.cursor()
 print("Connected to the database")
@@ -609,18 +608,20 @@ df = pd.DataFrame(rows, columns=column_names)
 columns_lst = df.columns
 df_append = pd.DataFrame(df, columns=columns_lst)
 days_list = [7, 14, 21, 28, 35, 42]
+rows = [5, 7, 8]
 
-text = 'Billing'
-
+# Define the sentiment values and their probabilities
+sentiment_values = ['Negative', 'Positive', 'Neutral']
+probabilities = [0.7, 0.2, 0.1]  # 70% for value1 and 30% for value2
 
 for idx, row in df.iterrows():
-    for i in range(10):
+    for i in range(random.choice(rows)):
     
         days = random.choice(days_list)
        
-        if text in row['mined_topic'].lstrip():
+        if ('billing' in row['mined_topic'].lstrip().lower()) or ('issue' in row['mined_topic'].lstrip().lower()):
             
-            row['sentiment'] = 'Negative'
+            row['sentiment'] = random.choices(sentiment_values, probabilities)[0] #'Negative'
             row['satisfied'] = 'No'
             row['EndTime'] = pd.to_datetime(row['EndTime']) - pd.to_timedelta(f"{days} days")
             row['StartTime'] = pd.to_datetime(row['StartTime']) - pd.to_timedelta(f"{days} days")
@@ -634,10 +635,9 @@ for idx, row in df.iterrows():
             row['StartTime'] = pd.to_datetime(row['StartTime']) - pd.to_timedelta(f"{days} days")
             row['EndTime'] = row['EndTime'].strftime('%Y-%m-%d %H:%M:%S')
             row['StartTime'] = row['StartTime'].strftime('%Y-%m-%d %H:%M:%S')
-            
-    # write the new row to the processed_data table
+        # write the new row to the processed_data table
         cursor.execute(f"INSERT INTO processed_data (ConversationId, EndTime, StartTime, Content, summary, satisfied, sentiment, topic, key_phrases, complaint, mined_topic) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (row['ConversationId'], row['EndTime'], row['StartTime'], row['Content'], row['summary'], row['satisfied'], row['sentiment'], row['topic'], row['key_phrases'], row['complaint'], row['mined_topic']))
-        # add to search index 
+       
         
 conn.commit()
 
@@ -679,6 +679,7 @@ conn.commit()
 # update keyphrase table after the data update
 cursor.execute('DROP TABLE IF EXISTS processed_data_key_phrases')
 conn.commit()
+print("Dropped processed_data_key_phrases table")
 
 create_processed_data_sql = """CREATE TABLE processed_data_key_phrases (
                 ConversationId varchar(255),
@@ -689,21 +690,39 @@ create_processed_data_sql = """CREATE TABLE processed_data_key_phrases (
             );"""
 cursor.execute(create_processed_data_sql)
 conn.commit()
+print('created processed_data_key_phrases table')
 
 sql_stmt = '''select ConversationId, key_phrases, sentiment, mined_topic as topic, StartTime as StartTime1 from processed_data'''
 cursor.execute(sql_stmt)
 rows = cursor.fetchall()
 
+
 column_names = [i[0] for i in cursor.description]
 df = pd.DataFrame(rows, columns=column_names)
 columns_lst = df.columns
+print(columns_lst)
 
 for idx, row in df.iterrows(): 
+
     key_phrases = row['key_phrases'].split(',')
     for key_phrase in key_phrases:
         key_phrase = key_phrase.strip()
         cursor.execute(f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment, topic, StartTime1) VALUES (%s,%s,%s,%s,%s)", (row['ConversationId'], key_phrase, row['sentiment'], row['topic'], row['StartTime1']))
-        # print(row['ConversationId'], key_phrase, row['sentiment'],row['topic'], row['StartTime1'])
+        print(row['ConversationId'], key_phrase, row['sentiment'],row['topic'], row['StartTime1'])
+
+# sql_stmt = 'SELECT ConversationId,key_Phrases,sentiment, mined_topic as topic FROM processed_data'
+# cursor.execute(sql_stmt)
+# rows = cursor.fetchall()
+
+# # Generate the SQL query for insertion
+# insert_query = f"INSERT INTO processed_data_key_phrases (ConversationId, key_phrase, sentiment,topic) VALUES (%s, %s, %s, %s)"
+
+# # Perform the bulk insert
+# cursor.executemany(insert_query, rows)
+
+# chunk_size = 1000
+# for i in range(0, len(rows), chunk_size):
+#     cursor.executemany(insert_query, rows[i:i + chunk_size])
 
 conn.commit()
 
