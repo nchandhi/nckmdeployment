@@ -68,7 +68,7 @@ from azure.storage.filedatalake import (
 )
 
 account_name = "onelake" #always onelake
-# data_path = f"{lakehouse_name}.Lakehouse/Files/"
+data_path = f"{lakehouse_name}.Lakehouse/Files/"
 folder_path = "/cu_analyzer_file"
 
 account_url = f"https://{account_name}.dfs.fabric.microsoft.com"
