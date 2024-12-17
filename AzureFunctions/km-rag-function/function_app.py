@@ -153,7 +153,8 @@ class ChatWithDataPlugin:
         query = question
         system_message = '''You are an assistant who provides an analyst with helpful information about data. 
         You have access to the call transcripts, call data, topics, sentiments, and key phrases.
-        You can use this information to answer questions'''
+        You can use this information to answer questions.
+        If you cannot answer the question, always return - I cannot answer this question from the data available. Please rephrase or add more details.'''
 
         completion = client.chat.completions.create(
             model = deployment,
