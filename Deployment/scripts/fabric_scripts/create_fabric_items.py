@@ -81,7 +81,7 @@ directory_client = file_system_client.get_directory_client(f"{data_path}/{folder
 
 print('uploading files')
 # upload audio files
-data_folder_path = os.path.join("..", "..", "data", "data")
+data_folder_path = os.path.join("..", "..", "data")
 file_names = zip_files = list(iglob(os.path.join(data_folder_path, "audio*.zip")))
 for file_name in file_names:
     print('file_name: ', file_name)
