@@ -215,8 +215,30 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
         #     order by call_frequency desc
         # ) t1''')
 
-        where_clause = where_clause.replace('sentiment', 'k.sentiment')
-        sql_stmt =  f'''select top 30 key_phrase as text, 
+        # where_clause = where_clause.replace('sentiment', 'k.sentiment')
+        # where_clause = where_clause.replace('StartTime', 'k.StartTime')
+        # sql_stmt =  f'''select top 30 key_phrase as text, 
+        #     'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type,
+        #     call_frequency as size, lower(average_sentiment) as average_sentiment from 
+        #     (
+        #         SELECT TOP 1 WITH TIES
+        #         key_phrase,
+        #         sentiment as average_sentiment,
+        #         COUNT(*) AS call_frequency from
+        #         (
+        #             select key_phrase, k.sentiment, mined_topic from [dbo].[processed_data_key_phrases] as k
+        #             inner join [dbo].[processed_data] as p on k.ConversationId = p.ConversationId 
+        #             {where_clause}
+        #         ) t
+        #         GROUP BY key_phrase, sentiment
+        #         ORDER BY ROW_NUMBER() OVER (PARTITION BY key_phrase ORDER BY COUNT(*) DESC)
+        #     ) t2
+        #     order by call_frequency desc
+        #     '''
+
+        # where_clause = where_clause.replace('sentiment', 'k.sentiment')
+        where_clause = where_clause.replace('mined_topic', 'topic')
+        sql_stmt =  f'''select top 15 key_phrase as text, 
             'KEY_PHRASES' as id, 'Key Phrases' as chart_name, 'wordcloud' as chart_type,
             call_frequency as size, lower(average_sentiment) as average_sentiment from 
             (
@@ -225,9 +247,8 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
                 sentiment as average_sentiment,
                 COUNT(*) AS call_frequency from
                 (
-                    select key_phrase, k.sentiment, mined_topic from [dbo].[processed_data_key_phrases] as k
-                    inner join [dbo].[processed_data] as p on k.ConversationId = p.ConversationId 
-                    {where_clause}
+                    select key_phrase, sentiment from [dbo].[processed_data_key_phrases]  
+                    { where_clause}
                 ) t
                 GROUP BY key_phrase, sentiment
                 ORDER BY ROW_NUMBER() OVER (PARTITION BY key_phrase ORDER BY COUNT(*) DESC)
