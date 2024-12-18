@@ -1,6 +1,6 @@
 # Conversation knowledge mining solution accelerator
 
-MENU: [**USER STORY**](#user-story) \| [**SIMPLE DEPLOY**](#simple-deploy)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) \|
+MENU: [**USER STORY**](#user-story) \| [**QUICK DEPLOY**](#quick-deploy)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) \|
 [**CUSTOMER TRUTH**](#customer-truth)
 
 <h2><img src="./Documents/Images/ReadMe/userStory.png" width="64">
@@ -35,9 +35,10 @@ The sample data used in this repository is synthetic and generated using Azure O
 ### Solution accelerator architecture
 ![image](./Documents/Images/ReadMe/ckm-sol-arch.png)
 
-<h2><img src="./Documents/Images/ReadMe/oneClickDeploy.png" width="64">
+
+<h2><img src="./Documents/Images/ReadMe/quickDeploy.png" width="64">
 <br/>
-Simple deploy
+Quick deploy
 </h2>
 
 ### **Prerequisites**
@@ -61,7 +62,7 @@ To use this solution accelerator, you will need access to an [Azure subscription
 
        -  Solution Prefix - provide a 6 alphanumeric value that will be used to prefix resources
       
-       -  Other Location - location of resources, by default it will use the resource group's location
+       -  Other Location - location of resources (required for Azure SQL and CosmoDB resources)
            
 2.  **Create Fabric workspace**
     1.  Navigate to ([Fabric Workspace](https://app.fabric.microsoft.com/))
@@ -71,7 +72,7 @@ To use this solution accelerator, you will need access to an [Azure subscription
         2.  Provide Description of Workspace (optional)
         3.  Click Apply
     4.  Open Workspace
-    5.  Create Envrionemnt
+    5.  Create Environment
         1.  Click ` + New Item ` (in Workspace)
         2.  Select Environment from list
         3.  Provide name for Environment and click Create
@@ -99,13 +100,6 @@ To use this solution accelerator, you will need access to an [Azure subscription
               2.   workspaceid_param - the workspaceid created in Step 2
               3.   solutionprefix_param - prefix used to append to lakehouse upon creation
 
-
-### Process audio files
-Currently, audio files are not processed during deployment. To manually process audio files, follow these steps:
-- Open the `pipeline_notebook`
-- Comment out cell 2 (only if there are zero files in the `conversation_input` data folder waiting for JSON processing)
-- Uncomment cells 3 and 4
-- Run `pipeline_notebook`
 
 
 ### Upload additional files
@@ -160,7 +154,7 @@ Customer stories coming soon.
 Responsible AI Transparency FAQ 
 </h2>
 
-Please refer to [Transarency FAQ](./TRANSPARENCY_FAQ.md) for responsible AI transparency details of this solution accelerator.
+Please refer to [Transparency FAQ](./TRANSPARENCY_FAQ.md) for responsible AI transparency details of this solution accelerator.
 
 <br/>
 <br/>
