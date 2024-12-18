@@ -50,25 +50,25 @@ zipUrl7=${baseUrl}"Deployment/data/audiofiles_6.zip"
 
 # Download the zip file
 curl --output "$zipFileName1" "$zipUrl1"
-curl --output "$zipFileName2" "$zipUrl2"
-curl --output "$zipFileName3" "$zipUrl3"
-curl --output "$zipFileName4" "$zipUrl4"
-curl --output "$zipFileName5" "$zipUrl5"
-curl --output "$zipFileName6" "$zipUrl6"
-curl --output "$zipFileName7" "$zipUrl7"
 # curl --output "$zipFileName2" "$zipUrl2"
 # curl --output "$zipFileName3" "$zipUrl3"
+# curl --output "$zipFileName4" "$zipUrl4"
+# curl --output "$zipFileName5" "$zipUrl5"
+# curl --output "$zipFileName6" "$zipUrl6"
+# curl --output "$zipFileName7" "$zipUrl7"
+# # curl --output "$zipFileName2" "$zipUrl2"
+# # curl --output "$zipFileName3" "$zipUrl3"
 
 # Extract the zip file
 unzip /mnt/azscripts/azscriptinput/"$zipFileName1" -d /mnt/azscripts/azscriptinput/"$extractedFolder1"
-unzip /mnt/azscripts/azscriptinput/"$zipFileName2" -d /mnt/azscripts/azscriptinput/"$extractedFolder2"
-unzip /mnt/azscripts/azscriptinput/"$zipFileName3" -d /mnt/azscripts/azscriptinput/"$extractedFolder3"
-unzip /mnt/azscripts/azscriptinput/"$zipFileName4" -d /mnt/azscripts/azscriptinput/"$extractedFolder4"
-unzip /mnt/azscripts/azscriptinput/"$zipFileName5" -d /mnt/azscripts/azscriptinput/"$extractedFolder5"
-unzip /mnt/azscripts/azscriptinput/"$zipFileName6" -d /mnt/azscripts/azscriptinput/"$extractedFolder6"
-unzip /mnt/azscripts/azscriptinput/"$zipFileName7" -d /mnt/azscripts/azscriptinput/"$extractedFolder7"
 # unzip /mnt/azscripts/azscriptinput/"$zipFileName2" -d /mnt/azscripts/azscriptinput/"$extractedFolder2"
 # unzip /mnt/azscripts/azscriptinput/"$zipFileName3" -d /mnt/azscripts/azscriptinput/"$extractedFolder3"
+# unzip /mnt/azscripts/azscriptinput/"$zipFileName4" -d /mnt/azscripts/azscriptinput/"$extractedFolder4"
+# unzip /mnt/azscripts/azscriptinput/"$zipFileName5" -d /mnt/azscripts/azscriptinput/"$extractedFolder5"
+# unzip /mnt/azscripts/azscriptinput/"$zipFileName6" -d /mnt/azscripts/azscriptinput/"$extractedFolder6"
+# unzip /mnt/azscripts/azscriptinput/"$zipFileName7" -d /mnt/azscripts/azscriptinput/"$extractedFolder7"
+# # unzip /mnt/azscripts/azscriptinput/"$zipFileName2" -d /mnt/azscripts/azscriptinput/"$extractedFolder2"
+# # unzip /mnt/azscripts/azscriptinput/"$zipFileName3" -d /mnt/azscripts/azscriptinput/"$extractedFolder3"
 
 echo "Script Started"
 
@@ -87,12 +87,12 @@ echo "Script Started"
 
 az storage fs directory upload -f "$fileSystem" --account-name "$storageAccount" -s "$extractedFolder1" --account-key "$accountKey" --recursive
 
-az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder2" --account-key "$accountKey" --pattern '*'
-az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder3" --account-key "$accountKey" --pattern '*'
-az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder4" --account-key "$accountKey" --pattern '*'
-az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder5" --account-key "$accountKey" --pattern '*'
-az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder6" --account-key "$accountKey" --pattern '*'
-az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder7" --account-key "$accountKey" --pattern '*'
+# az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder2" --account-key "$accountKey" --pattern '*'
+# az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder3" --account-key "$accountKey" --pattern '*'
+# az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder4" --account-key "$accountKey" --pattern '*'
+# az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder5" --account-key "$accountKey" --pattern '*'
+# az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder6" --account-key "$accountKey" --pattern '*'
+# az storage blob upload-batch --account-name "$storageAccount" --destination "data/audiofiles" --source /mnt/azscripts/azscriptinput/"$extractedFolder7" --account-key "$accountKey" --pattern '*'
 
 # az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder2" --account-key "$accountKey" --recursive
 # az storage fs directory upload -f "$graphragfileSystem" --account-name "$storageAccount" -s "$extractedFolder3" --account-key "$accountKey" --recursive
