@@ -84,7 +84,7 @@ print('uploading files')
 data_folder_path = os.path.join("..", "..", "data")
 file_names = zip_files = list(iglob(os.path.join(data_folder_path, "audio*.zip")))
 for file_name in file_names:
-    # print('file_name: ', file_name)
+    print('file_name: ', file_name)
     # Check if the file is a zip file
     if file_name.endswith('.zip'):
         # print('checking if filename ends in zip')
@@ -100,6 +100,7 @@ for file_name in file_names:
         file_names = [f for f in iglob(os.path.join(local_path, "**", "*"), recursive=True) if os.path.isfile(f)]
         # print('file_names ex', file_names)
         for file_name in file_names:
+            print('filename')
             upload_file_name = os.path.basename(file_name)
             file_client = directory_client.get_file_client("cu_audio_files_all/" + upload_file_name)
             # with open(file=os.path.join(extract_dir, file_name), mode="rb") as data:
