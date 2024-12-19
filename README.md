@@ -100,6 +100,9 @@ To use this solution accelerator, you will need access to an [Azure subscription
               1.   keyvault_param - the name of the keyvault that was created in Step 1
               2.   workspaceid_param - the workspaceid created in Step 2
               3.   solutionprefix_param - prefix used to append to lakehouse upon creation
+4.  **Add App Authentication**
+   
+    Follow steps in [App Authentication](./Documents/AppAuthentication.md) to configure authenitcation in app service.
 
 
 
