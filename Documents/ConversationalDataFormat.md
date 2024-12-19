@@ -18,7 +18,7 @@ convo_03b0e193-5b55-42d3-a258-b0ff9336ae18_2024-12-05 18_00_00.wav
 
 
 ### JSON File Format
-Contact center conversations may be uploaded directly as text to the `conversation_input` folder in the Fabric lakehouse provided they are in the proper JSON file format. Below is a sample structure of a conversation file. Each sentence or phrase is an individual node followed by summary information for the entire call. These formatted conversation files are smaller size, less costly to process, and faster to process.
+Below is a sample structure of a conversation file. Each sentence or phrase is an individual node followed by summary information for the entire call. These formatted conversation files are smaller size, less costly to process, and faster to process.
 ```json
 {
     "ClientId": "10003",

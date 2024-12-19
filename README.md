@@ -129,8 +129,7 @@ Supporting documentation
 ### How to customize 
 
 If you'd like to customize the accelerator, here are some ways you might do that:
-- Ingest your own [JSON conversation files](./Documents/ConversationalDataFormat.md) by uploading them into the `conversation_input` lakehouse folder and run the data pipeline
-- Ingest your own [audio conversation files](./Documents/ConversationalDataFormat.md) by uploading them into the `audio_input` lakehouse folder and run the data pipeline
+- Ingest your own [audio conversation files](./Documents/ConversationalDataFormat.md) by uploading them into the `cu_audio_files_all` lakehouse folder and run the data pipeline
 
 ### Additional resources
 
