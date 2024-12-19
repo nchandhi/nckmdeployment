@@ -105,13 +105,10 @@ To use this solution accelerator, you will need access to an [Azure subscription
 
 ### Upload additional files
 
-All files JSON and WAV files can be uploaded in the corresponding Lakehouse in the data/Files folder:
-
-- Conversation (JSON files): 
-  Upload JSON files in the *conversation_input* folder.
+All files WAV files can be uploaded in the corresponding Lakehouse in the data/Files folder:
 
 - Audio (WAV files):
-  Upload Audio files in the *audio_input* folder.
+  Upload Audio files in the *cu_audio_files_all* folder.
 
 
 ### Post-deployment
