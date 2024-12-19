@@ -21,7 +21,7 @@
 
 - ### What are the limitations of Conversation Knowledge Mining Solution Accelerator? How can users minimize the impact of Conversation Knowledge Mining Solution Accelerator’s limitations when using the system?
 
-  This solution accelerator can only be used as a sample to accelerate the creation of knowledge mining solutions. The repository showcases a sample scenario of a mortgage lender finding and reviewing documents to use in their work, but they’re still responsible to validate the accuracy and correctness of data extracted for these document and their relevancy for using with customers. It doesn’t provide financial advice, and the use case is meant for demonstration purposes only. Users of the accelerator should review the system prompts provided and update as per their organizational guidance. Users should run their own evaluation flow either using the guidance provided in the GitHub repository or their choice of evaluation methods. AI generated content in the solution may be inaccurate and should be manually reviewed by the user and does not provide financial guidance or advice. Right now, the sample repository is available in English only.
+  This solution accelerator can only be used as a sample to accelerate the creation of knowledge mining solutions. Users of the accelerator should review the system prompts provided and update as per their organizational guidance. AI generated content in the solution may be inaccurate and should be manually reviewed by the user. Right now, the sample repository is available in English only.
 
 - ### What operational factors and settings allow for effective and responsible use of Conversation Knowledge Mining Solution Accelerator?
 

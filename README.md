@@ -14,7 +14,6 @@ This solution accelerator enables customers with large amounts of conversational
 
 This solution accelerator leverages Azure AI Foundry, Azure OpenAI, Microsoft Fabric, and Azure Search to transform large volumes of conversational data into actionable insights through topic modeling, key phrase extraction, speech-to-text transcription, and interactive chat experiences.
 
-**Version history:** An updated version of the Conversation Knowledge Mining solution accelerator was published on xx/xx/xxxx. If you deployed the accelerator prior to that date, please see “Version history” in the [Supporting documentation](#supporting-documentation) section.
 
 ### Technical key features
 
@@ -141,6 +140,7 @@ If you'd like to customize the accelerator, here are some ways you might do that
 - [Azure AI Foundry documentation](https://learn.microsoft.com/en-us/azure/ai-studio/)
 - [Speech service documentation - Tutorials, API Reference - Azure AI services - Azure AI services | Microsoft Learn](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/)
 
+**Version history:** An updated version of the Conversation Knowledge Mining solution accelerator was published on xx/xx/xxxx. If you deployed the accelerator prior to that date, please see “Version history” in the [Supporting documentation](#supporting-documentation) section.
 
 ### Version history
 An updated version of the Conversation Knowledge Mining (CKM) solution accelerator was published on 08/15/2024. If you deployed the accelerator prior to that date, please note that CKM v2 cannot be deployed over CKM v1. Please also note that the CKM v2 .json conversation file format has been revised to include additional metadata, therefore CKM v1 files are no longer compatible. For resources related to CKM v1, please visit our archive ([link-to-archive](https://github.com/microsoft/Customer-Service-Conversational-Insights-with-Azure-OpenAI-Services/tree/ckm-v1)).
