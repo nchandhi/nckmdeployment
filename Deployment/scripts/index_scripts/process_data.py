@@ -726,5 +726,23 @@ for idx, row in df.iterrows():
 
 conn.commit()
 
+# to adjust the dates to current date
+# Get today's date
+today = datetime.today()
+# Get the max StartTime from the processed_data table
+cursor.execute("SELECT MAX(CAST(StartTime AS DATETIME)) FROM [dbo].[processed_data]")
+max_start_time = cursor.fetchone()[0]
+# Calculate the days difference
+days_difference = (today - max_start_time).days - 1 if max_start_time else 0
+
+# Update processed_data table
+cursor.execute(f"UPDATE [dbo].[processed_data] SET StartTime = FORMAT(DATEADD(DAY, %s, StartTime), 'yyyy-MM-dd HH:mm:ss'), EndTime = FORMAT(DATEADD(DAY, %s, EndTime), 'yyyy-MM-dd HH:mm:ss')", (days_difference, days_difference))
+# Update km_processed_data table
+cursor.execute(f"UPDATE [dbo].[km_processed_data] SET StartTime = FORMAT(DATEADD(DAY, %s, StartTime), 'yyyy-MM-dd HH:mm:ss'), EndTime = FORMAT(DATEADD(DAY, %s, EndTime), 'yyyy-MM-dd HH:mm:ss')", (days_difference, days_difference))
+# Update processed_data_key_phrases table
+cursor.execute(f"UPDATE [dbo].[processed_data_key_phrases] SET StartTime = FORMAT(DATEADD(DAY, %s, StartTime), 'yyyy-MM-dd HH:mm:ss')", (days_difference,))
+# Commit the changes
+conn.commit()
+
 cursor.close()
 conn.close()
