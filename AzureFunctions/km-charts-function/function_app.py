@@ -29,7 +29,6 @@ def get_metrics(req: func.HttpRequest) -> func.HttpResponse:
 
     # Adjust the dates to the current date
     today = datetime.today()
-    print(today)
     cursor.execute("SELECT MAX(CAST(StartTime AS DATETIME)) FROM [dbo].[processed_data]")
     max_start_time = cursor.fetchone()[0]
     
