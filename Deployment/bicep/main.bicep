@@ -86,7 +86,6 @@ module uploadFiles 'deploy_upload_files_script.bicep' = {
     baseUrl: baseUrl
     storageAccountName: storageAccount.outputs.storageName
     containerName: storageAccount.outputs.storageContainer
-    storageAccountKey:keyVault.getSecret('ADLS-ACCOUNT-KEY')
     managedIdentityObjectId:managedIdentityModule.outputs.managedIdentityOutput.id
   }
   dependsOn:[storageAccount,keyVault]
